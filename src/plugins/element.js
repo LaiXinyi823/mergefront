@@ -1,15 +1,23 @@
-import Vue from 'vue'
-import { Button, Container, Header, Menu, Submenu, MenuItemGroup, MenuItem, RadioButton, RadioGroup, Input, Aside, Main } from 'element-ui'
+import Vue from 'vue';
+import { Button, Container, Header, Menu, Submenu, MenuItemGroup, MenuItem, RadioButton, RadioGroup, Input, Aside, Main, Avatar, Card, Divider, Popconfirm, Table, Image, TableColumn, InputNumber } from 'element-ui';
 
-Vue.use(Button)
-Vue.use(Container)
-Vue.use(Header)
-Vue.use(Menu)
-Vue.use(Submenu)
-Vue.use(MenuItemGroup)
-Vue.use(MenuItem)
-Vue.use(RadioButton)
-Vue.use(RadioGroup)
-Vue.use(Input)
-Vue.use(Aside)
-Vue.use(Main)
+Vue.use(Button);
+Vue.use(Container);
+Vue.use(Header);
+Vue.use(Menu);
+Vue.use(Submenu);
+Vue.use(MenuItemGroup);
+Vue.use(MenuItem);
+Vue.use(RadioButton);
+Vue.use(RadioGroup);
+Vue.use(Input);
+Vue.use(Aside);
+Vue.use(Main);
+Vue.use(Avatar);
+Vue.use(Card);
+Vue.use(Divider);
+Vue.use(Popconfirm);
+Vue.use(Table);
+Vue.use(Image);
+Vue.use(TableColumn);
+Vue.use(InputNumber);

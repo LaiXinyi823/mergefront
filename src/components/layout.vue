@@ -1,8 +1,17 @@
 <template>
-  <div class="header">
-    <span class="el-icon-kg">&#xe918;</span>
-    <h2 class="title">专业知识图谱编辑工具</h2>
-
+  <div>
+    <!-- 系统平台头部 -->
+    <div class="header">
+      <span class="el-icon-kg">&#xe918;</span>
+      <h2 class="title">专业知识图谱编辑工具</h2>
+      <div class="demo-basic--circle">
+          <div class="block" @click="info('/home/merge')">
+            <!-- 头像 -->
+            <el-avatar :size="30" :src="circleUrl" ></el-avatar>
+          </div>
+      </div>
+    </div>
+    <!-- 导航栏 -->
     <div class="nav">
       <el-container>
           <el-menu router
@@ -36,7 +45,18 @@
                 <span slot="title">文本生成</span>
               </el-menu-item>
           </el-menu>
-        <router-view></router-view>
+
+          <!-- 文本生成及图谱融合-子路由 -->
+          <div class='right-content'>
+            <!-- 文本输入框 -->
+            <router-view name="textinput"></router-view>
+            <!-- 知识图谱子图显示模块 -->
+            <router-view name="childKG"></router-view>
+          </div>
+          <div class='right-right-content'>
+              <!-- 融合后的知识图谱显示模块 -->
+              <router-view name="originKG"></router-view>
+          </div>
       </el-container>
     </div>
   </div>
@@ -46,31 +66,32 @@
 export default {
   data () {
     return {
-      isCollapse: true
-    }
+      isCollapse: true,
+      circleUrl: 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png'
+    };
   },
   methods: {
     handleOpen (key, keyPath) {
-      console.log(key, keyPath)
+      console.log(key, keyPath);
     },
     handleClose (key, keyPath) {
-      console.log(key, keyPath)
+      console.log(key, keyPath);
     },
-    goTo (path) {
-      this.$router.replace(path)
+    info  (path) {
+      this.$router.replace(path);
     }
   }
-}
+};
 </script>
 
 <style lang="less" scoped>
 .header {
   background-color: #fff;
-  height: 8%;
+  height: 10%;
   padding: 0px;
-  margin-left: 15px;
+  margin-left: 20px;
   margin-top: 10px;
-  margin-right: 10px;
+  margin-right: 20px;
 }
 
 .el-icon-kg {
@@ -83,7 +104,7 @@ export default {
   font-family: "Microsoft YaHei";
   color: #1e90ff;
   position: absolute;
-  left: 60px;
+  left: 5%;
   top: 0;
 }
 
@@ -96,14 +117,33 @@ export default {
 
 .nav {
   position: absolute;
+  width: 100%;
   height: 100%;
-  margin-top: 20px;
-  margin-left: 0;
+  margin-top: 10px;
+  margin-left: 10px;
 }
 
 .content {
   background-color: #fff;
   width: 60%;
   height: 80%;
+}
+
+.block{
+  position: absolute;
+  right: 50px;
+  top: 20px;
+}
+
+.right-content {
+  width: 50%;
+  margin-bottom: 0;
+  margin-left: 10px;
+}
+
+.right-right-content{
+  width: 100%;
+  margin-left: 15px;
+  margin-bottom: 0;
 }
 </style>
