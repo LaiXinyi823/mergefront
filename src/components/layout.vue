@@ -40,17 +40,17 @@
                 <el-menu-item index="1-4-1">选项1</el-menu-item>
               </el-submenu> -->
             <!-- </el-submenu> -->
-              <el-menu-item index="/home/edit">
+              <el-menu-item index="/home/edit" @click="show('/home/edit')">
                 <i class="el-icon-share"></i>
                 <span slot="title">知识图谱编辑</span>
               </el-menu-item>
-              <el-menu-item index="/home/merge">
+              <el-menu-item index="/home/merge" @click="show('/home/merge')">
                 <i class="el-icon-edit-outline"></i>
                 <span slot="title">文本生成</span>
               </el-menu-item>
           </el-menu>
           <!-- 文本生成及图谱融合-子路由 -->
-          <div class="right-content">
+          <div v-if="funt=='edit'" class="right-content">
             <div class="child-1" style="float:left;">
               <!-- 知识图谱编辑搜索模块 -->
               <router-view name="search"></router-view>
@@ -60,24 +60,20 @@
             <div class="child-2" style="float:left;">
               <router-view name="KG"></router-view>
             </div>
-            <div class="child-3">
+          </div>
+          <!-- 文本生成及图谱融合-子路由 -->
+          <div v-if="funt=='merge'" class="right-content">
+            <div class="child-3" style="float:left;">
               <!-- 文本输入框 -->
               <router-view name="textinput"></router-view>
               <!-- 文本生成子图显示模块 -->
               <router-view name="childKG"></router-view>
             </div>
-            <div class="child-4">
+            <div class="child-4" style="float:left;">
+              <!-- 待融合显示模块 -->
               <router-view name="originKG"></router-view>
             </div>
           </div>
-          <!-- <div class='right-right-content2' style="float:left;"> -->
-              <!-- 融合后的知识图谱显示模块 -->
-              <!-- <router-view name="KG"></router-view>
-              <div class='right-right-content1'> -->
-                  <!-- 融合后的知识图谱显示模块 -->
-                  <!-- <router-view name="originKG"></router-view>
-              </div> -->
-          <!-- </div> -->
       </el-container>
     </div>
   </div>
@@ -88,7 +84,8 @@ export default {
   data () {
     return {
       isCollapse: true,
-      circleUrl: 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png'
+      circleUrl: 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png',
+      funt: 'edit'
     };
   },
   methods: {
@@ -100,6 +97,13 @@ export default {
     },
     info  (path) {
       this.$router.replace(path);
+    },
+    show (path) {
+      if (path === '/home/edit') {
+        this.funt = 'edit';
+      } else {
+        this.funt = 'merge';
+      }
     }
   }
 };
@@ -176,15 +180,15 @@ export default {
 }
 
 .child-3{
-  width: 50%;
+  width: 40%;
   margin-bottom: 0;
   margin-left: 10px;
 }
 
 .child-4{
-  width: 80%;
+  width: 50%;
   margin-bottom: 0;
-  margin-left: 10px;
+  margin-left: 40px;
 }
 
 .right-right-content2{
