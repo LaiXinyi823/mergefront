@@ -22,41 +22,62 @@
             @close="handleClose"
             :collapse="false"
           >
-            <el-submenu index="1">
+            <!-- <el-submenu index="1">
               <template slot="title">
                 <i class="el-icon-share"></i>
                 <span slot="title">知识图谱编辑</span>
-              </template>
-              <el-menu-item-group>
+              </template> -->
+              <!-- <el-menu-item-group>
                 <span slot="title">分组一</span>
                 <el-menu-item index="1-1">选项1</el-menu-item>
                 <el-menu-item index="1-2">选项2</el-menu-item>
-              </el-menu-item-group>
-              <el-menu-item-group title="分组2">
+              </el-menu-item-group> -->
+              <!-- <el-menu-item-group title="分组2">
                 <el-menu-item index="1-3">选项3</el-menu-item>
               </el-menu-item-group>
               <el-submenu index="1-4">
                 <span slot="title">选项4</span>
                 <el-menu-item index="1-4-1">选项1</el-menu-item>
-              </el-submenu>
-            </el-submenu>
+              </el-submenu> -->
+            <!-- </el-submenu> -->
+              <el-menu-item index="/home/edit">
+                <i class="el-icon-share"></i>
+                <span slot="title">知识图谱编辑</span>
+              </el-menu-item>
               <el-menu-item index="/home/merge">
                 <i class="el-icon-edit-outline"></i>
                 <span slot="title">文本生成</span>
               </el-menu-item>
           </el-menu>
-
           <!-- 文本生成及图谱融合-子路由 -->
-          <div class='right-content'>
-            <!-- 文本输入框 -->
-            <router-view name="textinput"></router-view>
-            <!-- 知识图谱子图显示模块 -->
-            <router-view name="childKG"></router-view>
-          </div>
-          <div class='right-right-content'>
-              <!-- 融合后的知识图谱显示模块 -->
+          <div class="right-content">
+            <div class="child-1" style="float:left;">
+              <!-- 知识图谱编辑搜索模块 -->
+              <router-view name="search"></router-view>
+              <!-- 实体搜索结果模块 -->
+              <router-view name="entityResult"></router-view>
+            </div>
+            <div class="child-2" style="float:left;">
+              <router-view name="KG"></router-view>
+            </div>
+            <div class="child-3">
+              <!-- 文本输入框 -->
+              <router-view name="textinput"></router-view>
+              <!-- 文本生成子图显示模块 -->
+              <router-view name="childKG"></router-view>
+            </div>
+            <div class="child-4">
               <router-view name="originKG"></router-view>
+            </div>
           </div>
+          <!-- <div class='right-right-content2' style="float:left;"> -->
+              <!-- 融合后的知识图谱显示模块 -->
+              <!-- <router-view name="KG"></router-view>
+              <div class='right-right-content1'> -->
+                  <!-- 融合后的知识图谱显示模块 -->
+                  <!-- <router-view name="originKG"></router-view>
+              </div> -->
+          <!-- </div> -->
       </el-container>
     </div>
   </div>
@@ -136,14 +157,39 @@ export default {
 }
 
 .right-content {
+  width: 100%;
+  margin-bottom: 0;
+  margin-left: 10px;
+}
+
+.child-1{
+  width: 15%;
+  margin-bottom: 0;
+  margin-left: 10px;
+}
+
+.child-2{
+  width: 80%;
+  height: 100%;
+  margin-bottom: 0;
+  margin-left: 40px;
+}
+
+.child-3{
   width: 50%;
   margin-bottom: 0;
   margin-left: 10px;
 }
 
-.right-right-content{
+.child-4{
+  width: 80%;
+  margin-bottom: 0;
+  margin-left: 10px;
+}
+
+.right-right-content2{
   width: 100%;
-  margin-left: 15px;
+  margin-left: 5px;
   margin-bottom: 0;
 }
 </style>

@@ -1,5 +1,5 @@
 import Vue from 'vue';
-import { Button, Container, Header, Menu, Submenu, MenuItemGroup, MenuItem, RadioButton, RadioGroup, Input, Aside, Main, Avatar, Card, Divider, Popconfirm, Table, Image, TableColumn, InputNumber } from 'element-ui';
+import { Button, Container, Header, Menu, Submenu, MenuItemGroup, MenuItem, RadioButton, RadioGroup, Input, Aside, Main, Avatar, Card, Divider, Popconfirm, Table, Image, TableColumn, InputNumber, Select, Option } from 'element-ui';
 
 Vue.use(Button);
 Vue.use(Container);
@@ -21,3 +21,5 @@ Vue.use(Table);
 Vue.use(Image);
 Vue.use(TableColumn);
 Vue.use(InputNumber);
+Vue.use(Select);
+Vue.use(Option);
