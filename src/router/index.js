@@ -19,6 +19,10 @@ export default new VueRouter({
       redirect: '/login'
     },
     {
+      path: '/logout',
+      redirect: '/login'
+    },
+    {
       path: '/home',
       redirect: '/home/edit'
     },
@@ -47,7 +51,8 @@ export default new VueRouter({
           entityResult: entityResult,
           KG: KG
         }
-      }]
+      }
+    ]
     }
   ]
 });

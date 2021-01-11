@@ -16,33 +16,81 @@
           </el-select>
           <el-button type="primary" icon="el-icon-check" size="mini" style="margin-left:10px;margin-top:5px;" circle></el-button>
           <div style="margin-left:30%;">
-            <el-button type="primary" style="margin-left:10px;margin-top:20px;" @click="dialogFormVisible = true" round>添加新节点</el-button>
-            <el-button type="primary" round>添加源节点</el-button>
-            <el-button type="primary" round>添加终节点</el-button>
+            <el-button type="primary" style="margin-left:10px;margin-top:20px;" @click="newEntity = true" round>添加新节点</el-button>
+            <el-button type="primary" @click="startEntity = true" round>添加源节点</el-button>
+            <el-button type="primary" @click="endEntity = true" round>添加终节点</el-button>
           </div>
-          <!-- <el-dialog title="收货地址" :visible.sync="dialogFormVisible">
+          <el-dialog title="添加新节点" :visible.sync="newEntity">
             <el-form :model="form">
-                <el-form-item label="活动名称" :label-width="formLabelWidth">
-                <el-input v-model="form.name" autocomplete="off"></el-input>
+                <el-form-item label="实体名称" :label-width="formLabelWidth">
+                <el-input v-model="form.entityName" autocomplete="off"></el-input>
                 </el-form-item>
-                <el-form-item label="活动区域" :label-width="formLabelWidth">
-                <el-select v-model="form.region" placeholder="请选择活动区域">
-                    <el-option label="区域一" value="shanghai"></el-option>
-                    <el-option label="区域二" value="beijing"></el-option>
+                <el-form-item label="实体类型" :label-width="formLabelWidth">
+                <el-select v-model="form.entityType" placeholder="请选择实体类型">
+                    <el-option label="数据集" value="shanghai"></el-option>
+                    <el-option label="处理任务" value="beijing"></el-option>
                 </el-select>
                 </el-form-item>
             </el-form>
             <div slot="footer" class="dialog-footer">
-                <el-button @click="dialogFormVisible = false">取 消</el-button>
-                <el-button type="primary" @click="dialogFormVisible = false">确 定</el-button>
+                <el-button @click="newEntity = false">取 消</el-button>
+                <el-button type="primary" @click="newEntity = false">确 定</el-button>
             </div>
-          </el-dialog> -->
+          </el-dialog>
+          <el-dialog title="添加源节点" :visible.sync="startEntity">
+            <el-form :model="form">
+                <el-form-item label="起点实体名称" :label-width="formLabelWidth">
+                <el-input v-model="form.entityName" autocomplete="off"></el-input>
+                </el-form-item>
+                <el-form-item label="起点实体类型" :label-width="formLabelWidth">
+                <el-select v-model="form.entityType
+                " placeholder="请选择实体类型">
+                    <el-option label="数据集" value="shanghai"></el-option>
+                    <el-option label="处理任务" value="beijing"></el-option>
+                </el-select>
+                </el-form-item>
+                <el-form-item label="关系类型" :label-width="formLabelWidth">
+                <el-select v-model="form.relationType" placeholder="请选择关系类型">
+                    <el-option label="同指关系" value="shanghai"></el-option>
+                    <el-option label="应用关系" value="beijing"></el-option>
+                </el-select>
+                </el-form-item>
+            </el-form>
+            <div slot="footer" class="dialog-footer">
+                <el-button @click="startEntity = false">取 消</el-button>
+                <el-button type="primary" @click="startEntity = false">确 定</el-button>
+            </div>
+          </el-dialog>
+          <el-dialog title="添加终节点" :visible.sync="endEntity">
+            <el-form :model="form">
+                <el-form-item label="终点实体名称" :label-width="formLabelWidth">
+                <el-input v-model="form.entityName" autocomplete="off"></el-input>
+                </el-form-item>
+                <el-form-item label="终点实体类型" :label-width="formLabelWidth">
+                <el-select v-model="form.entityType" placeholder="请选择实体类型">
+                    <el-option label="数据集" value="shanghai"></el-option>
+                    <el-option label="处理任务" value="beijing"></el-option>
+                </el-select>
+                </el-form-item>
+                <el-form-item label="关系类型" :label-width="formLabelWidth">
+                <el-select v-model="form.relationType" placeholder="请选择关系类型">
+                    <el-option label="同指关系" value="shanghai"></el-option>
+                    <el-option label="应用关系" value="beijing"></el-option>
+                </el-select>
+                </el-form-item>
+            </el-form>
+            <div slot="footer" class="dialog-footer">
+                <el-button @click="endEntity = false">取 消</el-button>
+                <el-button type="primary" @click="endEntity = false">确 定</el-button>
+            </div>
+          </el-dialog>
           <div class="block">
             <el-image :src="src"></el-image>
           </div>
           <el-table
             :data="tableData"
             border
+            height="300"
             style="width: 100%">
             <el-table-column
               fixed
@@ -110,8 +158,15 @@ export default {
         value: '选项3',
         label: '对比关系'
       }],
-      dialogTableVisible: false,
-      dialogFormVisible: false,
+      newEntity: false,
+      startEntity: false,
+      endEntity: false,
+      formLabelWidth: '120px',
+      form: {
+        entityName: '',
+        entityType: '',
+        relationType: '',
+      },
       value: '',
       tableData: [{
         order: '1',
