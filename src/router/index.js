@@ -7,6 +7,7 @@ import originKG from '@/components/originKG.vue';
 import search from '@/components/search.vue';
 import entityResult from '@/components/entityResult.vue';
 import KG from '@/components/KG.vue';
+import login from '@/components/login.vue';
 
 Vue.use(VueRouter);
 
@@ -15,7 +16,20 @@ export default new VueRouter({
   routes: [
     {
       path: '/',
-      redirect: '/home'
+      redirect: '/login'
+    },
+    {
+      path: '/logout',
+      redirect: '/login'
+    },
+    {
+      path: '/home',
+      redirect: '/home/edit'
+    },
+    {
+      // 登录页
+      path: '/login',
+      component: login
     },
     { // 首页
       path: '/home',
@@ -37,7 +51,8 @@ export default new VueRouter({
           entityResult: entityResult,
           KG: KG
         }
-      }]
+      }
+    ]
     }
   ]
 });
