@@ -8,6 +8,9 @@ import search from '@/components/search.vue';
 import entityResult from '@/components/entityResult.vue';
 import KG from '@/components/KG.vue';
 import login from '@/components/login.vue';
+import register from '@/components/register.vue';
+import myProject from '@/components/myProject.vue';
+import myGraph from '@/components/myGraph.vue';
 
 Vue.use(VueRouter);
 
@@ -18,13 +21,19 @@ export default new VueRouter({
       path: '/',
       redirect: '/login'
     },
+    // 注销跳转
     {
       path: '/logout',
       redirect: '/login'
     },
     {
       path: '/home',
-      redirect: '/home/edit'
+      redirect: '/home/myproject'
+    },
+    // 注册页
+    {
+      path: '/register',
+      component:register
     },
     {
       // 登录页
@@ -34,9 +43,30 @@ export default new VueRouter({
     { // 首页
       path: '/home',
       component: layout,
-      children: [{
+      children: [
+      {
+        // 我的项目
+        path: '/home/myproject',
+        component: myProject
+      },
+      {
+        // 我的数据
+        path: '/home/mydata',
+        component: myGraph
+      },
+      {
+        // 我的图谱
+        path: '/home/mygraph',
+        component: myGraph
+      },
+      {
+        // 我的模型
+        path: '/home/mymodel',
+        component: myGraph
+      },
+      {
         // 文本生成融合
-        path: '/home/merge',
+        path: '/home/mergeKG',
         components: {
           textinput: textinput,
           childKG: childKG,
@@ -45,7 +75,7 @@ export default new VueRouter({
       },
       {
         // 知识图谱编辑
-        path: '/home/edit',
+        path: '/home/editKG',
         components: {
           search: search,
           entityResult: entityResult,

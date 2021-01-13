@@ -1,18 +1,22 @@
 <template>
-    <el-container>
-        <el-aside width="500px">
-          <el-card shadow="always">
-            <h5 style="margin:0;display:inline;width:50px;">输入文本</h5>
-            <el-divider content-position="left" style="margin:15px"></el-divider>
-            <el-input
-            type="textarea"
-            :rows="3"
-            placeholder="请输入待生成知识图谱的文本内容"
-            v-model="textarea"
-            class="textinput"
-            >
-            </el-input>
-            <!-- <el-popconfirm
+  <el-container>
+    <el-aside width="500px">
+      <el-card shadow="always">
+        <h5 style="margin:0;display:inline;width:50px;">
+          输入文本
+        </h5>
+        <el-divider
+          content-position="left"
+          style="margin:15px"
+        />
+        <el-input
+          type="textarea"
+          :rows="3"
+          placeholder="请输入待生成知识图谱的文本内容"
+          v-model="textarea"
+          class="textinput"
+        />
+        <!-- <el-popconfirm
             confirm-button-text='好的'
             cancel-button-text='不用了'
             icon="el-icon-info"
@@ -21,10 +25,15 @@
             >
             <el-button slot="reference" style=“float:left;font-size:12px;margin-top:10px;”>重置</el-button>
             </el-popconfirm> -->
-            <el-button type="primary" plain >确认生成</el-button>
-          </el-card>
-        </el-aside>
-    </el-container>
+        <el-button
+          type="primary"
+          plain
+        >
+          确认生成
+        </el-button>
+      </el-card>
+    </el-aside>
+  </el-container>
 </template>
 
 <script>

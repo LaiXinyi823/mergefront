@@ -1,9 +1,19 @@
 <template>
   <div style="margin-top:0;">
-  <h4 style="margin-top:5px;margin-bottom:10px;">请输入您想搜索的实体:</h4>
-  <el-input placeholder="请输入内容" v-model="entity.entity_name" class="input-with-select">
-    <el-button slot="append" icon="el-icon-search" @click="getEntity"></el-button>
-  </el-input>
+    <h4 style="margin-top:5px;margin-bottom:10px;">
+      请输入您想搜索的实体:
+    </h4>
+    <el-input
+      placeholder="请输入内容"
+      v-model="entity.entity_name"
+      class="input-with-select"
+    >
+      <el-button
+        slot="append"
+        icon="el-icon-search"
+        @click="getEntity"
+      />
+    </el-input>
   </div>
 </template>
 
