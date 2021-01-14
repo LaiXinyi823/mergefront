@@ -7,82 +7,78 @@
         领工云知识图谱编辑工具
       </h2>
       <div class="demo-basic--circle">
-        <div
-          class="block"
-          @click="info('/logout')"
-        >
+        <div class="block" @click="logout()">
           <!-- 头像 -->
-          <el-avatar
-            :size="30"
-            :src="circleUrl"
-          />
+          <el-avatar :size="30" :src="circleUrl"/>
         </div>
       </div>
     </div>
     <!-- 导航栏 -->
     <div class="nav">
       <el-container>
-        <el-menu
-          :collapse="false"
-          class="el-menu-vertical-demo"
-        >
+        <el-menu :collapse="false" class="el-menu-vertical-demo">  
         <el-submenu :index='item.id' v-for="item in menuList" :key="item.id">
         <template slot="title">
           <i :class="item.icon"></i>
           <span>{{item.menuName}}</span>
         </template>
-          <el-menu-item :index="subitem.subPath" v-for="subitem in item.children" :key="subitem.subID"
-          :unique-opened="true" :router="true" @click="show(subitem.subPath)">
+          <el-menu-item v-for="subitem in item.children" :key="subitem.subID"
+          :unique-opened="true" @click="show(subitem.option)" >
           <template slot="title">
-          <i :class="subitem.subIcon"></i>
-          <span>{{subitem.subName}}</span>
+            <i :class="subitem.subIcon"></i>
+            <span>{{subitem.subName}}</span>
           </template>
           </el-menu-item>
-      </el-submenu>
+        </el-submenu>
         </el-menu>
+        <div class="right-content">    
+          <router-view name="myproject" v-if="opt=='myproject'" />
+          <router-view name="mygraph" v-if="opt=='mygraph'" />
+          <router-view name="mydomain" v-if="opt=='mydomain'" />
+        </div>
         <!-- 我的项目-子路由 -->
-        <div v-if="opt=='myproject'" class="right-content">    
+        <!-- <div v-if="opt=='myproject'" class="right-content">    
           <router-view name="myproject" />
-        </div>
+        </div> -->
         <!-- 我的数据-子路由 -->
-        <div v-if="opt=='mydata'" class="right-content">    
+        <!-- <div v-if="opt=='mydata'" class="right-content">    
           <router-view name="mydata" />
-        </div>
+        </div> -->
         <!-- 我的图谱-子路由 -->
-        <div v-if="opt=='mygraph'" class="right-content">    
-          <router-view />
-        </div>
+        <!-- <div v-if="opt=='mygraph'" class="right-content">    
+          <router-view name="mygraph" :visible="opt=='mygraph'"></router-view>
+        </div> -->
         <!-- 知识图谱编辑-子路由 -->
-        <div v-if="opt=='edit'" class="right-content">
-        <div class="child-1" style="float:left;">
+        <!-- <div v-if="opt=='edit'" class="right-content">
+        <div class="child-1" style="float:left;"> -->
             <!-- 知识图谱编辑搜索模块 -->
-            <router-view name="search" />
+            <!-- <router-view name="search" /> -->
             <!-- 实体搜索结果模块 -->
-            <router-view name="entityResult" />
+            <!-- <router-view name="entityResult" />
           </div>
           <div class="child-2" style="float:left;">
             <router-view name="KG" />
           </div>
-        </div>
+        </div> -->
         <!-- 文本生成及图谱融合-子路由 -->
-        <div
+        <!-- <div
           v-if="opt=='merge'"
           class="right-content"
         >
           <div
             class="child-3"
             style="float:left;"
-          >
+          > -->
             <!-- 文本输入框 -->
-            <router-view name="textinput" />
+            <!-- <router-view name="textinput" /> -->
             <!-- 文本生成子图显示模块 -->
-            <router-view name="childKG" />
+            <!-- <router-view name="childKG" />
           </div>
-          <div class="child-4" style="float:left;">
+          <div class="child-4" style="float:left;"> -->
             <!-- 待融合显示模块 -->
-            <router-view name="originKG" />
+            <!-- <router-view name="originKG" />
           </div>
-        </div>
+        </div> -->
       </el-container>
     </div>
   </div>
@@ -94,42 +90,32 @@ export default {
     return {
       isCollapse: true,
       circleUrl: 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png',
-      opt: 'edit',
+      opt: '',
       menuList:[
         {'id':'1','menuName':'我的项目','icon':'el-icon-menu',
-        'children':[]},
+        'children':[
+          {'subID':'1','subName':'项目管理','subIcon':'el-icon-setting','option':'myproject'}
+        ]},
         {'id':'2','menuName':'我的数据','icon':'el-icon-coin',
         'children':[]},
         {'id':'3','menuName':'我的图谱','icon':'el-icon-share',
         'children':[
-          {'subID':'2','subName':'图谱管理','subIcon':'el-icon-s-grid','subPath':'/home/mygraph'},
-          {'subID':'3','subName':'领域管理','subIcon':'el-icon-s-home','subPath':'/mygraph'}]},
+          {'subID':'1','subName':'图谱管理','subIcon':'el-icon-s-grid','option':'mygraph'},
+          {'subID':'2','subName':'领域管理','subIcon':'el-icon-s-home','option':'mydomain'}]},
         {'id':'4','menuName':'我的模型','icon':'el-icon-help','children':[]},
-      ]
+      ],
+      graph_list:[]
     };
   },
   methods: {
-    info  (path) {
-      this.$router.replace(path);
-    },
-    show (path) {
-      if (path === '/home/edit') {
-        this.opt = 'edit';
-      } 
-      else if (path === '/home/merge'){
-        this.opt = 'merge';
-      }
-      else if (path === '/home/mygraph'){
-        this.opt = 'mygraph';
-      }
-      else if (path === '/home/myproject'){
-        this.opt = 'myproject';
-      }
-      else if (path === '/home/mydata'){
-        this.opt = 'mydata';
-      }
+    show (option) {
+      this.opt = option;
       console.log(this.opt);
-      this.$router.push(path);
+    },
+    async logout () {
+      const res = await this.$http.delete('session');
+      console.log(res);
+      this.$router.push('/login');
     }
   }
 };
@@ -190,6 +176,7 @@ export default {
   width: 100%;
   margin-bottom: 0;
   margin-left: 10px;
+  margin-right: 35px;
 }
 
 .child-1{

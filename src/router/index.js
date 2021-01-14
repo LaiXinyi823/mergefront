@@ -11,6 +11,7 @@ import login from '@/components/login.vue';
 import register from '@/components/register.vue';
 import myProject from '@/components/myProject.vue';
 import myGraph from '@/components/myGraph.vue';
+import myDomain from '@/components/myDomain.vue';
 
 Vue.use(VueRouter);
 
@@ -20,15 +21,6 @@ export default new VueRouter({
     {
       path: '/',
       redirect: '/login'
-    },
-    // 注销跳转
-    {
-      path: '/logout',
-      redirect: '/login'
-    },
-    {
-      path: '/home',
-      redirect: '/home/myproject'
     },
     // 注册页
     {
@@ -42,47 +34,30 @@ export default new VueRouter({
     },
     { // 首页
       path: '/home',
-      component: layout,
-      children: [
-      {
-        // 我的项目
-        path: '/home/myproject',
-        component: myProject
-      },
-      {
-        // 我的数据
-        path: '/home/mydata',
-        component: myGraph
-      },
-      {
-        // 我的图谱
-        path: '/home/mygraph',
-        component: myGraph
-      },
-      {
-        // 我的模型
-        path: '/home/mymodel',
-        component: myGraph
-      },
-      {
-        // 文本生成融合
-        path: '/home/mergeKG',
-        components: {
-          textinput: textinput,
-          childKG: childKG,
-          originKG: originKG
+      component:layout,
+      children:[{
+        path:'/',
+        components:{
+        default: layout,
+        myproject: myProject,
+        mygraph: myGraph,
+        mydomain: myDomain,
+        textinput: textinput,
+        childKG: childKG,
+        originKG: originKG,
+        search: search,
+        entityResult: entityResult,
+        KG:KG
         }
-      },
-      {
-        // 知识图谱编辑
-        path: '/home/editKG',
-        components: {
-          search: search,
-          entityResult: entityResult,
-          KG: KG
-        }
-      }
-    ]
+      }       
+      ]
+      
     }
   ]
 });
+
+// 解决ElementUI导航栏中的vue-router在3.0版本以上重复点菜单报错问题
+const originalPush = VueRouter.prototype.push;
+VueRouter.prototype.push = function push(location) {
+  return originalPush.call(this, location).catch(err => err);
+};

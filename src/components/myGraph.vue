@@ -1,101 +1,64 @@
 <template>
-  <el-row type="flex" :gutter="0">
-    <!-- <el-col
-      :span="5"
-      v-for="(o, index) in 2"
-      :key="o"
-      :offset="index > 0 ?1 : 0"
-    >
-      <el-card :body-style="{ padding: '0px' }">
-        <div style="padding: 14px;">
-          <img
-            src="https://shadow.elemecdn.com/app/element/hamburger.9cf7b091-55e9-11e9-a976-7f4d0b07eef6.png"
-            class="img"
-          >
-          <div class="title">
-            知识图谱1
-          </div>
-          <div class="sub-title">
-            领域
-          </div>
-          <div class="text-no">
-            创建时间
-          </div>
-          <div class="bottom clearfix">
-            <el-button
-              type="text"
-              class="button"
-              @click="deleteCount"
-            >
-              删除
-            </el-button>
-            <el-button
-              type="text"
-              class="button"
-              @click="checkMsg(item)"
-            >
-              查看
-            </el-button>
-          </div>
-        </div>
-      </el-card>
-    </el-col> -->
-    <el-col :span="5">
-    <el-card shadow="hover">
-      知识图谱1
-    </el-card>
-    </el-col>
-    <el-card class="el-card-define">
-      <div
-        class="add-btn"
-        @click="addMyKG"
-      >
-        <div class="icon-block">     
-          <i class="el-icon-plus" />
-        </div>
-        <div>添加图谱</div> 
-      </div>
-    </el-card>
-  </el-row>
+  <el-container>
+    <div class="myGraph">
+        <el-row :gutter="10">
+            <el-col :span="4" v-for="graph in graph_list" :key="graph.graph_id" :offset="1">
+            <el-card shadow="hover" style="width: 200px;height: 200px;">
+            <el-image style="width: 100px; height: 100px; margin-left:20%;margin-top:5%;"
+            src="https://fuss10.elemecdn.com/e/5d/4a731a90594a4af544c0c25941171jpeg.jpeg"></el-image>
+            <h4>{{ graph.graph_name}}</h4>
+            </el-card>
+            </el-col>
+        </el-row>
+    </div>
+    <div class='addGraph' style="float:left;">
+        <el-card shadow="hover">
+            <div class="icon-block">     
+            <i class="el-icon-plus" /></div>
+            <div>添加图谱</div> 
+        </el-card>
+    </div>
+  </el-container>
 </template>
 
+<script>
+export default {
+    data (){
+        return {
+            graph_list: []
+        };
+    },
+    created(){
+        this.getMygraphList();
+    },
+    methods: {
+      // 获取我的图谱
+        async getMygraphList (){
+            console.log("////");
+            const res = await this.$http.get('list_graphs');
+            this.graph_list = res.data.data;
+            console.log(res.data.data);
+    }
+    }
+};
+</script>
+
 <style>
-.img {
-width:80%;
-height:100px;
-margin-left: 10%;
-}
-.clearfix:before,
-.clearfix:after {
-display: table;
-content: "";
-}
-
-.clearfix:after {
-clear: both
-}
-
-.graphCard {
-width:50%;
-height:40%;
-}
-
-.el-card-define {
-min-height: 100%;
-height: 100%;
+.icon-block{
+width:100px;
+height:80px;
 }
 
 .el-card-define >>> .el-card__body {
 height: 100%;
 }
-</style>
 
-<script>
-export default {
-  data () {
-    return {
-      currentDate: new Date()
-    };
-  }
-};
-</script>
+.cardImg{
+height:50%;
+width:50%;
+}
+
+.myGraph{
+ width:100%;
+}
+</style>

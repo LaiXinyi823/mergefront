@@ -2,29 +2,24 @@
   <el-container>
     <el-row>
       <el-col
-        :span="8"
-        v-for="(o, index) in 2"
-        :key="o"
-        :offset="index > 0 ? 2 : 0"
+        :span="5"
+        v-for="project in projectList"
+        :key="project.project_id"
+        :offset="1"
       >
-        <el-card :body-style="{ padding: '0px' }">
-          <img
-            src="https://shadow.elemecdn.com/app/element/hamburger.9cf7b091-55e9-11e9-a976-7f4d0b07eef6.png"
-            class="image"
-          >
-          <div style="padding: 14px;">
-            <span>好吃的汉堡</span>
-            <div class="bottom clearfix">
-              <time class="time">{{ currentDate }}</time>
-              <el-button
-                type="text"
-                class="button"
-              >
-                操作按钮
-              </el-button>
-            </div>
+      <el-card style="">
+        <img
+          src="https://shadow.elemecdn.com/app/element/hamburger.9cf7b091-55e9-11e9-a976-7f4d0b07eef6.png"
+          class="image"
+        >
+        <div style="padding: 14px;">
+          <span>{{project.project_name}}</span>
+          <div class="bottom clearfix">
+            <time class="time">{{ currentDate }}</time>
+            <el-button type="text" class="button">查看详情</el-button>
           </div>
-        </el-card>
+        </div>
+      </el-card>
       </el-col>
     </el-row>
   </el-container>
@@ -52,10 +47,10 @@
   }
 
   .clearfix:before,
-  .clearfix:after {
+  /* .clearfix:after {
       display: table;
       content: "";
-  }
+  } */
   
   .clearfix:after {
       clear: both
@@ -64,10 +59,21 @@
 
 <script>
 export default {
+  created (){
+    this.getProjectList();
+  },
   data () {
     return {
+      projectList:[],
       currentDate: new Date()
     };
+  },
+  methods:{
+    async getProjectList (){
+      const res = await this.$http.get('list_projects');
+      this.projectList = res.data.data;
+      console.log(res);
+    }
   }
 };
 </script>

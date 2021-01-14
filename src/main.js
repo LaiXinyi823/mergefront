@@ -24,8 +24,9 @@ Vue.prototype.$http = axios;
 Vue.prototype.$qs = qs;
 // Vue.prototype.$message = Message;
 
-//配置请求的根路径 
-axios.defaults.baseURL = 'http://127.0.0.1:5000/api/v1.0/';
+//配置请求的根路径
+axios.defaults.withCredentials = true;
+axios.defaults.baseURL = 'http://localhost:5000/api/v1.0/';
 
 new Vue({
   router,

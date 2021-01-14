@@ -150,7 +150,7 @@ export default {
         else{
           console.log('success');
           this.success=true;
-          this.$router.replace('/home');
+          this.$router.push('/home');
         }
       });
     },
