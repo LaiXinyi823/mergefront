@@ -23,93 +23,44 @@
     <div class="nav">
       <el-container>
         <el-menu
-          :default-active="$route.path"
-          :unique-opened="true"
           :collapse="false"
           class="el-menu-vertical-demo"
         >
-          <el-menu-item
-            index="/home/myproject"
-            @click="show('/home/myproject')"
-          >
-            <i class="el-icon-menu" />
-            <span slot="title">我的项目</span>
+        <el-submenu :index='item.id' v-for="item in menuList" :key="item.id">
+        <template slot="title">
+          <i :class="item.icon"></i>
+          <span>{{item.menuName}}</span>
+        </template>
+          <el-menu-item :index="subitem.subPath" v-for="subitem in item.children" :key="subitem.subID"
+          :unique-opened="true" :router="true" @click="show(subitem.subPath)">
+          <template slot="title">
+          <i :class="subitem.subIcon"></i>
+          <span>{{subitem.subName}}</span>
+          </template>
           </el-menu-item>
-          <el-menu-item
-            index="/home/mydata"
-            @click="show('/home/mydata')"
-          >
-            <i class="el-icon-data-line" />
-            <span slot="title">我的数据</span>
-          </el-menu-item>
-          <el-menu-item
-            index="/home/mygraph"
-            @click="show('/home/mygraph')"
-          >
-            <i class="el-icon-share" />
-            <span slot="title">我的图谱</span>
-          </el-menu-item>
-          <!-- <el-submenu index="/home/myGraph" @click="show('/home/mygraph')"> -->
-          <!-- <template slot="title"  @click="show('/home/mygraph')">
-                <i class="el-icon-share"></i>
-                <span>我的图谱</span>
-              </template> -->
-          <!-- <el-submenu>
-                <template slot="title">图谱管理</template>
-                <el-menu-item index="/home/editKG" @click="show('/home/editKG')">知识图谱编辑</el-menu-item>
-                <el-menu-item index="/home/mergeKG" @click="show('/home/mergeKG')">文本生成</el-menu-item>
-              </el-submenu> -->
-          <!-- <el-submenu> -->
-          <!-- <template slot="title">领域管理</template>
-              </el-submenu> -->
-          <!-- </el-submenu> -->
-          <el-menu-item
-            index="/home/myModel"
-            @click="show('/home/mymodel')"
-          >
-            <i class="el-icon-help" />
-            <span slot="title">我的模型</span>
-          </el-menu-item>
+      </el-submenu>
         </el-menu>
         <!-- 我的项目-子路由 -->
-        <div
-          v-if="opt=='myproject'"
-          class="right-content"
-        >    
+        <div v-if="opt=='myproject'" class="right-content">    
           <router-view name="myproject" />
         </div>
         <!-- 我的数据-子路由 -->
-        <div
-          v-if="opt=='mydata'"
-          class="right-content"
-        >    
+        <div v-if="opt=='mydata'" class="right-content">    
           <router-view name="mydata" />
         </div>
         <!-- 我的图谱-子路由 -->
-        <div
-          v-if="opt=='mygraph'"
-          class="right-content"
-        >    
+        <div v-if="opt=='mygraph'" class="right-content">    
           <router-view />
         </div>
         <!-- 知识图谱编辑-子路由 -->
-        <div
-          v-if="opt=='edit'"
-          class="right-content"
-        >
-          <div
-            class="child-1"
-            style="float:left;"
-          >
+        <div v-if="opt=='edit'" class="right-content">
+        <div class="child-1" style="float:left;">
             <!-- 知识图谱编辑搜索模块 -->
             <router-view name="search" />
             <!-- 实体搜索结果模块 -->
             <router-view name="entityResult" />
           </div>
-          <div
-            class="child-2"
-            style="float:left;"
-          >
+          <div class="child-2" style="float:left;">
             <router-view name="KG" />
           </div>
         </div>
@@ -127,10 +78,7 @@
             <!-- 文本生成子图显示模块 -->
             <router-view name="childKG" />
           </div>
-          <div
-            class="child-4"
-            style="float:left;"
-          >
+          <div class="child-4" style="float:left;">
             <!-- 待融合显示模块 -->
             <router-view name="originKG" />
           </div>
@@ -146,7 +94,18 @@ export default {
     return {
       isCollapse: true,
       circleUrl: 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png',
-      opt: 'edit'
+      opt: 'edit',
+      menuList:[
+        {'id':'1','menuName':'我的项目','icon':'el-icon-menu',
+        'children':[]},
+        {'id':'2','menuName':'我的数据','icon':'el-icon-coin',
+        'children':[]},
+        {'id':'3','menuName':'我的图谱','icon':'el-icon-share',
+        'children':[
+          {'subID':'2','subName':'图谱管理','subIcon':'el-icon-s-grid','subPath':'/home/mygraph'},
+          {'subID':'3','subName':'领域管理','subIcon':'el-icon-s-home','subPath':'/mygraph'}]},
+        {'id':'4','menuName':'我的模型','icon':'el-icon-help','children':[]},
+      ]
     };
   },
   methods: {

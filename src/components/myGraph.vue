@@ -1,7 +1,7 @@
 <template>
-  <el-row type="flex">
-    <el-col
-      :span="4"
+  <el-row type="flex" :gutter="0">
+    <!-- <el-col
+      :span="5"
       v-for="(o, index) in 2"
       :key="o"
       :offset="index > 0 ?1 : 0"
@@ -39,6 +39,11 @@
           </div>
         </div>
       </el-card>
+    </el-col> -->
+    <el-col :span="5">
+    <el-card shadow="hover">
+      知识图谱1
+    </el-card>
     </el-col>
     <el-card class="el-card-define">
       <div
