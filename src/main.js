@@ -7,6 +7,7 @@ import './assets/icon/iconfont.css';
 import VueParticles from 'vue-particles';
 import axios from 'axios';
 import qs from 'qs';
+import { Message } from 'element-ui';
 
 // 设置axios为form-data
 axios.defaults.headers.post['Content-Type'] = 'application/json;';
@@ -18,11 +19,12 @@ axios.defaults.transformRequest = [function (data) {
   // }
   return ret;
 }];
+Vue.use(Message);
 Vue.use(VueParticles);
 Vue.config.productionTip = false;
 Vue.prototype.$http = axios;
 Vue.prototype.$qs = qs;
-// Vue.prototype.$message = Message;
+Vue.prototype.$message = Message;
 
 //配置请求的根路径
 axios.defaults.withCredentials = true;

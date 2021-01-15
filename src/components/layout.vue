@@ -34,7 +34,7 @@
         <div class="right-content">    
           <router-view name="myproject" v-if="opt=='myproject'" />
           <router-view name="mygraph" v-if="opt=='mygraph'" />
-          <router-view name="mydomain" v-if="opt=='mydomain'" />
+          <router-view name="mydomain" v-if="opt=='mydomain' && isRouterAlive" />
         </div>
         <!-- 我的项目-子路由 -->
         <!-- <div v-if="opt=='myproject'" class="right-content">    
@@ -86,8 +86,14 @@
 
 <script>
 export default {
+  provide (){
+    return {
+      reload: this.reload
+    };
+  },
   data () {
     return {
+      isRouterAlive: true,
       isCollapse: true,
       circleUrl: 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png',
       opt: '',
@@ -116,6 +122,12 @@ export default {
       const res = await this.$http.delete('session');
       console.log(res);
       this.$router.push('/login');
+    },
+    reload (){
+      this.isRouterAlive = false;
+      this.$nextTick(function(){
+        this.isRouterAlive = true;
+      });
     }
   }
 };
