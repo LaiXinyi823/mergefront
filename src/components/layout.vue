@@ -3,77 +3,82 @@
     <!-- 系统平台头部 -->
     <div class="header">
       <span class="el-icon-kg">&#xe918;</span>
-      <h2 class="title">专业知识图谱编辑工具</h2>
+      <h2 class="title">
+        领工云知识图谱编辑工具
+      </h2>
       <div class="demo-basic--circle">
-          <div class="block" @click="info('/home/merge')">
-            <!-- 头像 -->
-            <el-avatar :size="30" :src="circleUrl" ></el-avatar>
-          </div>
+        <div class="block" @click="logout()">
+          <!-- 头像 -->
+          <el-avatar :size="30" :src="circleUrl"/>
+        </div>
       </div>
     </div>
     <!-- 导航栏 -->
     <div class="nav">
       <el-container>
-          <el-menu router
-            :default-active="$route.path"
-            :unique-opened="true"
-            class="el-menu-vertical-demo"
-            @open="handleOpen"
-            @close="handleClose"
-            :collapse="false"
-          >
-            <!-- <el-submenu index="1">
-              <template slot="title">
-                <i class="el-icon-share"></i>
-                <span slot="title">知识图谱编辑</span>
-              </template> -->
-              <!-- <el-menu-item-group>
-                <span slot="title">分组一</span>
-                <el-menu-item index="1-1">选项1</el-menu-item>
-                <el-menu-item index="1-2">选项2</el-menu-item>
-              </el-menu-item-group> -->
-              <!-- <el-menu-item-group title="分组2">
-                <el-menu-item index="1-3">选项3</el-menu-item>
-              </el-menu-item-group>
-              <el-submenu index="1-4">
-                <span slot="title">选项4</span>
-                <el-menu-item index="1-4-1">选项1</el-menu-item>
-              </el-submenu> -->
-            <!-- </el-submenu> -->
-              <el-menu-item index="/home/edit" @click="show('/home/edit')">
-                <i class="el-icon-share"></i>
-                <span slot="title">知识图谱编辑</span>
-              </el-menu-item>
-              <el-menu-item index="/home/merge" @click="show('/home/merge')">
-                <i class="el-icon-edit-outline"></i>
-                <span slot="title">文本生成</span>
-              </el-menu-item>
-          </el-menu>
-          <!-- 文本生成及图谱融合-子路由 -->
-          <div v-if="funt=='edit'" class="right-content">
-            <div class="child-1" style="float:left;">
-              <!-- 知识图谱编辑搜索模块 -->
-              <router-view name="search"></router-view>
-              <!-- 实体搜索结果模块 -->
-              <router-view name="entityResult"></router-view>
-            </div>
-            <div class="child-2" style="float:left;">
-              <router-view name="KG"></router-view>
-            </div>
+        <el-menu :collapse="false" class="el-menu-vertical-demo">  
+        <el-submenu :index='item.id' v-for="item in menuList" :key="item.id">
+        <template slot="title">
+          <i :class="item.icon"></i>
+          <span>{{item.menuName}}</span>
+        </template>
+          <el-menu-item v-for="subitem in item.children" :key="subitem.subID"
+          :unique-opened="true" @click="show(subitem.option)" >
+          <template slot="title">
+            <i :class="subitem.subIcon"></i>
+            <span>{{subitem.subName}}</span>
+          </template>
+          </el-menu-item>
+        </el-submenu>
+        </el-menu>
+        <div class="right-content">    
+          <router-view name="myproject" v-if="opt=='myproject'" />
+          <router-view name="mygraph" v-if="opt=='mygraph'" />
+          <router-view name="mydomain" v-if="opt=='mydomain' && isRouterAlive" />
+        </div>
+        <!-- 我的项目-子路由 -->
+        <!-- <div v-if="opt=='myproject'" class="right-content">    
+          <router-view name="myproject" />
+        </div> -->
+        <!-- 我的数据-子路由 -->
+        <!-- <div v-if="opt=='mydata'" class="right-content">    
+          <router-view name="mydata" />
+        </div> -->
+        <!-- 我的图谱-子路由 -->
+        <!-- <div v-if="opt=='mygraph'" class="right-content">    
+          <router-view name="mygraph" :visible="opt=='mygraph'"></router-view>
+        </div> -->
+        <!-- 知识图谱编辑-子路由 -->
+        <!-- <div v-if="opt=='edit'" class="right-content">
+        <div class="child-1" style="float:left;"> -->
+            <!-- 知识图谱编辑搜索模块 -->
+            <!-- <router-view name="search" /> -->
+            <!-- 实体搜索结果模块 -->
+            <!-- <router-view name="entityResult" />
           </div>
-          <!-- 文本生成及图谱融合-子路由 -->
-          <div v-if="funt=='merge'" class="right-content">
-            <div class="child-3" style="float:left;">
-              <!-- 文本输入框 -->
-              <router-view name="textinput"></router-view>
-              <!-- 文本生成子图显示模块 -->
-              <router-view name="childKG"></router-view>
-            </div>
-            <div class="child-4" style="float:left;">
-              <!-- 待融合显示模块 -->
-              <router-view name="originKG"></router-view>
-            </div>
+          <div class="child-2" style="float:left;">
+            <router-view name="KG" />
           </div>
+        </div> -->
+        <!-- 文本生成及图谱融合-子路由 -->
+        <!-- <div
+          v-if="opt=='merge'"
+          class="right-content"
+        >
+          <div
+            class="child-3"
+            style="float:left;"
+          > -->
+            <!-- 文本输入框 -->
+            <!-- <router-view name="textinput" /> -->
+            <!-- 文本生成子图显示模块 -->
+            <!-- <router-view name="childKG" />
+          </div>
+          <div class="child-4" style="float:left;"> -->
+            <!-- 待融合显示模块 -->
+            <!-- <router-view name="originKG" />
+          </div>
+        </div> -->
       </el-container>
     </div>
   </div>
@@ -81,29 +86,48 @@
 
 <script>
 export default {
+  provide (){
+    return {
+      reload: this.reload
+    };
+  },
   data () {
     return {
+      isRouterAlive: true,
       isCollapse: true,
       circleUrl: 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png',
-      funt: 'edit'
+      opt: '',
+      menuList:[
+        {'id':'1','menuName':'我的项目','icon':'el-icon-menu',
+        'children':[
+          {'subID':'1','subName':'项目管理','subIcon':'el-icon-setting','option':'myproject'}
+        ]},
+        {'id':'2','menuName':'我的数据','icon':'el-icon-coin',
+        'children':[]},
+        {'id':'3','menuName':'我的图谱','icon':'el-icon-share',
+        'children':[
+          {'subID':'1','subName':'图谱管理','subIcon':'el-icon-s-grid','option':'mygraph'},
+          {'subID':'2','subName':'领域管理','subIcon':'el-icon-s-home','option':'mydomain'}]},
+        {'id':'4','menuName':'我的模型','icon':'el-icon-help','children':[]},
+      ],
+      graph_list:[]
     };
   },
   methods: {
-    handleOpen (key, keyPath) {
-      console.log(key, keyPath);
+    show (option) {
+      this.opt = option;
+      console.log(this.opt);
     },
-    handleClose (key, keyPath) {
-      console.log(key, keyPath);
+    async logout () {
+      const res = await this.$http.delete('session');
+      console.log(res);
+      this.$router.push('/login');
     },
-    info  (path) {
-      this.$router.replace(path);
-    },
-    show (path) {
-      if (path === '/home/edit') {
-        this.funt = 'edit';
-      } else {
-        this.funt = 'merge';
-      }
+    reload (){
+      this.isRouterAlive = false;
+      this.$nextTick(function(){
+        this.isRouterAlive = true;
+      });
     }
   }
 };
@@ -164,6 +188,7 @@ export default {
   width: 100%;
   margin-bottom: 0;
   margin-left: 10px;
+  margin-right: 35px;
 }
 
 .child-1{
