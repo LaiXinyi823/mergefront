@@ -1,6 +1,15 @@
 <template>
   <el-container>
     <div v-if="opt=='graphs'" style="width:100%;height:100px;">
+         选择领域：
+            <el-select v-model="selectDomainID" placeholder="请选择">
+                <el-option
+                v-for="domain in domain_list"
+                :key="domain.domain_id"
+                :label="domain.domain_name"
+                :value="domain.domain_id">
+                </el-option>
+            </el-select>
         <el-row :gutter="35">
             <div style="height:80px;margin-right:12px;margin-left:17px;margin-bottom:10px;" @click="addDialogVisible = true">
                 <el-card shadow="hover" style="height:100%;margin-bottom:10px;"> 
@@ -22,8 +31,15 @@
                 <el-form-item label="知识图谱名称" :label-width="formLabelWidth">
                 <el-input v-model="newGraph.name" autocomplete="off"></el-input>
                 </el-form-item>
-                <el-form-item label="所属领域ID" :label-width="formLabelWidth">
-                <el-input v-model="newGraph.domain_id" autocomplete="off"></el-input>
+                <el-form-item label="所属领域名称" :label-width="formLabelWidth">
+                    <el-select v-model="newGraph.domain_id" placeholder="请选择">
+                        <el-option
+                        v-for="domain in domain_list"
+                        :key="domain.domain_id"
+                        :label="domain.domain_name"
+                        :value="domain.domain_id">
+                        </el-option>
+                    </el-select>
                 </el-form-item>
                 <el-form-item label="图谱权限" :label-width="formLabelWidth">
                 <el-radio v-model="newGraph.private" label="0">公开</el-radio>
@@ -43,14 +59,41 @@
         <el-radio-button label="图谱显示"></el-radio-button>
         <el-radio-button label="数据表格"></el-radio-button>
         </el-radio-group> -->
-        以数据表格显示
-        <el-switch
-            v-model="graph_or_table"
-            active-color="#1e90ff"
-            inactive-color="#dcdcdc">
-        </el-switch>
+        <div class='switch'>
+            以数据表格形式显示
+            <el-switch
+                v-model="table"
+                active-color="#1e90ff"
+                inactive-color="#dcdcdc"
+                :change="showTable()"
+            >
+            </el-switch>
+        </div>
         </el-card>
-        {{graph_id}}
+        <el-card v-if="table==false" style="width:100%;height:100%;margin-top:10px;">
+            <router-view name="graphDetail"/>
+        </el-card>
+        <el-card v-else style="width:100%;margin-top:10px;">
+            <el-table :data="tableData" border height="300" style="width: 100%">
+                <el-table-column fixed prop="order" label="序号" width="110" />
+                <el-table-column prop="entity1Name" label="起点实体" width="170" />
+                <el-table-column prop="entity1Type" label="起点实体类型" width="170"/>
+                <el-table-column prop="entity2Name" label="终点实体" width="170" />
+                <el-table-column prop="entity2Type" label="终点实体类型" width="170"/>
+                <el-table-column prop="relationType" label="关系类型" width="150" />
+                <el-table-column fixed="right" label="操作" width="150">
+                    <template>
+                    <el-button @click="editOpt = true" type="text" size="medium">
+                        <i class="el-icon-edit" />
+                    </el-button>
+                    <el-button @click="deleteOpt = true" type="text" size="medium">
+                        <i class="el-icon-delete" />
+                    </el-button>
+                    </template>
+                </el-table-column>
+            </el-table>
+        </el-card>
+        
     </div>
   </el-container>
 </template>
@@ -63,23 +106,68 @@ export default {
             opt:'graphs',
             graph_id:'',
             graph_list: [],
-            graph_or_table:'图谱显示',
+            domain_list: [],
+            selectDomainID: null,
+            table:'false',
             addDialogVisible: false,
             newGraph:{
                 name:'',
                 private:'0',
                 domain_id:''
             },
-            formLabelWidth: '120px'
+            formLabelWidth: '120px',
+            tableData: [
+                {
+                order: '1',
+                entity1Name: 'BILSTM-CRF',
+                entity1Type: '处理',
+                entity2Name: 'CRF',
+                entity2Type: '处理任务',
+                relationType: '对比关系',
+                },
+                {
+                order: '2',
+                entity1Name: '数据集',
+                entity1Type: '处理方法',
+                entity2Name: '双向',
+                entity2Type: '处理任务',
+                relationType: '应用关系',
+                },
+                {
+                order: '3',
+                entity1Name: '双向',
+                entity1Type: '处理任务',
+                entity2Name: 'BILSTM-CRF',
+                entity2Type: '处理',
+                relationType: '同指关系',
+                },
+                {
+                order: '4',
+                entity1Name: '双向',
+                entity1Type: '处理任务',
+                entity2Name: 'BILSTM-CRF',
+                entity2Type: '处理',
+                relationType: '同指关系',
+                },
+                {
+                order: '5',
+                entity1Name: '双向',
+                entity1Type: '处理任务',
+                entity2Name: 'BILSTM-CRF',
+                entity2Type: '处理',
+                relationType: '同指关系',
+                },
+            ],
         };
     },
     created(){
         this.getMygraphList();
+        this.getMyDomainList();
     },
     methods: {
         // 获取我的图谱
         async getMygraphList (){
-            const res = await this.$http.get('list_graphs');
+            const res = await this.$http.post('list_graphs',{domain_id: this.selectDomainID});
             this.graph_list = res.data.data;
             console.log(res.data.data);
         },
@@ -121,9 +209,18 @@ export default {
             this.opt = 'graphDetail';
             this.graph_id = graph_id;
         },
+        // 获取我的领域列表
+        async getMyDomainList(){
+            const { data:res} = await this.$http.get('list_domain');
+            this.domain_list = res.data;
+        },
         // 详情界面返回函数
         goBack() {
             this.opt = 'graphs';
+        },
+        // 以表格形式展示数据
+        showTable(){
+
         }
     }
 };
@@ -146,6 +243,9 @@ width:50%;
 
 .myGraph{
  width:100%;
+}
+.switch{
+ float:right;
 }
 
 </style>

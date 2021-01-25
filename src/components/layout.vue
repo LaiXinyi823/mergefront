@@ -33,7 +33,7 @@
         </el-menu>
         <div class="right-content">    
           <router-view name="myproject" v-if="opt=='myproject'" />
-          <router-view name="mygraph" v-if="opt=='mygraph'" />
+          <router-view name="mygraph" v-if="opt=='mygraph' && isRouterAlive" />
           <router-view name="mydomain" v-if="opt=='mydomain' && isRouterAlive" />
         </div>
         <!-- 我的项目-子路由 -->

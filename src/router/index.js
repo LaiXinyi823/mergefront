@@ -12,6 +12,7 @@ import register from '@/components/register.vue';
 import myProject from '@/components/myProject.vue';
 import myGraph from '@/components/myGraph.vue';
 import myDomain from '@/components/myDomain.vue';
+import graphDetail from '@/components/graphDetail.vue';
 
 Vue.use(VueRouter);
 
@@ -38,16 +39,16 @@ export default new VueRouter({
       children:[{
         path:'/',
         components:{
-        default: layout,
-        myproject: myProject,
-        mygraph: myGraph,
-        mydomain: myDomain,
-        textinput: textinput,
-        childKG: childKG,
-        originKG: originKG,
-        search: search,
-        entityResult: entityResult,
-        KG:KG
+          default: layout,
+          myproject: myProject,
+          mygraph: myGraph,
+          mydomain: myDomain,
+          textinput: textinput,
+          childKG: childKG,
+          originKG: originKG,
+          search: search,
+          entityResult: entityResult,
+          KG:KG
         }
       }       
       ]
