@@ -26,12 +26,12 @@ export default new VueRouter({
     // 注册页
     {
       path: '/register',
-      component:register
+      component:graphDetail
     },
     {
       // 登录页
       path: '/login',
-      component: login
+      component:login
     },
     { // 首页
       path: '/home',
@@ -49,7 +49,11 @@ export default new VueRouter({
           search: search,
           entityResult: entityResult,
           KG:KG
-        }
+        },
+        children:[{
+          path:':graphName',
+          component: graphDetail
+        }]
       }       
       ]
       

@@ -8,7 +8,7 @@ import VueParticles from 'vue-particles';
 import axios from 'axios';
 import qs from 'qs';
 import { Message } from 'element-ui';
-import echarts from 'echarts';
+import ECharts from 'vue-echarts';
 
 // 设置axios为form-data
 axios.defaults.headers.post['Content-Type'] = 'application/json;';
@@ -24,11 +24,12 @@ axios.defaults.transformRequest = [function (data) {
 // Vue.use(echarts);
 Vue.use(Message);
 Vue.use(VueParticles);
+Vue.component('v-chart', ECharts);
 Vue.config.productionTip = false;
 Vue.prototype.$http = axios;
 Vue.prototype.$qs = qs;
 Vue.prototype.$message = Message;
-Vue.prototype.$echarts = echarts;
+// Vue.prototype.$echarts = echarts;
 
 //配置请求的根路径
 axios.defaults.withCredentials = true;
