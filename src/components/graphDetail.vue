@@ -1,5 +1,7 @@
 <template>
-<div id="main" style="width: 600px;height:400px;"></div>
+<div class="right-content">
+    <div id="main" style="width: 600px;height:400px;"></div>
+</div>
 </template>
 
 <style>
@@ -99,3 +101,12 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+.right-content {
+  width: 100%;
+  margin-bottom: 0;
+  margin-left: 10px;
+  margin-right: 35px;
+}
+</style>

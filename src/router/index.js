@@ -1,7 +1,7 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
 import textinput from '@/components/textinput.vue';
-import layout from '@/components/layout.vue';
+import home from '@/components/home.vue';
 import childKG from '@/components/childKG.vue';
 import originKG from '@/components/originKG.vue';
 import search from '@/components/search.vue';
@@ -26,7 +26,7 @@ export default new VueRouter({
     // 注册页
     {
       path: '/register',
-      component:graphDetail
+      component:register
     },
     {
       // 登录页
@@ -35,11 +35,12 @@ export default new VueRouter({
     },
     { // 首页
       path: '/home',
-      component:layout,
+      component:home,
       children:[{
+        // 各菜单页
         path:'/',
         components:{
-          default: layout,
+          default: home,
           myproject: myProject,
           mygraph: myGraph,
           mydomain: myDomain,
@@ -49,14 +50,16 @@ export default new VueRouter({
           search: search,
           entityResult: entityResult,
           KG:KG
-        },
-        children:[{
-          path:':graphName',
-          component: graphDetail
-        }]
-      }       
-      ]
-      
+        }
+      },
+      {
+        // 知识图谱详情页
+        path:'graphDetail',
+        components:{
+          graphDetail:graphDetail
+        }
+      }
+    ]
     }
   ]
 });

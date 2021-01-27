@@ -1,7 +1,9 @@
 import Vue from 'vue';
 import { Button, Container, Header, Menu, Submenu, MenuItemGroup, MenuItem, RadioButton, RadioGroup, Input, Aside, Main, Avatar, Card, Divider, Popconfirm, Table, Image, TableColumn, InputNumber, Select, Option, Form, FormItem, Dialog,
-Link, Alert, Row, Col, Popover, Switch, Radio, PageHeader} from 'element-ui';
+Link, Alert, Row, Col, Popover, Switch, Radio, PageHeader, Tabs, TabPane} from 'element-ui';
 
+Vue.use(Tabs);
+Vue.use(TabPane);
 Vue.use(PageHeader);
 Vue.use(Radio);
 Vue.use(Switch);
