@@ -17,7 +17,7 @@
                 </el-card>
             </div>
             <el-col :span="4.5" v-for="graph in graph_list" :key="graph.graph_id" :offset="0">
-            <div @click="graphDetail(graph.graph_id)">
+            <div @click="graphDetail(graph.graph_id,graph.graph_name)">
                 <el-card shadow="hover" style="width: 200px;height: 200px;margin-bottom:10px;">
                 <el-image style="width: 100px; height: 100px; margin-left:20%;margin-top:5%;"
                 src="https://fuss10.elemecdn.com/e/5d/4a731a90594a4af544c0c25941171jpeg.jpeg"></el-image>
@@ -52,14 +52,13 @@
             </div>
         </el-dialog>
     </div>
+
     <div v-if="opt=='graphDetail'" style="width:100%;height:100px;">
         <el-card style="width:100%;height:65px;background-color:#fff;">
-        <el-page-header @back="goBack()" content="知识图谱详情页面" style="float:left;"> </el-page-header>
+        <el-page-header @back="goBack()" :content="graph_name + ' 图谱详情'" style="float:left;"> </el-page-header>
         <!-- <el-radio-group v-model="graph_or_table" style="bottom:10%;margin-right:10px;float:right;">
-        <el-radio-button label="图谱显示"></el-radio-button>
-        <el-radio-button label="数据表格"></el-radio-button>
         </el-radio-group> -->
-        <div class='switch'>
+        <!-- <div class='switch'>
             以数据表格形式显示
             <el-switch
                 v-model="table"
@@ -68,12 +67,24 @@
                 :change="showTable()"
             >
             </el-switch>
+        </div> -->
+        </el-card>
+        <div style="margin-top:5px;">
+            <el-col :span="3">
+                <el-input placeholder="请输入内容" v-model="input3" class="input-with-select">
+                <el-button slot="append" icon="el-icon-search"></el-button>
+                </el-input>
+                <el-menu default-active="2" class="el-menu-vertical-demo" style="margin-top:3px;">
+                    <el-menu-item v-for="vertex in vertex_list" :key="vertex" :unique-opened="true" @click="show(subitem.option)" >
+                    <template slot="title">
+                        <i class="el-icon-star-on"></i>
+                        <span>{{vertex}}</span>
+                    </template>
+                    </el-menu-item>
+                </el-menu>
+            </el-col>
         </div>
-        </el-card>
-        <el-card v-if="table==false" style="width:100%;height:100%;margin-top:10px;">
-            <router-view name="graphDetail"/>
-        </el-card>
-        <el-card v-else style="width:100%;margin-top:10px;">
+        <!-- <el-card style="width:88%;margin-top:10px;">
             <el-table :data="tableData" border height="300" style="width: 100%">
                 <el-table-column fixed prop="order" label="序号" width="110" />
                 <el-table-column prop="entity1Name" label="起点实体" width="170" />
@@ -92,8 +103,7 @@
                     </template>
                 </el-table-column>
             </el-table>
-        </el-card>
-        
+        </el-card> -->
     </div>
   </el-container>
 </template>
@@ -105,8 +115,10 @@ export default {
         return {
             opt:'graphs',
             graph_id:'',
+            graph_name:'',
             graph_list: [],
             domain_list: [],
+            vertex_list:[],
             selectDomainID: null,
             table:'false',
             addDialogVisible: false,
@@ -167,7 +179,7 @@ export default {
     methods: {
         // 获取我的图谱
         async getMygraphList (){
-            const res = await this.$http.post('list_graphs',{domain_id: this.selectDomainID});
+            const res = await this.$http.get('list_graphs',{params:{domain_id: this.selectDomainID}});
             this.graph_list = res.data.data;
             console.log(res.data.data);
         },
@@ -205,9 +217,13 @@ export default {
             console.log(res);
         },
         // 查看图谱详情
-        graphDetail(graph_id) {
+        async graphDetail(graph_id,graph_name) {
             this.opt = 'graphDetail';
             this.graph_id = graph_id;
+            this.graph_name = graph_name;
+            const { data:res } = await this.$http.get('show_vertex',{params:{graph_id:38}});
+            console.log(res.data);
+            this.vertex_list = res.data;
         },
         // 获取我的领域列表
         async getMyDomainList(){

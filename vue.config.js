@@ -1,5 +1,9 @@
 module.exports = {
-
+    lintOnSave: false,
+    transpileDependencies: [
+        'vue-echarts',
+        'resize-detector'
+    ],
     devServer: {
         open: true,
         host: 'localhost',
