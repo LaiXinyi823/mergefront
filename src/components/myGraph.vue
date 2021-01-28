@@ -52,30 +52,17 @@
             </div>
         </el-dialog>
     </div>
-
     <div v-if="opt=='graphDetail'" style="width:100%;height:100px;">
-        <el-card style="width:100%;height:65px;background-color:#fff;">
+        <el-card style="width:100%;height:65px;background-color:#fff;" shadow="never">
         <el-page-header @back="goBack()" :content="graph_name + ' 图谱详情'" style="float:left;"> </el-page-header>
-        <!-- <el-radio-group v-model="graph_or_table" style="bottom:10%;margin-right:10px;float:right;">
-        </el-radio-group> -->
-        <!-- <div class='switch'>
-            以数据表格形式显示
-            <el-switch
-                v-model="table"
-                active-color="#1e90ff"
-                inactive-color="#dcdcdc"
-                :change="showTable()"
-            >
-            </el-switch>
-        </div> -->
         </el-card>
         <div style="margin-top:5px;">
             <el-col :span="3">
-                <el-input placeholder="请输入内容" v-model="input3" class="input-with-select">
+                <el-input placeholder="请输入内容" v-model="search" class="input-with-select">
                 <el-button slot="append" icon="el-icon-search"></el-button>
                 </el-input>
                 <el-menu default-active="2" class="el-menu-vertical-demo" style="margin-top:3px;">
-                    <el-menu-item v-for="vertex in vertex_list" :key="vertex" :unique-opened="true" @click="show(subitem.option)" >
+                    <el-menu-item v-for="vertex in vertex_list" :key="vertex" :unique-opened="true" @click="showEntityType(vertex)" >
                     <template slot="title">
                         <i class="el-icon-star-on"></i>
                         <span>{{vertex}}</span>
@@ -84,41 +71,49 @@
                 </el-menu>
             </el-col>
         </div>
-        <!-- <el-card style="width:88%;margin-top:10px;">
-            <el-table :data="tableData" border height="300" style="width: 100%">
-                <el-table-column fixed prop="order" label="序号" width="110" />
-                <el-table-column prop="entity1Name" label="起点实体" width="170" />
-                <el-table-column prop="entity1Type" label="起点实体类型" width="170"/>
-                <el-table-column prop="entity2Name" label="终点实体" width="170" />
-                <el-table-column prop="entity2Type" label="终点实体类型" width="170"/>
-                <el-table-column prop="relationType" label="关系类型" width="150" />
-                <el-table-column fixed="right" label="操作" width="150">
-                    <template>
-                    <el-button @click="editOpt = true" type="text" size="medium">
-                        <i class="el-icon-edit" />
-                    </el-button>
-                    <el-button @click="deleteOpt = true" type="text" size="medium">
-                        <i class="el-icon-delete" />
-                    </el-button>
+        <div style="margin-left:130px;margin-top:5px;">
+        <el-card shadow="never">
+            <el-table :data="entity_list" border style="width: 100%" size="mini">
+                <div id="main" style="width: 100%;height:100%;"></div>
+                <el-table-column prop="_id" label="id" width="160"></el-table-column>
+                <el-table-column prop="_key" label="key" width="160"></el-table-column>
+                <el-table-column prop="_rev" label="rev" width="160"></el-table-column>
+                <el-table-column prop="name" label="name" width="160"></el-table-column>
+                <el-table-column label="操作" width="200">
+                    <template slot-scope="scope">
+                        <el-button type="success" icon="el-icon-picture" circle @click="showGraph()"></el-button>
+                        <el-button type="primary" icon="el-icon-edit" circle @click="handle(scope.$indeEditx, scope.row)"></el-button>
+                        <el-button type="danger" icon="el-icon-delete" circle></el-button>
                     </template>
                 </el-table-column>
             </el-table>
-        </el-card> -->
+        </el-card>
+        </div>
+        <el-dialog title="图谱" :visible.sync="graphVisible">
+            <div id="main" style="width: 600px;height:400px;"></div>
+        </el-dialog>
     </div>
   </el-container>
 </template>
 
 <script>
+import * as echarts from 'echarts'
 export default {
     inject:['reload'],
+    created(){
+        this.getMygraphList();
+        this.getMyDomainList();
+    },
     data (){
         return {
             opt:'graphs',
             graph_id:'',
+            search:'',
             graph_name:'',
             graph_list: [],
             domain_list: [],
             vertex_list:[],
+            entity_list:[],
             selectDomainID: null,
             table:'false',
             addDialogVisible: false,
@@ -128,53 +123,8 @@ export default {
                 domain_id:''
             },
             formLabelWidth: '120px',
-            tableData: [
-                {
-                order: '1',
-                entity1Name: 'BILSTM-CRF',
-                entity1Type: '处理',
-                entity2Name: 'CRF',
-                entity2Type: '处理任务',
-                relationType: '对比关系',
-                },
-                {
-                order: '2',
-                entity1Name: '数据集',
-                entity1Type: '处理方法',
-                entity2Name: '双向',
-                entity2Type: '处理任务',
-                relationType: '应用关系',
-                },
-                {
-                order: '3',
-                entity1Name: '双向',
-                entity1Type: '处理任务',
-                entity2Name: 'BILSTM-CRF',
-                entity2Type: '处理',
-                relationType: '同指关系',
-                },
-                {
-                order: '4',
-                entity1Name: '双向',
-                entity1Type: '处理任务',
-                entity2Name: 'BILSTM-CRF',
-                entity2Type: '处理',
-                relationType: '同指关系',
-                },
-                {
-                order: '5',
-                entity1Name: '双向',
-                entity1Type: '处理任务',
-                entity2Name: 'BILSTM-CRF',
-                entity2Type: '处理',
-                relationType: '同指关系',
-                },
-            ],
+            graphVisible: false
         };
-    },
-    created(){
-        this.getMygraphList();
-        this.getMyDomainList();
     },
     methods: {
         // 获取我的图谱
@@ -224,6 +174,7 @@ export default {
             const { data:res } = await this.$http.get('show_vertex',{params:{graph_id:38}});
             console.log(res.data);
             this.vertex_list = res.data;
+            this.showEntityType(this.vertex_list[0]);
         },
         // 获取我的领域列表
         async getMyDomainList(){
@@ -234,11 +185,100 @@ export default {
         goBack() {
             this.opt = 'graphs';
         },
-        // 以表格形式展示数据
-        showTable(){
+        // 以表格形式展示某类型所有实体
+        async showEntityType(vertex){
+            const { data:res } = await this.$http.get('vertex_list',{params:{collection:vertex,page:1,len:10}});
+            console.log(res.data.vertex);
+            this.entity_list=res.data.vertex;
+        },
+        // 展示以某实体为中心的图谱
+        showGraph(){
+            var chartDom = document.getElementById('main');
+            var myChart = echarts.init(chartDom);
+            var option;
 
+            option = {
+                tooltip: {},
+                animationDurationUpdate: 1500,
+                animationEasingUpdate: 'quinticInOut',
+                series: [
+                {
+                    type: 'graph',
+                    layout: 'none',
+                    symbolSize: 50,
+                    roam: true,
+                    label: {
+                        show: true
+                    },
+                    edgeSymbol: ['circle', 'arrow'],
+                    edgeSymbolSize: [4, 10],
+                    edgeLabel: {
+                        fontSize: 20
+                    },
+                    data: [{
+                        name: '节点1',
+                        x: 300,
+                        y: 300
+                    }, {
+                        name: '节点2',
+                        x: 800,
+                        y: 300
+                    }, {
+                        name: '节点3',
+                        x: 550,
+                        y: 100
+                    }, {
+                        name: '节点4',
+                        x: 550,
+                        y: 500
+                    }],
+                    // links: [],
+                    links: [{
+                        source: 0,
+                        target: 1,
+                        symbolSize: [5, 20],
+                        label: {
+                            show: true
+                        },
+                        lineStyle: {
+                            width: 5,
+                            curveness: 0.2
+                        }
+                    }, {
+                        source: '节点2',
+                        target: '节点1',
+                        label: {
+                            show: true
+                        },
+                        lineStyle: {
+                            curveness: 0.2
+                        }
+                    }, {
+                        source: '节点1',
+                        target: '节点3'
+                    }, {
+                        source: '节点2',
+                        target: '节点3'
+                    }, {
+                        source: '节点2',
+                        target: '节点4'
+                    }, {
+                        source: '节点1',
+                        target: '节点4'
+                    }],
+                    lineStyle: {
+                        opacity: 0.9,
+                        width: 2,
+                        curveness: 0
+                    }
+                }
+            ]
+            };
+
+            option && myChart.setOption(option);
+            this.graphVisible=true;
+        },
         }
-    }
 };
 </script>
 
