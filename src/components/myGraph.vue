@@ -62,10 +62,10 @@
                 <el-button slot="append" icon="el-icon-search"></el-button>
                 </el-input>
                 <el-menu default-active="2" class="el-menu-vertical-demo" style="margin-top:3px;">
-                    <el-menu-item v-for="vertex in vertex_list" :key="vertex" :unique-opened="true" @click="showEntityType(vertex)" >
+                    <el-menu-item v-for="vertex_item in vertex_list" :key="vertex_item" :unique-opened="true" @click="showEntitys(vertex_item,1)" >
                     <template slot="title">
                         <i class="el-icon-star-on"></i>
-                        <span>{{vertex}}</span>
+                        <span>{{vertex_item}}</span>
                     </template>
                     </el-menu-item>
                 </el-menu>
@@ -75,23 +75,25 @@
         <el-card shadow="never">
             <el-table :data="entity_list" border style="width: 100%" size="mini">
                 <div id="main" style="width: 100%;height:100%;"></div>
-                <el-table-column prop="_id" label="id" width="160"></el-table-column>
-                <el-table-column prop="_key" label="key" width="160"></el-table-column>
-                <el-table-column prop="_rev" label="rev" width="160"></el-table-column>
-                <el-table-column prop="name" label="name" width="160"></el-table-column>
+                <el-table-column type="index" width="50"></el-table-column>
+                <el-table-column prop="_id" label="id" width="300"></el-table-column>
+                <el-table-column prop="_key" label="key" width="300"></el-table-column>
                 <el-table-column label="操作" width="200">
                     <template slot-scope="scope">
-                        <el-button type="success" icon="el-icon-picture" circle @click="showGraph()"></el-button>
+                        <el-button type="success" icon="el-icon-picture" circle @click="graphVisible=true;entity_id=scope.row._id"></el-button>
                         <el-button type="primary" icon="el-icon-edit" circle @click="handle(scope.$indeEditx, scope.row)"></el-button>
                         <el-button type="danger" icon="el-icon-delete" circle></el-button>
                     </template>
                 </el-table-column>
             </el-table>
+            <el-dialog title="图谱" :visible.sync="graphVisible" @opened="openGraph()">
+                <div id="main" ref="graph" style="width: 600px;height:400px;"></div>
+            </el-dialog>
+            <div style="width:50%;margin-left:30%;margin-top:10px;">
+                <el-pagination background layout="total, prev, pager, next" :page-size="8" :page-count="entity_pages" @current-change="changePage" :hide-on-single-page="true" style="margin:0 auto;"></el-pagination>
+            </div>
         </el-card>
         </div>
-        <el-dialog title="图谱" :visible.sync="graphVisible">
-            <div id="main" style="width: 600px;height:400px;"></div>
-        </el-dialog>
     </div>
   </el-container>
 </template>
@@ -113,7 +115,12 @@ export default {
             graph_list: [],
             domain_list: [],
             vertex_list:[],
-            entity_list:[],
+            vertex:'', // 当前所选择的实体类型
+            entity_id:'', // 当前所选择的实体
+            entity_list:[], // 某一类下所有实体列表
+            entity_nums:0, // 实体列表包含的实体数
+            entity_pages:0, // 包含页数，以8条为一页
+            currentPage:1, // 当前页数
             selectDomainID: null,
             table:'false',
             addDialogVisible: false,
@@ -123,7 +130,8 @@ export default {
                 domain_id:''
             },
             formLabelWidth: '120px',
-            graphVisible: false
+            graphVisible: false,
+            option:[]
         };
     },
     methods: {
@@ -171,10 +179,12 @@ export default {
             this.opt = 'graphDetail';
             this.graph_id = graph_id;
             this.graph_name = graph_name;
+            // 传入graph_id，get图中所涉及的实体类型
             const { data:res } = await this.$http.get('show_vertex',{params:{graph_id:38}});
             console.log(res.data);
             this.vertex_list = res.data;
-            this.showEntityType(this.vertex_list[0]);
+            this.vertex = this.vertex_list[0];
+            this.showEntitys(this.vertex,1);
         },
         // 获取我的领域列表
         async getMyDomainList(){
@@ -185,98 +195,110 @@ export default {
         goBack() {
             this.opt = 'graphs';
         },
+        changePage: function(currentPage){
+            this.currentPage = currentPage;
+            this.showEntitys(this.vertex,this.currentPage);
+        },
         // 以表格形式展示某类型所有实体
-        async showEntityType(vertex){
-            const { data:res } = await this.$http.get('vertex_list',{params:{collection:vertex,page:1,len:10}});
-            console.log(res.data.vertex);
+        async showEntitys(vertex,page){
+            this.vertex = vertex;
+            const { data:res } = await this.$http.get('vertex_list',{params:{collection:vertex,page:page,len:8}});
             this.entity_list=res.data.vertex;
+            this.entity_pages=parseInt(res.data.pages);
+        },
+        // 打开显示图的对话框
+        openGraph(){
+            console.log('open');
+            this.$nextTick(() => {
+                this.showGraph();
+            });
         },
         // 展示以某实体为中心的图谱
         showGraph(){
-            var chartDom = document.getElementById('main');
-            var myChart = echarts.init(chartDom);
-            var option;
+            //var chartDom = document.getElementById('main');
+            var myChart = echarts.init(this.$refs.graph);
 
-            option = {
+            this.option = {
+                title: {
+                    text: '中心节点:' + this.entity_id
+                },
                 tooltip: {},
                 animationDurationUpdate: 1500,
                 animationEasingUpdate: 'quinticInOut',
                 series: [
-                {
-                    type: 'graph',
-                    layout: 'none',
-                    symbolSize: 50,
-                    roam: true,
-                    label: {
-                        show: true
-                    },
-                    edgeSymbol: ['circle', 'arrow'],
-                    edgeSymbolSize: [4, 10],
-                    edgeLabel: {
-                        fontSize: 20
-                    },
-                    data: [{
-                        name: '节点1',
-                        x: 300,
-                        y: 300
-                    }, {
-                        name: '节点2',
-                        x: 800,
-                        y: 300
-                    }, {
-                        name: '节点3',
-                        x: 550,
-                        y: 100
-                    }, {
-                        name: '节点4',
-                        x: 550,
-                        y: 500
-                    }],
-                    // links: [],
-                    links: [{
-                        source: 0,
-                        target: 1,
-                        symbolSize: [5, 20],
+                    {
+                        type: 'graph',
+                        layout: 'none',
+                        symbolSize: 50,
+                        roam: true,
                         label: {
                             show: true
                         },
-                        lineStyle: {
-                            width: 5,
-                            curveness: 0.2
-                        }
-                    }, {
-                        source: '节点2',
-                        target: '节点1',
-                        label: {
-                            show: true
+                        edgeSymbol: ['circle', 'arrow'],
+                        edgeSymbolSize: [4, 10],
+                        edgeLabel: {
+                            fontSize: 20
                         },
+                        data: [{
+                            name: '节点1',
+                            x: 300,
+                            y: 300
+                        }, {
+                            name: '节点2',
+                            x: 800,
+                            y: 300
+                        }, {
+                            name: '节点3',
+                            x: 550,
+                            y: 100
+                        }, {
+                            name: '节点4',
+                            x: 550,
+                            y: 500
+                        }],
+                        // links: [],
+                        links: [{
+                            source: 0,
+                            target: 1,
+                            symbolSize: [5, 20],
+                            label: {
+                                show: true
+                            },
+                            lineStyle: {
+                                width: 5,
+                                curveness: 0.2
+                            }
+                        }, {
+                            source: '节点2',
+                            target: '节点1',
+                            label: {
+                                show: true
+                            },
+                            lineStyle: {
+                                curveness: 0.2
+                            }
+                        }, {
+                            source: '节点1',
+                            target: '节点3'
+                        }, {
+                            source: '节点2',
+                            target: '节点3'
+                        }, {
+                            source: '节点2',
+                            target: '节点4'
+                        }, {
+                            source: '节点1',
+                            target: '节点4'
+                        }],
                         lineStyle: {
-                            curveness: 0.2
+                            opacity: 0.9,
+                            width: 2,
+                            curveness: 0
                         }
-                    }, {
-                        source: '节点1',
-                        target: '节点3'
-                    }, {
-                        source: '节点2',
-                        target: '节点3'
-                    }, {
-                        source: '节点2',
-                        target: '节点4'
-                    }, {
-                        source: '节点1',
-                        target: '节点4'
-                    }],
-                    lineStyle: {
-                        opacity: 0.9,
-                        width: 2,
-                        curveness: 0
-                    }
-                }
-            ]
-            };
-
-            option && myChart.setOption(option);
-            this.graphVisible=true;
+                        }
+                        ]
+                    };
+                    myChart.setOption(this.option);    
         },
         }
 };
