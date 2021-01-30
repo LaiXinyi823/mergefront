@@ -121,6 +121,8 @@ export default {
             entity_nums:0, // 实体列表包含的实体数
             entity_pages:0, // 包含页数，以8条为一页
             currentPage:1, // 当前页数
+            graph_datas:[], // 展示图所涉及到的节点数据
+            graph_links:[], // 展示图所涉及到的关系数据
             selectDomainID: null,
             table:'false',
             addDialogVisible: false,
@@ -188,7 +190,7 @@ export default {
         },
         // 获取我的领域列表
         async getMyDomainList(){
-            const { data:res} = await this.$http.get('list_domain');
+            const { data:res } = await this.$http.get('list_domain');
             this.domain_list = res.data;
         },
         // 详情界面返回函数
@@ -208,16 +210,66 @@ export default {
         },
         // 打开显示图的对话框
         openGraph(){
-            console.log('open');
             this.$nextTick(() => {
                 this.showGraph();
             });
         },
         // 展示以某实体为中心的图谱
-        showGraph(){
+        async showGraph(){
             //var chartDom = document.getElementById('main');
+            console.log(this.entity_id);
+            const { data:res } = await this.$http.post('traverse',
+            {
+                startVertex:this.entity_id,
+                direction:'any',
+                maxDepth:2,
+                minDepth:0
+            });
+            
+            var len=res.data.paths.length;
+            // 每个path中包括1/2条边edges数组以及涉及到的节点vertices数组
+            for(var i=0;i<len;i++){
+                var vertices=res.data.paths[i].vertices;
+                var links=res.data.paths[i].edges;
+                var v_len=vertices.length;
+                var l_len=links.length;
+                // 获取节点数据
+                for(var j=0;j<v_len;j++){
+                    vertices[j]['id']=vertices[j]['_id'];
+                    delete vertices[j]['_id'];
+                    if(JSON.stringify(this.graph_datas).indexOf(JSON.stringify(vertices[j]))>-1){
+                        console.log(vertices[j]);
+                    }
+                    else{
+                        this.graph_datas.push(vertices[j]); // 得到与中心实体相关的所有实体
+                    }
+                }
+                // 获取关系数据
+                // 关系数据格式
+                // { "source": "persons/alice","id": "knows/247922","target": "persons/bob"}
+                for(var k=0;k<l_len;k++)
+                {
+                    var relation={
+                        id:links[k]._id,
+                        source:links[k]._from,
+                        target:links[k]._to
+                    }
+                    if(links[k].length!=0 && JSON.stringify(this.graph_links).indexOf(JSON.stringify(relation))==-1)
+                        this.graph_links.push(relation);
+                }
+                    
+            }
+            // 节点数据格式
+            // {"id": "persons/alice","_key": "alice","_rev": "_bukg8Sa---","name": "Alice"}
+            this.graph_datas.map(function(item){
+                return{
+                    id:item._id
+                }
+            });
+            
+            console.log(this.graph_datas)
+            console.log(this.graph_links)
             var myChart = echarts.init(this.$refs.graph);
-
             this.option = {
                 title: {
                     text: '中心节点:' + this.entity_id
@@ -228,9 +280,14 @@ export default {
                 series: [
                     {
                         type: 'graph',
-                        layout: 'none',
+                        layout: 'force',
                         symbolSize: 50,
                         roam: true,
+                        force: {
+                            repulsion: 2500,
+                            edgeLength: [10, 50],
+                            draggable:true
+                        },
                         label: {
                             show: true
                         },
@@ -239,57 +296,16 @@ export default {
                         edgeLabel: {
                             fontSize: 20
                         },
-                        data: [{
-                            name: '节点1',
-                            x: 300,
-                            y: 300
-                        }, {
-                            name: '节点2',
-                            x: 800,
-                            y: 300
-                        }, {
-                            name: '节点3',
-                            x: 550,
-                            y: 100
-                        }, {
-                            name: '节点4',
-                            x: 550,
-                            y: 500
-                        }],
-                        // links: [],
-                        links: [{
-                            source: 0,
-                            target: 1,
-                            symbolSize: [5, 20],
-                            label: {
-                                show: true
+                        nodes: this.graph_datas, // 节点数据
+                        links: this.graph_links, // 关系数据
+                        edgeLabel: {//边的设置
+                            show: true,
+                            position: "middle",
+                            fontSize: 12,
+                            formatter: (params) => {
+                                return params.data.id.split('/')[0];
                             },
-                            lineStyle: {
-                                width: 5,
-                                curveness: 0.2
-                            }
-                        }, {
-                            source: '节点2',
-                            target: '节点1',
-                            label: {
-                                show: true
-                            },
-                            lineStyle: {
-                                curveness: 0.2
-                            }
-                        }, {
-                            source: '节点1',
-                            target: '节点3'
-                        }, {
-                            source: '节点2',
-                            target: '节点3'
-                        }, {
-                            source: '节点2',
-                            target: '节点4'
-                        }, {
-                            source: '节点1',
-                            target: '节点4'
-                        }],
+                        },
                         lineStyle: {
                             opacity: 0.9,
                             width: 2,
