@@ -52,73 +52,77 @@
             </div>
         </el-dialog>
     </div>
-
     <div v-if="opt=='graphDetail'" style="width:100%;height:100px;">
-        <el-card style="width:100%;height:65px;background-color:#fff;">
+        <el-card style="width:100%;height:65px;background-color:#fff;" shadow="never">
         <el-page-header @back="goBack()" :content="graph_name + ' 图谱详情'" style="float:left;"> </el-page-header>
-        <!-- <el-radio-group v-model="graph_or_table" style="bottom:10%;margin-right:10px;float:right;">
-        </el-radio-group> -->
-        <!-- <div class='switch'>
-            以数据表格形式显示
-            <el-switch
-                v-model="table"
-                active-color="#1e90ff"
-                inactive-color="#dcdcdc"
-                :change="showTable()"
-            >
-            </el-switch>
-        </div> -->
         </el-card>
         <div style="margin-top:5px;">
             <el-col :span="3">
-                <el-input placeholder="请输入内容" v-model="input3" class="input-with-select">
+                <el-input placeholder="请输入内容" v-model="search" class="input-with-select">
                 <el-button slot="append" icon="el-icon-search"></el-button>
                 </el-input>
                 <el-menu default-active="2" class="el-menu-vertical-demo" style="margin-top:3px;">
-                    <el-menu-item v-for="vertex in vertex_list" :key="vertex" :unique-opened="true" @click="show(subitem.option)" >
+                    <el-menu-item v-for="vertex_item in vertex_list" :key="vertex_item" :unique-opened="true" @click="showEntitys(vertex_item,1)" >
                     <template slot="title">
                         <i class="el-icon-star-on"></i>
-                        <span>{{vertex}}</span>
+                        <span>{{vertex_item}}</span>
                     </template>
                     </el-menu-item>
                 </el-menu>
             </el-col>
         </div>
-        <!-- <el-card style="width:88%;margin-top:10px;">
-            <el-table :data="tableData" border height="300" style="width: 100%">
-                <el-table-column fixed prop="order" label="序号" width="110" />
-                <el-table-column prop="entity1Name" label="起点实体" width="170" />
-                <el-table-column prop="entity1Type" label="起点实体类型" width="170"/>
-                <el-table-column prop="entity2Name" label="终点实体" width="170" />
-                <el-table-column prop="entity2Type" label="终点实体类型" width="170"/>
-                <el-table-column prop="relationType" label="关系类型" width="150" />
-                <el-table-column fixed="right" label="操作" width="150">
-                    <template>
-                    <el-button @click="editOpt = true" type="text" size="medium">
-                        <i class="el-icon-edit" />
-                    </el-button>
-                    <el-button @click="deleteOpt = true" type="text" size="medium">
-                        <i class="el-icon-delete" />
-                    </el-button>
+        <div style="margin-left:130px;margin-top:5px;">
+        <el-card shadow="never">
+            <el-table :data="entity_list" border style="width: 100%" size="mini">
+                <div id="main" style="width: 100%;height:100%;"></div>
+                <el-table-column type="index" width="50"></el-table-column>
+                <el-table-column prop="_id" label="id" width="300"></el-table-column>
+                <el-table-column prop="_key" label="key" width="300"></el-table-column>
+                <el-table-column label="操作" width="200">
+                    <template slot-scope="scope">
+                        <el-button type="success" icon="el-icon-picture" circle @click="graphVisible=true;entity_id=scope.row._id"></el-button>
+                        <el-button type="primary" icon="el-icon-edit" circle @click="handle(scope.$indeEditx, scope.row)"></el-button>
+                        <el-button type="danger" icon="el-icon-delete" circle></el-button>
                     </template>
                 </el-table-column>
             </el-table>
-        </el-card> -->
+            <el-dialog title="图谱" :visible.sync="graphVisible" @opened="openGraph()">
+                <div id="main" ref="graph" style="width: 600px;height:400px;"></div>
+            </el-dialog>
+            <div style="width:50%;margin-left:30%;margin-top:10px;">
+                <el-pagination background layout="total, prev, pager, next" :page-size="8" :page-count="entity_pages" @current-change="changePage" :hide-on-single-page="true" style="margin:0 auto;"></el-pagination>
+            </div>
+        </el-card>
+        </div>
     </div>
   </el-container>
 </template>
 
 <script>
+import * as echarts from 'echarts'
 export default {
     inject:['reload'],
+    created(){
+        this.getMygraphList();
+        this.getMyDomainList();
+    },
     data (){
         return {
             opt:'graphs',
             graph_id:'',
+            search:'',
             graph_name:'',
             graph_list: [],
             domain_list: [],
             vertex_list:[],
+            vertex:'', // 当前所选择的实体类型
+            entity_id:'', // 当前所选择的实体
+            entity_list:[], // 某一类下所有实体列表
+            entity_nums:0, // 实体列表包含的实体数
+            entity_pages:0, // 包含页数，以8条为一页
+            currentPage:1, // 当前页数
+            graph_datas:[], // 展示图所涉及到的节点数据
+            graph_links:[], // 展示图所涉及到的关系数据
             selectDomainID: null,
             table:'false',
             addDialogVisible: false,
@@ -128,53 +132,9 @@ export default {
                 domain_id:''
             },
             formLabelWidth: '120px',
-            tableData: [
-                {
-                order: '1',
-                entity1Name: 'BILSTM-CRF',
-                entity1Type: '处理',
-                entity2Name: 'CRF',
-                entity2Type: '处理任务',
-                relationType: '对比关系',
-                },
-                {
-                order: '2',
-                entity1Name: '数据集',
-                entity1Type: '处理方法',
-                entity2Name: '双向',
-                entity2Type: '处理任务',
-                relationType: '应用关系',
-                },
-                {
-                order: '3',
-                entity1Name: '双向',
-                entity1Type: '处理任务',
-                entity2Name: 'BILSTM-CRF',
-                entity2Type: '处理',
-                relationType: '同指关系',
-                },
-                {
-                order: '4',
-                entity1Name: '双向',
-                entity1Type: '处理任务',
-                entity2Name: 'BILSTM-CRF',
-                entity2Type: '处理',
-                relationType: '同指关系',
-                },
-                {
-                order: '5',
-                entity1Name: '双向',
-                entity1Type: '处理任务',
-                entity2Name: 'BILSTM-CRF',
-                entity2Type: '处理',
-                relationType: '同指关系',
-                },
-            ],
+            graphVisible: false,
+            option:[]
         };
-    },
-    created(){
-        this.getMygraphList();
-        this.getMyDomainList();
     },
     methods: {
         // 获取我的图谱
@@ -221,24 +181,142 @@ export default {
             this.opt = 'graphDetail';
             this.graph_id = graph_id;
             this.graph_name = graph_name;
+            // 传入graph_id，get图中所涉及的实体类型
             const { data:res } = await this.$http.get('show_vertex',{params:{graph_id:38}});
             console.log(res.data);
             this.vertex_list = res.data;
+            this.vertex = this.vertex_list[0];
+            this.showEntitys(this.vertex,1);
         },
         // 获取我的领域列表
         async getMyDomainList(){
-            const { data:res} = await this.$http.get('list_domain');
+            const { data:res } = await this.$http.get('list_domain');
             this.domain_list = res.data;
         },
         // 详情界面返回函数
         goBack() {
             this.opt = 'graphs';
         },
-        // 以表格形式展示数据
-        showTable(){
-
+        changePage: function(currentPage){
+            this.currentPage = currentPage;
+            this.showEntitys(this.vertex,this.currentPage);
+        },
+        // 以表格形式展示某类型所有实体
+        async showEntitys(vertex,page){
+            this.vertex = vertex;
+            const { data:res } = await this.$http.get('vertex_list',{params:{collection:vertex,page:page,len:8}});
+            this.entity_list=res.data.vertex;
+            this.entity_pages=parseInt(res.data.pages);
+        },
+        // 打开显示图的对话框
+        openGraph(){
+            this.$nextTick(() => {
+                this.showGraph();
+            });
+        },
+        // 展示以某实体为中心的图谱
+        async showGraph(){
+            //var chartDom = document.getElementById('main');
+            console.log(this.entity_id);
+            const { data:res } = await this.$http.post('traverse',
+            {
+                startVertex:this.entity_id,
+                direction:'any',
+                maxDepth:2,
+                minDepth:0
+            });
+            
+            var len=res.data.paths.length;
+            // 每个path中包括1/2条边edges数组以及涉及到的节点vertices数组
+            for(var i=0;i<len;i++){
+                var vertices=res.data.paths[i].vertices;
+                var links=res.data.paths[i].edges;
+                var v_len=vertices.length;
+                var l_len=links.length;
+                // 获取节点数据
+                for(var j=0;j<v_len;j++){
+                    vertices[j]['id']=vertices[j]['_id'];
+                    delete vertices[j]['_id'];
+                    if(JSON.stringify(this.graph_datas).indexOf(JSON.stringify(vertices[j]))>-1){
+                        console.log(vertices[j]);
+                    }
+                    else{
+                        this.graph_datas.push(vertices[j]); // 得到与中心实体相关的所有实体
+                    }
+                }
+                // 获取关系数据
+                // 关系数据格式
+                // { "source": "persons/alice","id": "knows/247922","target": "persons/bob"}
+                for(var k=0;k<l_len;k++)
+                {
+                    var relation={
+                        id:links[k]._id,
+                        source:links[k]._from,
+                        target:links[k]._to
+                    }
+                    if(links[k].length!=0 && JSON.stringify(this.graph_links).indexOf(JSON.stringify(relation))==-1)
+                        this.graph_links.push(relation);
+                }
+                    
+            }
+            // 节点数据格式
+            // {"id": "persons/alice","_key": "alice","_rev": "_bukg8Sa---","name": "Alice"}
+            this.graph_datas.map(function(item){
+                return{
+                    id:item._id
+                }
+            });
+            
+            console.log(this.graph_datas)
+            console.log(this.graph_links)
+            var myChart = echarts.init(this.$refs.graph);
+            this.option = {
+                title: {
+                    text: '中心节点:' + this.entity_id
+                },
+                tooltip: {},
+                animationDurationUpdate: 1500,
+                animationEasingUpdate: 'quinticInOut',
+                series: [
+                    {
+                        type: 'graph',
+                        layout: 'force',
+                        symbolSize: 50,
+                        roam: true,
+                        force: {
+                            repulsion: 2500,
+                            edgeLength: [10, 50],
+                            draggable:true
+                        },
+                        label: {
+                            show: true
+                        },
+                        edgeSymbol: ['circle', 'arrow'],
+                        edgeSymbolSize: [4, 10],
+                        edgeLabel: {
+                            fontSize: 20
+                        },
+                        nodes: this.graph_datas, // 节点数据
+                        links: this.graph_links, // 关系数据
+                        edgeLabel: {//边的设置
+                            show: true,
+                            position: "middle",
+                            fontSize: 12,
+                            formatter: (params) => {
+                                return params.data.id.split('/')[0];
+                            },
+                        },
+                        lineStyle: {
+                            opacity: 0.9,
+                            width: 2,
+                            curveness: 0
+                        }
+                        }
+                        ]
+                    };
+                    myChart.setOption(this.option);    
+        },
         }
-    }
 };
 </script>
 

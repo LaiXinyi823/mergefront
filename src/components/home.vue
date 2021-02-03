@@ -16,7 +16,7 @@
     <!-- 导航栏 -->
     <div class="nav">
       <el-container>
-        <el-menu :collapse="false" class="el-menu-vertical-demo">  
+        <el-menu :collapse="false" class="el-menu-vertical-demo" style="width:200px;">  
         <el-submenu :index='item.id' v-for="item in menuList" :key="item.id">
         <template slot="title">
           <i :class="item.icon"></i>
