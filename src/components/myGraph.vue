@@ -93,7 +93,7 @@
                 <!-- 图中显示层数 -->
                 <div style="margin-left:25%;">
                     显示层数：
-                    <el-select v-model="maxDepth" placeholder="2" size="mini" @change="showGraph()">
+                    <el-select v-model="maxDepth" placeholder="2" size="mini" @change="showEditGraph(maxDepth)">
                         <el-option
                         v-for="i in 5"
                         :key="i"
@@ -227,11 +227,11 @@ export default {
         // 打开显示图的对话框
         openGraph(){
             this.$nextTick(() => {
-                this.showGraph(this.maxDepth);
+                this.showEditGraph(this.maxDepth);
             });
         },
         // 展示以某实体为中心的图谱
-        async showGraph(maxDepth){
+        async showEditGraph(maxDepth){
             this.graph_nodes = []; // 节点数据初始化
             this.graph_links = []; // 关系数据初始化
             const { data:res } = await this.$http.post('traverse',
@@ -281,79 +281,93 @@ export default {
                     id:item._id
                 }
             });
-            // 使用Echarts展示
-            var myChart = echarts.init(this.$refs.graph);
-            var option = {
-                title: {
-                    text: '中心节点:' + this.entity_id
-                },
-                tooltip: {},
-                animationDurationUpdate: 1500,
-                animationEasingUpdate: 'quinticInOut',
-                series: [
-                    {
-                        type: 'graph',
-                        layout: 'force',
-                        symbolSize: 50,
-                        roam: true,
-                        force: {
-                            repulsion: 2500,
-                            edgeLength: [10, 50],
-                            draggable:true
-                        },
-                        itemStyle: {//配置节点的颜色已及尺寸
-                            normal: {
-                                color: function (params) {
-                                    if (params.dataIndex == 0)
-                                        return 'red'
-                                    else{
-                                        var colorList = ['yellow','orange', 'green', 'blue', 'gray'];
-                                        return colorList[params.dataIndex]
-                                    }
-                                    
-                                },
 
-                            }
-                        },
-                        label: {
-                            show: true
-                        },
-                        edgeSymbol: ['circle', 'arrow'],
-                        edgeSymbolSize: [4, 10],
-                        edgeLabel: {
-                            fontSize: 20
-                        },
-                        nodes: this.graph_nodes, // 节点数据
-                        links: this.graph_links, // 关系数据
-                        edgeLabel: {//边的设置
-                            show: true,
-                            position: "middle",
-                            fontSize: 12,
-                            formatter: (params) => {
-                                return params.data.id.split('/')[0];
+            if(this.graphVisible){
+                // 使用Echarts展示
+                var myChart = echarts.init(this.$refs.graph);
+                var option = {
+                    title: {
+                        text: '中心节点:' + this.entity_id
+                    },
+                    tooltip: {},
+                    animationDurationUpdate: 1500,
+                    animationEasingUpdate: 'quinticInOut',
+                    series: [
+                        {
+                            type: 'graph',
+                            layout: 'force',
+                            symbolSize: 50,
+                            roam: true,
+                            force: {
+                                repulsion: 2500,
+                                edgeLength: [10, 50],
+                                draggable:true
                             },
-                        },
-                        lineStyle: {
-                            opacity: 0.9,
-                            width: 2,
-                            curveness: 0
-                        }
-                        }
-                        ]
-                    };
-                    myChart.setOption(option);    
-                    //点击事件
-                    myChart.on('click', function (params) {
-                        if (params.dataType == 'node') {
-                            console.log(params.name)
-                            // if (params.name == "bob") {
-                            //     window.location = "https://www.baidu.com/";//"square.aspx";
-                            // }
-                        }
-                        else if (params.dataType == 'edge'){
-                            console.log(params)
-                        }
-                    });
+                            itemStyle: {//配置节点的颜色
+                                normal: {
+                                    color: function (params) {
+                                        if (params.dataIndex == 0)
+                                            return 'red'
+                                        else{
+                                            var colorList = ['yellow','orange', 'green', 'blue', 'gray'];
+                                            return colorList[params.dataIndex]
+                                        }
+                                        
+                                    },
+
+                                }
+                            },
+                            symbolSize: function (value, params) {//改变节点大小
+                                if (params.dataIndex == 0)
+                                    return 60
+                                else
+                                    return 40
+                            },
+                            label: {
+                                show: true
+                            },
+                            edgeSymbol: ['circle', 'arrow'],
+                            edgeSymbolSize: [4, 10],
+                            edgeLabel: {
+                                fontSize: 20
+                            },
+                            nodes: this.graph_nodes, // 节点数据
+                            links: this.graph_links, // 关系数据
+                            edgeLabel: {//边的设置
+                                show: true,
+                                position: "middle",
+                                fontSize: 12,
+                                formatter: (params) => {
+                                    return params.data.id.split('/')[0];
+                                },
+                            },
+                            lineStyle: {
+                                opacity: 0.9,
+                                width: 2,
+                                curveness: 0
+                            }
+                            }
+                            ]
+                        };
+                        myChart.setOption(option);    
+                        //点击事件
+                        myChart.on('click', function (params) {
+                            if (params.dataType == 'node') {
+                                console.log(params.name)
+                                // if (params.name == "bob") {
+                                //     window.location = "https://www.baidu.com/";//"square.aspx";
+                                // }
+                            }
+                            else if (params.dataType == 'edge'){
+                                console.log(params)
+                            }
+                        });
+            }
+
+            else if(this.editVisible){
+
+            }
+            
         },
         }
 };
