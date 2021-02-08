@@ -152,8 +152,7 @@ export default {
             },
             formLabelWidth: '120px',
             graphVisible: false,
-            editVisible: false,
-            option:[]
+            editVisible: false
         };
     },
     methods: {
@@ -227,13 +226,12 @@ export default {
         },
         // 打开显示图的对话框
         openGraph(){
-            this.getGraphInfo(this.maxDepth)
             this.$nextTick(() => {
-                this.showGraph();
+                this.showGraph(this.maxDepth);
             });
         },
-        //得到某实体为中心的图谱信息
-        async getGraphInfo(maxDepth){
+        // 展示以某实体为中心的图谱
+        async showGraph(maxDepth){
             this.graph_nodes = []; // 节点数据初始化
             this.graph_links = []; // 关系数据初始化
             const { data:res } = await this.$http.post('traverse',
@@ -283,15 +281,9 @@ export default {
                     id:item._id
                 }
             });
-            console.log(this.graph_links)
-            console.log(this.graph_nodes)
-        },
-        // 展示以某实体为中心的图谱
-        async showGraph(){
-            console.log(this.graph_links)
             // 使用Echarts展示
             var myChart = echarts.init(this.$refs.graph);
-            this.option = {
+            var option = {
                 title: {
                     text: '中心节点:' + this.entity_id
                 },
@@ -349,7 +341,7 @@ export default {
                         }
                         ]
                     };
-                    myChart.setOption(this.option);    
+                    myChart.setOption(option);    
                     //点击事件
                     myChart.on('click', function (params) {
                         if (params.dataType == 'node') {
