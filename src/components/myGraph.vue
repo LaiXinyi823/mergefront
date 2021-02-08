@@ -62,6 +62,7 @@
                 <el-button slot="append" icon="el-icon-search"></el-button>
                 </el-input>
                 <el-menu default-active="2" class="el-menu-vertical-demo" style="margin-top:3px;">
+                    <el-menu-item>实体类型列表</el-menu-item>
                     <el-menu-item v-for="vertex_item in vertex_list" :key="vertex_item" :unique-opened="true" @click="showEntitys(vertex_item,1)" >
                     <template slot="title">
                         <i class="el-icon-star-on"></i>
@@ -81,13 +82,30 @@
                 <el-table-column label="操作" width="200">
                     <template slot-scope="scope">
                         <el-button type="success" icon="el-icon-picture" circle @click="graphVisible=true;entity_id=scope.row._id"></el-button>
-                        <el-button type="primary" icon="el-icon-edit" circle @click="handle(scope.$indeEditx, scope.row)"></el-button>
+                        <el-button type="primary" icon="el-icon-edit" circle @click="editVisible=true;entity_id=scope.row._id"></el-button>
                         <el-button type="danger" icon="el-icon-delete" circle></el-button>
                     </template>
                 </el-table-column>
             </el-table>
-            <el-dialog title="图谱" :visible.sync="graphVisible" @opened="openGraph()">
+            <!-- 以中心节点方式展示图谱 -->
+            <el-dialog title="图谱显示" :visible.sync="graphVisible" @opened="openGraph()" @close="maxDepth=2">
                 <div id="main" ref="graph" style="width: 600px;height:400px;"></div>
+                <!-- 图中显示层数 -->
+                <div style="margin-left:25%;">
+                    显示层数：
+                    <el-select v-model="maxDepth" placeholder="2" size="mini" @change="showGraph()">
+                        <el-option
+                        v-for="i in 5"
+                        :key="i"
+                        :label="i"
+                        :value="i">
+                        </el-option>
+                    </el-select>
+                </div>
+            </el-dialog>
+            <!-- 展示该图谱的中心实体对应的关系列表（编辑功能） -->
+            <el-dialog title="图谱编辑" :visible.sync="editVisible" @opened="getGraphInfo()">
+                
             </el-dialog>
             <div style="width:50%;margin-left:30%;margin-top:10px;">
                 <el-pagination background layout="total, prev, pager, next" :page-size="8" :page-count="entity_pages" @current-change="changePage" :hide-on-single-page="true" style="margin:0 auto;"></el-pagination>
@@ -121,8 +139,9 @@ export default {
             entity_nums:0, // 实体列表包含的实体数
             entity_pages:0, // 包含页数，以8条为一页
             currentPage:1, // 当前页数
-            graph_datas:[], // 展示图所涉及到的节点数据
+            graph_nodes:[], // 展示图所涉及到的节点数据
             graph_links:[], // 展示图所涉及到的关系数据
+            maxDepth:2, // 图谱层数，默认为2
             selectDomainID: null,
             table:'false',
             addDialogVisible: false,
@@ -133,6 +152,7 @@ export default {
             },
             formLabelWidth: '120px',
             graphVisible: false,
+            editVisible: false,
             option:[]
         };
     },
@@ -141,7 +161,6 @@ export default {
         async getMygraphList (){
             const res = await this.$http.get('list_graphs',{params:{domain_id: this.selectDomainID}});
             this.graph_list = res.data.data;
-            console.log(res.data.data);
         },
         // 添加图谱
         async addGraph (){
@@ -174,7 +193,6 @@ export default {
                     type: 'error'
                 });
             }
-            console.log(res);
         },
         // 查看图谱详情
         async graphDetail(graph_id,graph_name) {
@@ -183,7 +201,6 @@ export default {
             this.graph_name = graph_name;
             // 传入graph_id，get图中所涉及的实体类型
             const { data:res } = await this.$http.get('show_vertex',{params:{graph_id:38}});
-            console.log(res.data);
             this.vertex_list = res.data;
             this.vertex = this.vertex_list[0];
             this.showEntitys(this.vertex,1);
@@ -210,19 +227,20 @@ export default {
         },
         // 打开显示图的对话框
         openGraph(){
+            this.getGraphInfo(this.maxDepth)
             this.$nextTick(() => {
                 this.showGraph();
             });
         },
-        // 展示以某实体为中心的图谱
-        async showGraph(){
-            //var chartDom = document.getElementById('main');
-            console.log(this.entity_id);
+        //得到某实体为中心的图谱信息
+        async getGraphInfo(maxDepth){
+            this.graph_nodes = []; // 节点数据初始化
+            this.graph_links = []; // 关系数据初始化
             const { data:res } = await this.$http.post('traverse',
             {
                 startVertex:this.entity_id,
                 direction:'any',
-                maxDepth:2,
+                maxDepth:parseInt(maxDepth),
                 minDepth:0
             });
             
@@ -237,11 +255,10 @@ export default {
                 for(var j=0;j<v_len;j++){
                     vertices[j]['id']=vertices[j]['_id'];
                     delete vertices[j]['_id'];
-                    if(JSON.stringify(this.graph_datas).indexOf(JSON.stringify(vertices[j]))>-1){
-                        console.log(vertices[j]);
+                    if(JSON.stringify(this.graph_nodes).indexOf(JSON.stringify(vertices[j]))>-1){
                     }
                     else{
-                        this.graph_datas.push(vertices[j]); // 得到与中心实体相关的所有实体
+                        this.graph_nodes.push(vertices[j]); // 得到与中心实体相关的所有实体
                     }
                 }
                 // 获取关系数据
@@ -261,14 +278,18 @@ export default {
             }
             // 节点数据格式
             // {"id": "persons/alice","_key": "alice","_rev": "_bukg8Sa---","name": "Alice"}
-            this.graph_datas.map(function(item){
+            this.graph_nodes.map(function(item){
                 return{
                     id:item._id
                 }
             });
-            
-            console.log(this.graph_datas)
             console.log(this.graph_links)
+            console.log(this.graph_nodes)
+        },
+        // 展示以某实体为中心的图谱
+        async showGraph(){
+            console.log(this.graph_links)
+            // 使用Echarts展示
             var myChart = echarts.init(this.$refs.graph);
             this.option = {
                 title: {
@@ -288,6 +309,20 @@ export default {
                             edgeLength: [10, 50],
                             draggable:true
                         },
+                        itemStyle: {//配置节点的颜色已及尺寸
+                            normal: {
+                                color: function (params) {
+                                    if (params.dataIndex == 0)
+                                        return 'red'
+                                    else{
+                                        var colorList = ['yellow','orange', 'green', 'blue', 'gray'];
+                                        return colorList[params.dataIndex]
+                                    }
+                                    
+                                },
+
+                            }
+                        },
                         label: {
                             show: true
                         },
@@ -296,7 +331,7 @@ export default {
                         edgeLabel: {
                             fontSize: 20
                         },
-                        nodes: this.graph_datas, // 节点数据
+                        nodes: this.graph_nodes, // 节点数据
                         links: this.graph_links, // 关系数据
                         edgeLabel: {//边的设置
                             show: true,
@@ -315,6 +350,18 @@ export default {
                         ]
                     };
                     myChart.setOption(this.option);    
+                    //点击事件
+                    myChart.on('click', function (params) {
+                        if (params.dataType == 'node') {
+                            console.log(params.name)
+                            // if (params.name == "bob") {
+                            //     window.location = "https://www.baidu.com/";//"square.aspx";
+                            // }
+                        }
+                        else if (params.dataType == 'edge'){
+                            console.log(params)
+                        }
+                    });
         },
         }
 };

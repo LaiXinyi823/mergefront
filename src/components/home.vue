@@ -153,7 +153,7 @@ export default {
   font-family: "Microsoft YaHei";
   color: #1e90ff;
   position: absolute;
-  left: 5%;
+  left: 80px;
   top: 0;
 }
 
