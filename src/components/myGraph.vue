@@ -17,7 +17,7 @@
                 </el-card>
             </div>
             <el-col :span="4.5" v-for="graph in graph_list" :key="graph.graph_id" :offset="0">
-            <div @click="graphDetail(graph.graph_id,graph.graph_name)">
+            <div @click="graphDetail(graph.graph_id,graph.graph_name,graph.domain_id)">
                 <el-card shadow="hover" style="width: 200px;height: 200px;margin-bottom:10px;">
                 <el-image style="width: 100px; height: 100px; margin-left:20%;margin-top:5%;"
                 src="https://fuss10.elemecdn.com/e/5d/4a731a90594a4af544c0c25941171jpeg.jpeg"></el-image>
@@ -74,6 +74,8 @@
         </div>
         <div style="margin-left:130px;margin-top:5px;">
         <el-card shadow="never">
+            <el-button @click="addEntityVisible=true" size="mini" type="primary" icon="el-icon-plus" style="margin-left:10px;margin-right:10px;margin-bottom:10px;" circle>
+            </el-button>添加实体节点
             <el-table :data="entity_list" border style="width: 100%" size="mini">
                 <div id="main" style="width: 100%;height:100%;"></div>
                 <el-table-column type="index" width="50"></el-table-column>
@@ -87,8 +89,23 @@
                     </template>
                 </el-table-column>
             </el-table>
+            <!-- 添加新实体节点 -->
+            <el-dialog title="添加新实体节点" :visible.sync="addEntityVisible">
+                <el-form :model="newEntity">
+                    <el-form-item label="实体类型" :label-width="formLabelWidth">
+                        {{vertex}}
+                    </el-form-item>
+                    <el-form-item label="实体节点名称" :label-width="formLabelWidth">
+                    <el-input v-model="newEntity.name" autocomplete="off"></el-input>
+                    </el-form-item>
+                </el-form>
+                <div slot="footer" class="dialog-footer">
+                    <el-button @click="addEntityVisible = false">取 消</el-button>
+                    <el-button type="primary" @click="addNode(vertex)">确 定</el-button>
+                </div>
+            </el-dialog>
             <!-- 以中心节点方式展示图谱 -->
-            <el-dialog title="图谱显示" :visible.sync="graphVisible" @opened="openGraph()" @close="maxDepth=2">
+            <el-dialog title="图谱显示" :fullscreen=fullscreen :visible.sync="graphVisible" @opened="openDialog(maxDepth)" @close="maxDepth=2;fullscreen=false">
                 <div id="main" ref="graph" style="width: 600px;height:400px;"></div>
                 <!-- 图中显示层数 -->
                 <div style="margin-left:25%;">
@@ -101,11 +118,35 @@
                         :value="i">
                         </el-option>
                     </el-select>
+                    <div style="float:right"><el-link @click="fullscreen = true" :underline=false><i class="el-icon-full-screen">全屏显示</i></el-link></div>
                 </div>
             </el-dialog>
             <!-- 展示该图谱的中心实体对应的关系列表（编辑功能） -->
-            <el-dialog title="图谱编辑" :visible.sync="editVisible" @opened="getGraphInfo()">
-                
+            <el-dialog :title="'图谱编辑-中心节点：'+entity_id" :visible.sync="editVisible" @opened="openDialog('1')">
+                <el-table :data="graph_links_sorted" style="width: 100%">
+                    <el-table-column label="关系类型" width="180">
+                    <template slot-scope="scope">
+                        <span style="margin-left: 10px">{{ scope.row.relation }} 
+                            <el-button @click="addNode(scope.row.relation)" size="mini" type="info" icon="el-icon-plus" style="margin-left:10px" circle></el-button>
+                        </span>
+                    </template>
+                    </el-table-column>
+                    
+                    <el-table-column width="500" label="相关实体">
+                        <template slot-scope="scope">
+                            <div v-for="node in scope.row.nodes" :key="node.node_id" style="float:left;margin-right:5px">
+                                <el-popover trigger="hover" placement="top">
+                                    <p>实体类型: {{ node.node_type }}</p>
+                                    <p>重命名: {{ node.node_name }}</p>
+                                    <div slot="reference" class="name-wrapper">
+                                        <el-tag size="medium">{{ node.node_name }} <i class="el-icon-close"></i></el-tag>
+                                    </div>
+                                </el-popover>
+                            </div>
+                        </template>
+                    </el-table-column>
+                    
+                </el-table>
             </el-dialog>
             <div style="width:50%;margin-left:30%;margin-top:10px;">
                 <el-pagination background layout="total, prev, pager, next" :page-size="8" :page-count="entity_pages" @current-change="changePage" :hide-on-single-page="true" style="margin:0 auto;"></el-pagination>
@@ -132,6 +173,7 @@ export default {
             graph_name:'',
             graph_list: [],
             domain_list: [],
+            domain_id:'', // 被选中图谱的domain_id
             vertex_list:[],
             vertex:'', // 当前所选择的实体类型
             entity_id:'', // 当前所选择的实体
@@ -141,8 +183,9 @@ export default {
             currentPage:1, // 当前页数
             graph_nodes:[], // 展示图所涉及到的节点数据
             graph_links:[], // 展示图所涉及到的关系数据
+            graph_links_sorted:[], // 按照关系类型进一步分类的数据
             maxDepth:2, // 图谱层数，默认为2
-            selectDomainID: null,
+            selectDomainID: 'all',
             table:'false',
             addDialogVisible: false,
             newGraph:{
@@ -150,15 +193,21 @@ export default {
                 private:'0',
                 domain_id:''
             },
+            newEntity:{
+                name:'',
+                attr_1:'test'
+            },
             formLabelWidth: '120px',
             graphVisible: false,
-            editVisible: false
+            editVisible: false,
+            addEntityVisible:false,
+            fullscreen:false
         };
     },
     methods: {
         // 获取我的图谱
         async getMygraphList (){
-            const res = await this.$http.get('list_graphs',{params:{domain_id: this.selectDomainID}});
+            const res = await this.$http.get(this.selectDomainID+'/graph');
             this.graph_list = res.data.data;
         },
         // 添加图谱
@@ -194,19 +243,20 @@ export default {
             }
         },
         // 查看图谱详情
-        async graphDetail(graph_id,graph_name) {
+        async graphDetail(graph_id,graph_name,domain_id) {
             this.opt = 'graphDetail';
             this.graph_id = graph_id;
             this.graph_name = graph_name;
+            this.domain_id = domain_id;
             // 传入graph_id，get图中所涉及的实体类型
-            const { data:res } = await this.$http.get('show_vertex',{params:{graph_id:38}});
+            const { data:res } = await this.$http.get(this.domain_id+'/graph/'+this.graph_id+'/vertex');
             this.vertex_list = res.data;
             this.vertex = this.vertex_list[0];
             this.showEntitys(this.vertex,1);
         },
         // 获取我的领域列表
         async getMyDomainList(){
-            const { data:res } = await this.$http.get('list_domain');
+            const { data:res } = await this.$http.get('domain');
             this.domain_list = res.data;
         },
         // 详情界面返回函数
@@ -220,21 +270,21 @@ export default {
         // 以表格形式展示某类型所有实体
         async showEntitys(vertex,page){
             this.vertex = vertex;
-            const { data:res } = await this.$http.get('vertex_list',{params:{collection:vertex,page:page,len:8}});
+            const { data:res } = await this.$http.get(this.domain_id+'/graph/'+this.graph_id+'/vertex/'+vertex+'?page='+page+'&len='+8);
             this.entity_list=res.data.vertex;
             this.entity_pages=parseInt(res.data.pages);
         },
-        // 打开显示图的对话框
-        openGraph(){
+        // 打开显示的对话框
+        openDialog(maxDepth){
             this.$nextTick(() => {
-                this.showEditGraph(this.maxDepth);
+                this.showEditGraph(maxDepth);
             });
         },
         // 展示以某实体为中心的图谱
         async showEditGraph(maxDepth){
             this.graph_nodes = []; // 节点数据初始化
             this.graph_links = []; // 关系数据初始化
-            const { data:res } = await this.$http.post('traverse',
+            const { data:res } = await this.$http.post(this.domain_id+'/graph/'+this.graph_id+'/traverse',
             {
                 startVertex:this.entity_id,
                 direction:'any',
@@ -354,9 +404,6 @@ export default {
                         myChart.on('click', function (params) {
                             if (params.dataType == 'node') {
                                 console.log(params.name)
-                                // if (params.name == "bob") {
-                                //     window.location = "https://www.baidu.com/";//"square.aspx";
-                                // }
                             }
                             else if (params.dataType == 'edge'){
                                 console.log(params)
@@ -365,11 +412,39 @@ export default {
             }
 
             else if(this.editVisible){
-
+                this.graph_links_sorted=[]
+                var relations=[]// 如 ['knows','love']
+                for(var i=0;i<this.graph_links.length;i++){
+                    console.log(i)
+                    var source_node = this.graph_links[i]['source']
+                    if(source_node == this.entity_id)//中心节点为source节点
+                        var node = 'target' //待将target节点加入列表中
+                    else
+                        var node = 'source' //待将source节点加入列表中
+                    var relation = this.graph_links[i]['id'].split('/')[0]
+                    var type_index = relations.indexOf(relation)
+                    if(type_index==-1){
+                        relations.push(relation) // 加入新关系类型
+                        this.graph_links_sorted.push({relation:relation,nodes:[]}) 
+                        // 加入新关系类型，及其相关节点列表 [{'knows':['BOB','Alice']},{'love':['Kate']}]
+                    }
+                    type_index = relations.indexOf(relation)
+                    var node_type = this.graph_links[i][node].split('/')[0]
+                    var node_name = this.graph_links[i][node].split('/')[1]
+                    this.graph_links_sorted[type_index].nodes.push({node_name:node_name,node_type:node_type,node_id:this.graph_links[i][node]})
+                }
+                console.log(this.graph_links_sorted)
             }
             
         },
+        // 添加节点
+        async addNode(type){
+            console.log(this.newEntity)
+            const res = await this.$http.post(this.domain_id+'/graph/'+this.graph_id+'/vertex/'+type,this.newEntity)
+            console.log(res)
+            this.addEntityVisible=false
         }
+    }
 };
 </script>
 

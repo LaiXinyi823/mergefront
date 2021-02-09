@@ -33,6 +33,16 @@
         </el-menu>
         <div class="right-content">    
           <router-view name="myproject" v-if="opt=='myproject'" />
+          <div class="child-3" style="float:left;" v-if="opt=='childGraph'">
+            <!-- 文本输入框 -->
+            <router-view name="textinput" />
+            <!-- 文本生成子图显示模块 -->
+            <router-view name="childKG" />
+          </div>
+          <div class="child-4" style="float:right;" v-if="opt=='childGraph'"> 
+            <!-- 待融合显示模块 -->
+            <router-view name="originKG" />
+          </div>
           <router-view name="mygraph" v-if="opt=='mygraph' && isRouterAlive" />
           <router-view name="mydomain" v-if="opt=='mydomain' && isRouterAlive" />
         </div>
@@ -103,7 +113,9 @@ export default {
           {'subID':'1','subName':'项目管理','subIcon':'el-icon-setting','option':'myproject'}
         ]},
         {'id':'2','menuName':'我的数据','icon':'el-icon-coin',
-        'children':[]},
+        'children':[
+          {'subID':'1','subName':'生成子图','subIcon':'el-icon-tickets','option':'childGraph'}
+        ]},
         {'id':'3','menuName':'我的图谱','icon':'el-icon-share',
         'children':[
           {'subID':'1','subName':'图谱管理','subIcon':'el-icon-s-grid','option':'mygraph'},
@@ -188,7 +200,7 @@ export default {
   width: 100%;
   margin-bottom: 0;
   margin-left: 10px;
-  margin-right: 35px;
+  margin-right: 20px;
 }
 
 .child-1{
@@ -205,7 +217,7 @@ export default {
 }
 
 .child-3{
-  width: 40%;
+  width: 30%;
   margin-bottom: 0;
   margin-left: 10px;
 }
@@ -213,7 +225,7 @@ export default {
 .child-4{
   width: 50%;
   margin-bottom: 0;
-  margin-left: 40px;
+  // margin-left: 100px;
 }
 
 .right-right-content2{

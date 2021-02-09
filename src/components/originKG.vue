@@ -1,7 +1,7 @@
 <template>
   <el-container>
     <el-aside
-      width="95%"
+      width="100%"
       height="100%"
       class="originKG"
     >
@@ -63,6 +63,7 @@ export default {
 
 <style lang="less" scoped>
 .originKG{
+  margin-left: 5px;
   margin-top:0px;
   height:100%;
 }

@@ -3,8 +3,12 @@
     <div class="login_box">
       <!-- 头像区域 -->
       <div class="avatar_box">
-        <img
+        <!-- <img
           src="../assets/linggongyun.jpg"
+          alt=""
+        > -->
+        <img
+          src="../assets/cqu1.jpg"
           alt=""
         >
       </div>
@@ -177,34 +181,36 @@ export default {
   top: 50%;
   transform: translate(-50%, -50%);
 
-  // .avatar_box {
-  //   height: 130px;
-  //   width: 130px;
-  //   border: 1px solid #eee;
-  //   border-radius: 50%;
-  //   padding: 10px;
-  //   box-shadow: 0 0 10px #ddd;
-  //   position: absolute;
-  //   left: 50%;
-  //   transform: translate(-50%, -50%);
-  //   background-color: #fff;
-  //   img {
-  //     width: 100%;
-  //     height: 100%;
-  //     border-radius: 50%;
-  //     background-color: #eee;
-  //   }
-  // }
-  .avatar_box{
-    height: 10px;
+  .avatar_box {
+    height: 130px;
     width: 130px;
-    margin-left: 30%;
-    margin-top:10px;
-    img{
-      width:120%;
-      height: 150;
+    border: 1px solid #eee;
+    border-radius: 50%;
+    padding: 10px;
+    box-shadow: 0 0 10px #ddd;
+    position: absolute;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #fff;
+    img {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background-color: #eee;
     }
   }
+
+  // 领工云
+  // .avatar_box{
+  //   height: 10px;
+  //   width: 130px;
+  //   margin-left: 30%;
+  //   margin-top:10px;
+  //   img{
+  //     width:120%;
+  //     height: 150;
+  //   }
+  // }
 }
 
 .login_form {
