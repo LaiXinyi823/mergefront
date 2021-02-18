@@ -63,10 +63,10 @@
                 </el-input>
                 <el-menu default-active="2" class="el-menu-vertical-demo" style="margin-top:3px;">
                     <el-menu-item>实体类型列表</el-menu-item>
-                    <el-menu-item v-for="vertex_item in vertex_list" :key="vertex_item" :unique-opened="true" @click="showEntitys(vertex_item,1)" >
+                    <el-menu-item v-for="collection in collections_list" :key="collection" :unique-opened="true" @click="showEntitys(collection,1)" >
                     <template slot="title">
                         <i class="el-icon-star-on"></i>
-                        <span>{{vertex_item}}</span>
+                        <span>{{collection}}</span>
                     </template>
                     </el-menu-item>
                 </el-menu>
@@ -76,32 +76,32 @@
         <el-card shadow="never">
             <el-button @click="addEntityVisible=true" size="mini" type="primary" icon="el-icon-plus" style="margin-left:10px;margin-right:10px;margin-bottom:10px;" circle>
             </el-button>添加实体节点
-            <el-table :data="entity_list" border style="width: 100%" size="mini">
+            <el-table :data="vertexs_list" border style="width: 100%" size="mini">
                 <div id="main" style="width: 100%;height:100%;"></div>
                 <el-table-column type="index" width="50"></el-table-column>
                 <el-table-column prop="_id" label="id" width="300"></el-table-column>
                 <el-table-column prop="_key" label="key" width="300"></el-table-column>
                 <el-table-column label="操作" width="200">
                     <template slot-scope="scope">
-                        <el-button type="success" icon="el-icon-picture" circle @click="graphVisible=true;entity_id=scope.row._id"></el-button>
-                        <el-button type="primary" icon="el-icon-edit" circle @click="editVisible=true;entity_id=scope.row._id"></el-button>
+                        <el-button type="success" icon="el-icon-picture" circle @click="graphVisible=true;vertex_id=scope.row._id"></el-button>
+                        <el-button type="primary" icon="el-icon-edit" circle @click="editVisible=true;vertex_id=scope.row._id"></el-button>
                         <el-button type="danger" icon="el-icon-delete" circle></el-button>
                     </template>
                 </el-table-column>
             </el-table>
             <!-- 添加新实体节点 -->
             <el-dialog title="添加新实体节点" :visible.sync="addEntityVisible">
-                <el-form :model="newEntity">
+                <el-form :model="newVertex">
                     <el-form-item label="实体类型" :label-width="formLabelWidth">
-                        {{vertex}}
+                        {{collection}}
                     </el-form-item>
                     <el-form-item label="实体节点名称" :label-width="formLabelWidth">
-                    <el-input v-model="newEntity.name" autocomplete="off"></el-input>
+                    <el-input v-model="newVertex.name" autocomplete="off"></el-input>
                     </el-form-item>
                 </el-form>
                 <div slot="footer" class="dialog-footer">
                     <el-button @click="addEntityVisible = false">取 消</el-button>
-                    <el-button type="primary" @click="addNode(vertex)">确 定</el-button>
+                    <el-button type="primary" @click="addNode(collection)">确 定</el-button>
                 </div>
             </el-dialog>
             <!-- 以中心节点方式展示图谱 -->
@@ -122,35 +122,80 @@
                 </div>
             </el-dialog>
             <!-- 展示该图谱的中心实体对应的关系列表（编辑功能） -->
-            <el-dialog :title="'图谱编辑-中心节点：'+entity_id" :visible.sync="editVisible" @opened="openDialog('1')">
+            <el-dialog :title="'图谱编辑-中心节点：'+vertex_id" :visible.sync="editVisible" @opened="openDialog('1')">
                 <el-table :data="graph_links_sorted" style="width: 100%">
-                    <el-table-column label="关系类型" width="180">
+                    <el-table-column label="关系类型" width="140">
                     <template slot-scope="scope">
                         <span style="margin-left: 10px">{{ scope.row.relation }} 
-                            <el-button @click="addNode(scope.row.relation)" size="mini" type="info" icon="el-icon-plus" style="margin-left:10px" circle></el-button>
+                            <el-button @click="addEdge(scope.row.relation)" size="mini" type="info" icon="el-icon-plus" style="margin-left:10px" circle></el-button>
                         </span>
                     </template>
                     </el-table-column>
                     
-                    <el-table-column width="500" label="相关实体">
+                    <el-table-column width="240" label="起点实体">
                         <template slot-scope="scope">
                             <div v-for="node in scope.row.nodes" :key="node.node_id" style="float:left;margin-right:5px">
-                                <el-popover trigger="hover" placement="top">
-                                    <p>实体类型: {{ node.node_type }}</p>
-                                    <p>重命名: {{ node.node_name }}</p>
-                                    <div slot="reference" class="name-wrapper">
-                                        <el-tag size="medium">{{ node.node_name }} <i class="el-icon-close"></i></el-tag>
+                                <div v-if="node.from_or_to=='source'">
+                                    <div slot="reference" class="name-wrapper" style="margin-bottom:3px;">
+                                        <el-tag size="medium">{{ node.node_name }} 
+                                           <template>
+                                                <el-popconfirm title="确定删除该节点吗？" icon-color="red" :confirm="deleteEdge(node.link_id)">
+                                                <i class="el-icon-close" slot="reference"></i>
+                                                </el-popconfirm>
+                                            </template>
+                                        </el-tag>
                                     </div>
-                                </el-popover>
+                                </div>
                             </div>
                         </template>
                     </el-table-column>
-                    
+
+                    <el-table-column width="240" label="终点实体">
+                        <template slot-scope="scope">
+                            <div v-for="node in scope.row.nodes" :key="node.node_id" style="float:left;margin-right:5px">
+                                <div v-if="node.from_or_to=='target'">
+                                    <div slot="reference" class="name-wrapper">
+                                        <el-tag size="medium">{{ node.node_name }}
+                                            <i class="el-icon-close" @click="deleteNodeVisible=true"></i>
+                                        </el-tag>
+                                    </div>
+                                </div>
+                                <el-dialog title="提示" :visible.sync="deleteNodeVisible" width="30%" center>
+                                    <span>您确定要删除当前节点:{{node.node_id}}吗？</span>
+                                    <span slot="footer" class="dialog-footer">
+                                        <el-button @click="deleteNodeVisible = false">取 消</el-button>
+                                        <el-button type="primary" @click="deleteEdge(node.node_id)">确 定</el-button>
+                                    </span>
+                                </el-dialog>
+                            </div>
+                            
+                        </template>
+                    </el-table-column>
                 </el-table>
+                <el-button type="text" @click="addRelationVisible = true">为该节点创建新的关系</el-button>
+                <el-dialog title="新增关系类型" :visible.sync="addRelationVisible">
+                <el-form :model="newRelation">
+                    <el-form-item label="关系类型名称" label-width="100px">
+                        <el-input v-model="newRelation.relationName" autocomplete="off"></el-input>
+                    </el-form-item>
+                    <el-form-item label="选择节点" label-width="100px">
+                        <el-cascader placeholder="搜索节点" v-model="newRelation.node_id" :options="options" :props="{ multiple: true }" filterable></el-cascader>
+                    </el-form-item>
+                    <el-form-item label="所选节点为" label-width="100px">
+                        <template>
+                        <el-radio v-model="newRelation.relationRadio" label="source">起始节点</el-radio>
+                        <el-radio v-model="newRelation.relationRadio" label="target">终点节点</el-radio>
+                        </template>
+                    </el-form-item>
+                    
+                </el-form>
+                <div slot="footer" class="dialog-footer">
+                    <el-button @click="addRelationVisible = false">取 消</el-button>
+                    <el-button type="primary" @click="addRelation()">确 定</el-button>
+                </div>
             </el-dialog>
-            <div style="width:50%;margin-left:30%;margin-top:10px;">
-                <el-pagination background layout="total, prev, pager, next" :page-size="8" :page-count="entity_pages" @current-change="changePage" :hide-on-single-page="true" style="margin:0 auto;"></el-pagination>
-            </div>
+            </el-dialog>
+            
         </el-card>
         </div>
     </div>
@@ -160,7 +205,6 @@
 <script>
 import * as echarts from 'echarts'
 export default {
-    inject:['reload'],
     created(){
         this.getMygraphList();
         this.getMyDomainList();
@@ -174,12 +218,12 @@ export default {
             graph_list: [],
             domain_list: [],
             domain_id:'', // 被选中图谱的domain_id
-            vertex_list:[],
-            vertex:'', // 当前所选择的实体类型
-            entity_id:'', // 当前所选择的实体
-            entity_list:[], // 某一类下所有实体列表
-            entity_nums:0, // 实体列表包含的实体数
-            entity_pages:0, // 包含页数，以8条为一页
+            collections_list:[],// 所有
+            collection:'', // 当前所选择的实体类型
+            vertex_id:'', // 当前所选择的实体
+            vertexs_list:[], // 某一类下所有实体列表
+            vertex_nums:0, // 实体列表包含的实体数
+            vertex_pages:0, // 包含页数，以8条为一页
             currentPage:1, // 当前页数
             graph_nodes:[], // 展示图所涉及到的节点数据
             graph_links:[], // 展示图所涉及到的关系数据
@@ -187,20 +231,27 @@ export default {
             maxDepth:2, // 图谱层数，默认为2
             selectDomainID: 'all',
             table:'false',
-            addDialogVisible: false,
             newGraph:{
                 name:'',
                 private:'0',
                 domain_id:''
             },
-            newEntity:{
+            newVertex:{
                 name:'',
                 attr_1:'test'
+            },
+            newRelation:{
+                relationName:'',
+                node_id:[],
+                relationRadio:''
             },
             formLabelWidth: '120px',
             graphVisible: false,
             editVisible: false,
+            deleteNodeVisible:false,
             addEntityVisible:false,
+            addRelationVisible:false,
+            addDialogVisible: false,
             fullscreen:false
         };
     },
@@ -250,9 +301,9 @@ export default {
             this.domain_id = domain_id;
             // 传入graph_id，get图中所涉及的实体类型
             const { data:res } = await this.$http.get(this.domain_id+'/graph/'+this.graph_id+'/vertex');
-            this.vertex_list = res.data;
-            this.vertex = this.vertex_list[0];
-            this.showEntitys(this.vertex,1);
+            this.collections_list = res.data;
+            this.collection = this.collections_list[0];
+            this.showEntitys(this.collection,1);
         },
         // 获取我的领域列表
         async getMyDomainList(){
@@ -263,16 +314,17 @@ export default {
         goBack() {
             this.opt = 'graphs';
         },
+        // 翻页
         changePage: function(currentPage){
             this.currentPage = currentPage;
-            this.showEntitys(this.vertex,this.currentPage);
+            this.showEntitys(this.collection,this.currentPage);
         },
         // 以表格形式展示某类型所有实体
-        async showEntitys(vertex,page){
-            this.vertex = vertex;
-            const { data:res } = await this.$http.get(this.domain_id+'/graph/'+this.graph_id+'/vertex/'+vertex+'?page='+page+'&len='+8);
-            this.entity_list=res.data.vertex;
-            this.entity_pages=parseInt(res.data.pages);
+        async showEntitys(collection,page){
+            this.collection = collection;
+            const { data:res } = await this.$http.get(this.domain_id+'/graph/'+this.graph_id+'/vertex/'+collection+'?page='+page+'&len='+8);
+            this.vertexs_list=res.data.vertex;
+            this.vertex_pages=parseInt(res.data.pages);
         },
         // 打开显示的对话框
         openDialog(maxDepth){
@@ -286,7 +338,7 @@ export default {
             this.graph_links = []; // 关系数据初始化
             const { data:res } = await this.$http.post(this.domain_id+'/graph/'+this.graph_id+'/traverse',
             {
-                startVertex:this.entity_id,
+                startVertex:this.vertex_id,
                 direction:'any',
                 maxDepth:parseInt(maxDepth),
                 minDepth:0
@@ -337,7 +389,7 @@ export default {
                 var myChart = echarts.init(this.$refs.graph);
                 var option = {
                     title: {
-                        text: '中心节点:' + this.entity_id
+                        text: '中心节点:' + this.vertex_id
                     },
                     tooltip: {},
                     animationDurationUpdate: 1500,
@@ -417,32 +469,101 @@ export default {
                 for(var i=0;i<this.graph_links.length;i++){
                     console.log(i)
                     var source_node = this.graph_links[i]['source']
-                    if(source_node == this.entity_id)//中心节点为source节点
-                        var node = 'target' //待将target节点加入列表中
+                    if(source_node == this.vertex_id)//中心节点为source节点
+                        var from_or_to = 'target' //待将target节点加入列表中
                     else
-                        var node = 'source' //待将source节点加入列表中
+                        var from_or_to = 'source' //待将source节点加入列表中
                     var relation = this.graph_links[i]['id'].split('/')[0]
                     var type_index = relations.indexOf(relation)
                     if(type_index==-1){
                         relations.push(relation) // 加入新关系类型
                         this.graph_links_sorted.push({relation:relation,nodes:[]}) 
-                        // 加入新关系类型，及其相关节点列表 [{'knows':['BOB','Alice']},{'love':['Kate']}]
+                        // 加入新关系类型，及其相关节点列表 [{'knows':[{'BOB'},{'Alice'}]},{'love':[{'Kate'}]}]
                     }
                     type_index = relations.indexOf(relation)
-                    var node_type = this.graph_links[i][node].split('/')[0]
-                    var node_name = this.graph_links[i][node].split('/')[1]
-                    this.graph_links_sorted[type_index].nodes.push({node_name:node_name,node_type:node_type,node_id:this.graph_links[i][node]})
+                    var link_id = this.graph_links[i]['id']
+                    var node_type = this.graph_links[i][from_or_to].split('/')[0]
+                    var node_name = this.graph_links[i][from_or_to].split('/')[1]
+                    this.graph_links_sorted[type_index].nodes.push({link_id:link_id,from_or_to:from_or_to,node_name:node_name,node_type:node_type,node_id:this.graph_links[i][from_or_to]})
                 }
                 console.log(this.graph_links_sorted)
-            }
-            
+            }  
         },
-        // 添加节点
+        // 添加中心节点
         async addNode(type){
-            console.log(this.newEntity)
-            const res = await this.$http.post(this.domain_id+'/graph/'+this.graph_id+'/vertex/'+type,this.newEntity)
+            console.log(this.newVertex)
+            const res = await this.$http.post(this.domain_id+'/graph/'+this.graph_id+'/vertex/'+type,this.newVertex)
             console.log(res)
             this.addEntityVisible=false
+        },
+
+        // 添加新的关系类型------------未加后端
+        async addRelation(){
+            if(this.newRelation.relationRadio=='target')
+                var param = {
+                    from:this.vertex_id,
+                    to:this.newRelation.node_id,
+                    attribute:{}
+                }
+            else
+                var param = {
+                    from:this.newRelation.node_id,
+                    to:this.vertex_id,
+                    attribute:{}
+                }
+            const {data:res} = await this.$http.post(this.domain_id+'/graph/'+this.graph_id+'/edge/'+ this.newRelation.relationName,param)
+            console.log(param)
+            console.log(res)
+            if(res.errno=="0"){
+                this.$message({
+                    showClose: true,
+                    message: '添加新关系类型成功！',
+                    type: 'success'
+                });
+            }
+            else{
+                this.$message({
+                    showClose: true,
+                    message: '添加失败！',
+                    type: 'error'
+                });
+            }
+            this.addRelationVisible = false;
+            this.showEditGraph();
+            this.editVisible=true;
+        },
+
+        // 删除与中心节点有关的某个节点（删除二者关系）
+        async deleteEdge(link_id){
+            console.log(link_id)
+            const {data:res} = await this.$http.delete(this.domain_id+'/graph/'+this.graph_id+'/edge/'+ link_id)
+            console.log(res)
+            if(res.errno=="0"){
+                this.$message({
+                    showClose: true,
+                    message: '删除节点成功！',
+                    type: 'success'
+                });
+            }
+            else{
+                this.$message({
+                    showClose: true,
+                    message: '删除失败！',
+                    type: 'error'
+                });
+            }
+            this.deleteNodeVisible = false;
+        },
+
+        // 为中心节点添加一条边（模糊搜索选已存在的节点）
+        async addEdge(relation){
+            const res = await this.$http.post(this.domain_id+'/graph/'+this.graph_id+'/edge/'+ relation,
+            {
+                from:this.vertex_id,
+                to:'persons/alice',
+                attribute:{}
+            })
+            console.log(res)
         }
     }
 };

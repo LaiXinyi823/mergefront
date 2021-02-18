@@ -7,7 +7,7 @@ import './assets/icon/iconfont.css';
 import VueParticles from 'vue-particles';
 import axios from 'axios';
 import qs from 'qs';
-import { Message } from 'element-ui';
+import { Message,MessageBox } from 'element-ui';
 import ECharts from 'vue-echarts';
 
 // 设置axios为form-data
@@ -29,6 +29,7 @@ Vue.config.productionTip = false;
 Vue.prototype.$http = axios;
 Vue.prototype.$qs = qs;
 Vue.prototype.$message = Message;
+Vue.prototype.$prompt = MessageBox.prompt;
 // Vue.prototype.$echarts = echarts;
 
 //配置请求的根路径
