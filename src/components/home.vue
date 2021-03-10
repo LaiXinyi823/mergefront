@@ -4,7 +4,7 @@
     <div class="header">
       <span class="el-icon-kg">&#xe918;</span>
       <h2 class="title">
-        领工云知识图谱编辑工具
+        专业内容知识图谱编辑工具
       </h2>
       <div class="demo-basic--circle">
         <div class="block" @click="logout()">

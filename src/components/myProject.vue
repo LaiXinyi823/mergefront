@@ -1,32 +1,24 @@
 <template>
   <el-container>
-    <el-row>
-      <div style="height:80px;margin-right:12px;margin-left:40px;margin-bottom:10px;" @click="addDialogVisible = true">
-        <el-card shadow="hover" style="height:100%;margin-bottom:10px;"> 
-            <i style="font-size:20px;float:left;margin-top:10px;" class='el-icon-plus'>   添加新项目</i>
-        </el-card>
-      </div>
-      <el-col
-        :span="5"
-        v-for="project in projectList"
-        :key="project.project_id"
-        :offset="1"
-      >
-      <el-card style="">
-        <img
-          src="https://shadow.elemecdn.com/app/element/hamburger.9cf7b091-55e9-11e9-a976-7f4d0b07eef6.png"
-          class="image"
-        >
-        <div style="padding: 14px;">
+    <div style="height:200px">
+      <el-card class="box-card" shadow="never">
+        <i style="font-size:20px;float:left;margin-top:50px;" class='el-icon-plus'>   添加新项目</i>
+      </el-card>
+    </div>
+    <div style="float:right">
+      <el-card class="box-card" v-for="project in projectList" :key="project.project_id" shadow="never">
+        <div slot="header" class="clearfix">
           <span>{{project.project_name}}</span>
-          <div class="bottom clearfix">
-            <time class="time">{{ currentDate }}</time>
-            <el-button type="text" class="button">查看详情</el-button>
-          </div>
+          <el-button style="float: right; padding: 3px 0" type="text">操作按钮</el-button>
+        </div>
+        <div class="text item">
+          所属领域：
+        </div>
+        <div class="text item">
+          权限：
         </div>
       </el-card>
-      </el-col>
-    </el-row>
+    </div>
     <el-dialog title="新增项目" :visible.sync="addDialogVisible">
       <!-- <el-form :model="newGraph">
           <el-form-item label="知识图谱名称" :label-width="formLabelWidth">
@@ -76,14 +68,36 @@
     display: block;
   }
 
+  .text {
+    font-size: 14px;
+  }
+
+  .item {
+    margin-bottom: 18px;
+  }
+
   .clearfix:before,
-  /* .clearfix:after {
-      display: table;
-      content: "";
-  } */
-  
   .clearfix:after {
-      clear: both
+    display: table;
+    content: "";
+  }
+  .clearfix:after {
+    clear: both
+  }
+
+  .box-card {
+    width: 200px;
+    height:200px;
+    margin-right:10px;
+    display:inline-block;
+    margin-bottom:10px;
+  }
+
+  .card {
+    width: 200px;
+    height: 200px;
+    margin-bottom:10px;
+    margin-top:10px;
   }
 </style>
 
