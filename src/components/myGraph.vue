@@ -435,7 +435,6 @@ export default {
             this.search = false;
             this.collection = collection;
             const { data:res } = await this.$http.get(this.domain_id+'/graph/'+this.graph_id+'/vertex/'+collection+'?page='+page+'&len=10');
-            console.log(res)
             this.vertexs_list=res.data.vertex;
             this.vertex_nums =res.data.count;
             this.vertex_pages=parseInt(res.data.pages);
@@ -761,7 +760,7 @@ export default {
             var param={
                 name:this.rename
             };
-
+            console.log(typeof(param))
             var {data:results} = await this.$http.patch(this.domain_id+'/graph/'+this.graph_id+'/vertex/'+ this.vertex._id,param)
             console.log(results)
         },

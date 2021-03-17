@@ -33,18 +33,18 @@
         </el-menu>
         <div class="right-content">    
           <router-view name="myproject" v-if="opt=='myproject'" />
-          <div class="child-3" style="float:left;" v-if="opt=='childGraph'">
+          <!-- <div class="child-3" style="float:left;" v-if="opt=='childGraph'"> -->
             <!-- 文本输入框 -->
-            <router-view name="textinput" />
+            <!-- <router-view name="textinput" /> -->
             <!-- 文本生成子图显示模块 -->
-            <router-view name="childKG" />
-          </div>
-          <div class="child-4" style="float:right;" v-if="opt=='childGraph'"> 
+            <!-- <router-view name="childKG" /> -->
+          <!-- </div> -->
+          <!-- <div class="child-4" style="float:right;" v-if="opt=='childGraph'">  -->
             <!-- 待融合显示模块 -->
-            <router-view name="originKG" />
+            <!-- <router-view name="originKG" />
           </div>
           <router-view name="mygraph" v-if="opt=='mygraph' && isRouterAlive" />
-          <router-view name="mydomain" v-if="opt=='mydomain' && isRouterAlive" />
+          <router-view name="mydomain" v-if="opt=='mydomain' && isRouterAlive" /> -->
         </div>
         <!-- 我的项目-子路由 -->
         <!-- <div v-if="opt=='myproject'" class="right-content">    
@@ -112,10 +112,7 @@ export default {
         'children':[
           {'subID':'1','subName':'项目管理','subIcon':'el-icon-setting','option':'myproject'}
         ]},
-        {'id':'2','menuName':'我的数据','icon':'el-icon-coin',
-        'children':[
-          {'subID':'1','subName':'生成子图','subIcon':'el-icon-tickets','option':'childGraph'}
-        ]},
+        {'id':'2','menuName':'我的数据','icon':'el-icon-coin'},
         {'id':'3','menuName':'我的图谱','icon':'el-icon-share',
         'children':[
           {'subID':'1','subName':'图谱管理','subIcon':'el-icon-s-grid','option':'mygraph'},
