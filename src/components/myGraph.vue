@@ -7,7 +7,8 @@
                 v-for="domain in domain_list"
                 :key="domain.domain_id"
                 :label="domain.domain_name"
-                :value="domain.domain_id">
+                :value="domain.domain_id"
+                @change="getMygraphList(selectDomainID)">
                 </el-option>
             </el-select>
         <el-row :gutter="35">
@@ -301,7 +302,7 @@
 import * as echarts from 'echarts'
 export default {
     created(){
-        this.getMygraphList();
+        this.getMygraphList('all');
         this.getMyDomainList();
     },
     data (){
@@ -324,7 +325,7 @@ export default {
             graph_links:[], // 展示图所涉及到的关系数据
             graph_links_sorted:[], // 按照关系类型进一步分类的数据
             maxDepth:2, // 图谱层数，默认为2
-            selectDomainID: 'all',
+            selectDomainID: '',
             table:'false',
             newGraph:{
                 name:'',
@@ -367,8 +368,9 @@ export default {
     },
     methods: {
         // 获取我的图谱
-        async getMygraphList (){
-            const res = await this.$http.get(this.selectDomainID+'/graph');
+        async getMygraphList(selectDomainID){
+            console.log(selectDomainID)
+            const res = await this.$http.get(selectDomainID+'/graph');
             this.graph_list = res.data.data;
         },
         // 添加图谱
@@ -458,7 +460,7 @@ export default {
             });
             
             var len=res.data.paths.length;
-            // 每个path中包括1/2条边edges数组以及涉及到的节点vertices数组
+            // 每个path中包括1或2条边edges数组以及涉及到的节点vertices数组
             for(var i=0;i<len;i++){
                 var vertices=res.data.paths[i].vertices;
                 var links=res.data.paths[i].edges;
@@ -500,7 +502,8 @@ export default {
             if(this.graphVisible){
                 // 使用Echarts展示
                 var myChart = echarts.init(this.$refs.graph);
-                    
+                console.log(this.graph_nodes)
+                console.log(this.graph_links)
                 var option = {
                     title: {
                         text: '中心节点: ' + this.vertex.name

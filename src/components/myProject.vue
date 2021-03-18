@@ -38,42 +38,42 @@
         <el-tabs type="border-card">
           <el-tab-pane>
             <span slot="label"><i class="el-icon-document"></i> 文本生成知识图谱子图</span>
-            <div style="float:left">
+            <div>
               <!-- 输入文本数据 -->
-              <el-aside width="500px">
+              <el-aside width="540px" style="float:left">
                 <el-card shadow="always">
                   <h5 style="margin: 0; display: inline; width: 30px">
                     输入文本
                   </h5>
-                  <el-divider content-position="left" style="margin: 10px" />
-                  <el-input type="textarea" :rows="3" placeholder="请输入待生成知识图谱的文本内容" v-model="textarea" class="textinput"/>
-                  <el-button type="primary" plain style="float:right;margin-top:3px;margin-bottom:3px;"> 确认生成 </el-button>
+                  <el-divider content-position="left" style="margin: 10px;" />
+                  <el-input type="textarea" :rows="10" placeholder="请输入待生成知识图谱的文本内容" v-model="textarea" class="textinput"/>
+                  <el-button @click="gen_childGraph()" type="primary" plain style="float:right;margin-top:3px;margin-bottom:3px;"> 确认生成 </el-button>
                 </el-card>
               </el-aside>
               <!-- 生成知识图谱子图 -->
-              <el-aside width="500px" height="100%" class="childKG" style="margin-top:5px;">
+              <el-aside width="700px" height="100%" class="childKG" style="float:right">
                 <el-card shadow="always">
                   <h5 style="margin: 0; display: inline; width: 50px">生成子图</h5>
                   <el-divider content-position="left" style="margin: 15px" />
-                  <div class="block">
-                    <el-image :src="src" style="width: 40%; margin-left: 30%" />
-                  </div>
+                  <!-- <div class="block"> -->
+                     <div id="main" ref="childGraph" style="width: 600px;height:300px;"></div>
+                  <!-- </div> -->
                   <template>
                     <el-table
-                      :data="tableData"
-                      height="250"
+                      :data="child_graph_data"
+                      height="320"
                       font-size="12px"
                       border
                       style="width: 100%"
                       :row-style="{ height: '10px' }"
                       :cell-style="{ padding: '0' }"
                     >
-                      <el-table-column fixed prop="order" label="序号" width="50" />
-                      <el-table-column prop="entity1Name" label="起点实体" width="80" />
-                      <el-table-column prop="entity1Type" label="起点实体类型" width="110" />
-                      <el-table-column prop="entity2Name" label="终点实体" width="80" />
-                      <el-table-column prop="entity2Type" label="终点实体类型" width="110" />
-                      <el-table-column prop="relationType" label="关系类型" width="80" />
+                      <el-table-column fixed type="index" label="序号" width="50" />
+                      <el-table-column prop="e1" label="起点实体" width="80" />
+                      <el-table-column prop="e1_type" label="起点实体类型" width="110" />
+                      <el-table-column prop="e2" label="终点实体" width="80" />
+                      <el-table-column prop="e2_type" label="终点实体类型" width="110" />
+                      <el-table-column prop="relation_type" label="关系类型" width="80" />
                       <el-table-column fixed="right" label="操作" width="100">
                         <template slot-scope="scope">
                           <el-button @click="handleClick(scope.row)" type="text" size="small">查看</el-button>
@@ -87,11 +87,14 @@
             </div>
 
             <!-- 知识图谱融合 -->
-            <el-aside width="740px" height="100%" style="float:right">
+            <el-aside width="540px" height="100%" style="margin-top:5px;">
               <el-card shadow="always">
                 <h5 style="margin:0;display:inline;width:50px;">
                   知识图谱融合预览
                 </h5>
+                <el-button style="float:right" type="primary" plain>
+                  确认融合
+                </el-button>
                 <el-divider content-position="left" style="margin:10px"/>
                 <div class="block">
                   <el-image :src="src" style="width:40%;height:50%;margin-left:30%;"/>
@@ -107,9 +110,6 @@
                   显示条数：
                 </h4>
                 <el-input-number size="mini" v-model="num2" style="float:left"/>
-                <el-button type="primary" plain>
-                  确认融合
-                </el-button>
               </el-card>
             </el-aside>
           </el-tab-pane>
@@ -125,6 +125,7 @@
 </template>
 
 <script>
+import * as echarts from 'echarts'
 export default {
   created() {
     this.getProjectList()
@@ -147,48 +148,7 @@ export default {
       num2: 10,
       src:
         'https://cube.elemecdn.com/6/94/4d3ea53c084bad6931a56d5158a48jpeg.jpeg',
-      tableData: [
-        {
-          order: '1',
-          entity1Name: 'BILSTM-CRF',
-          entity1Type: '处理',
-          entity2Name: 'CRF',
-          entity2Type: '处理任务',
-          relationType: '对比关系',
-        },
-        {
-          order: '2',
-          entity1Name: '数据集',
-          entity1Type: '处理方法',
-          entity2Name: '双向',
-          entity2Type: '处理任务',
-          relationType: '应用关系',
-        },
-        {
-          order: '3',
-          entity1Name: '双向',
-          entity1Type: '处理任务',
-          entity2Name: 'BILSTM-CRF',
-          entity2Type: '处理',
-          relationType: '同指关系',
-        },
-        {
-          order: '4',
-          entity1Name: '双向',
-          entity1Type: '处理任务',
-          entity2Name: 'BILSTM-CRF',
-          entity2Type: '处理',
-          relationType: '同指关系',
-        },
-        {
-          order: '5',
-          entity1Name: '双向',
-          entity1Type: '处理任务',
-          entity2Name: 'BILSTM-CRF',
-          entity2Type: '处理',
-          relationType: '同指关系',
-        },
-      ],
+      child_graph_data: [],
     }
   },
   methods: {
@@ -207,7 +167,115 @@ export default {
     goBack() {
       this.opt = 'projectList'
     },
-  },
+    // 文本生成知识图谱子图
+    async gen_childGraph(){
+      const res = await this.$http.get('http://39.100.48.36:3012/predict_re?sentence=' + this.textarea)
+      // print(res)
+      console.log(res.data.relations)
+      var data = res.data.relations
+      this.graph_nodes = []; // 节点数据初始化
+      this.graph_links = []; // 关系数据初始化
+      this.child_graph_data = res.data.relations
+      var len = data.length;
+      for(var i=0;i<len;i++){
+        if(JSON.stringify(this.graph_nodes).indexOf(JSON.stringify(data[i]['e1']))>-1){
+        }
+        else{
+          this.graph_nodes.push(
+            {
+              "id":data[i]['e1_type'] + '/' + data[i]['e1'],
+              "name":data[i]['e1'],
+              "type":data[i]['e1_type']
+            }
+            
+          )
+        }
+        if(JSON.stringify(this.graph_nodes).indexOf(JSON.stringify(data[i]['e2']))>-1){
+        }
+        else{
+          this.graph_nodes.push(
+            {
+              "id":data[i]['e2_type'] + '/' + data[i]['e2'],
+              "name":data[i]['e2'],
+              "type":data[i]['e2_type']
+            }
+          )
+        }
+        this.graph_links.push(
+          {
+            "id":data[i]['relation_type'] + '/' + data[i]['e1_type'] + '/'
+             + data[i]['e1'] + 'to' + data[i]['e2_type'] + '/' + data[i]['e2'],
+            "source":data[i]['e1_type'] + '/' + data[i]['e1'],
+            "target":data[i]['e2_type'] + '/' + data[i]['e2']
+          }
+        )
+      }
+      // 使用Echarts展示
+      var myChart = echarts.init(this.$refs.childGraph);
+      var option = {
+                    tooltip: {},
+                    animationDurationUpdate: 1500,
+                    animationEasingUpdate: 'quinticInOut',
+                    series: [
+                        {
+                            type: 'graph',
+                            layout: 'force',
+                            symbolSize: 50,
+                            roam: true,
+                            force: {
+                                repulsion: 2500,
+                                edgeLength: [10, 50],
+                                draggable:true
+                            },
+                            itemStyle: {//配置节点的颜色
+                                normal: {
+                                    color: function (params) {
+                                      var colorList = ['red','yellow','orange', 'green', 'blue', 'gray'];
+                                      return colorList[params.dataIndex]                                    
+                                    },
+                                }
+                            },
+                            symbolSize: function (value, params) {//改变节点大小
+                              return 40
+                            },
+                            label: {
+                                show: true
+                            },
+                            edgeSymbol: ['circle', 'arrow'],
+                            edgeSymbolSize: [4, 10],
+                            edgeLabel: {
+                                fontSize: 20
+                            },
+                            nodes: this.graph_nodes, // 节点数据
+                            links: this.graph_links, // 关系数据
+                            edgeLabel: {//边的设置
+                                show: true,
+                                position: "middle",
+                                fontSize: 12,
+                                formatter: (params) => {
+                                    return params.data.id.split('/')[0];
+                                },
+                            },
+                            lineStyle: {
+                                opacity: 0.9,
+                                width: 2,
+                                curveness: 0
+                            }
+                            }
+                            ]
+                    };
+                    myChart.setOption(option);    
+                    //点击事件
+                    myChart.on('click', function (params) {
+                        if (params.dataType == 'node') {
+                            console.log(params.name)
+                        }
+                        else if (params.dataType == 'edge'){
+                            console.log(params)
+                        }
+                    });
+            }
+    }
 }
 </script>
 <style>

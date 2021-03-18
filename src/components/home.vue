@@ -33,18 +33,8 @@
         </el-menu>
         <div class="right-content">    
           <router-view name="myproject" v-if="opt=='myproject'" />
-          <!-- <div class="child-3" style="float:left;" v-if="opt=='childGraph'"> -->
-            <!-- 文本输入框 -->
-            <!-- <router-view name="textinput" /> -->
-            <!-- 文本生成子图显示模块 -->
-            <!-- <router-view name="childKG" /> -->
-          <!-- </div> -->
-          <!-- <div class="child-4" style="float:right;" v-if="opt=='childGraph'">  -->
-            <!-- 待融合显示模块 -->
-            <!-- <router-view name="originKG" />
-          </div>
           <router-view name="mygraph" v-if="opt=='mygraph' && isRouterAlive" />
-          <router-view name="mydomain" v-if="opt=='mydomain' && isRouterAlive" /> -->
+          <router-view name="mydomain" v-if="opt=='mydomain' && isRouterAlive" /> 
         </div>
         <!-- 我的项目-子路由 -->
         <!-- <div v-if="opt=='myproject'" class="right-content">    
