@@ -58,9 +58,7 @@
           </el-form>
           <div slot="footer" class="dialog-footer">
             <el-button @click="newEntity = false"> 取 消 </el-button>
-            <el-button type="primary" @click="newEntity = false">
-              确 定
-            </el-button>
+            <el-button type="primary" @click="newEntity = false">确 定</el-button>
           </div>
         </el-dialog>
         <el-dialog title="添加源节点" :visible.sync="startEntity">
@@ -69,10 +67,7 @@
               <el-input v-model="addForm.entityName" autocomplete="off" />
             </el-form-item>
             <el-form-item label="起点实体类型" :label-width="formLabelWidth">
-              <el-select
-                v-model="addForm.entityType"
-                placeholder="请选择实体类型"
-              >
+              <el-select v-model="addForm.entityType" placeholder="请选择实体类型">
                 <el-option label="数据集" value="shanghai" />
                 <el-option label="处理任务" value="beijing" />
               </el-select>
@@ -89,9 +84,7 @@
           </el-form>
           <div slot="footer" class="dialog-footer">
             <el-button @click="startEntity = false"> 取 消 </el-button>
-            <el-button type="primary" @click="startEntity = false">
-              确 定
-            </el-button>
+            <el-button type="primary" @click="startEntity = false">确 定</el-button>
           </div>
         </el-dialog>
         <el-dialog title="添加终节点" :visible.sync="endEntity">
@@ -100,19 +93,13 @@
               <el-input v-model="addForm.entityName" autocomplete="off" />
             </el-form-item>
             <el-form-item label="终点实体类型" :label-width="formLabelWidth">
-              <el-select
-                v-model="addForm.entityType"
-                placeholder="请选择实体类型"
-              >
+              <el-select v-model="addForm.entityType" placeholder="请选择实体类型">
                 <el-option label="数据集" value="shanghai" />
                 <el-option label="处理任务" value="beijing" />
               </el-select>
             </el-form-item>
             <el-form-item label="关系类型" :label-width="formLabelWidth">
-              <el-select
-                v-model="addForm.relationType"
-                placeholder="请选择关系类型"
-              >
+              <el-select v-model="addForm.relationType" placeholder="请选择关系类型" >
                 <el-option label="同指关系" value="shanghai" />
                 <el-option label="应用关系" value="beijing" />
               </el-select>

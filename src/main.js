@@ -7,7 +7,12 @@ import './assets/icon/iconfont.css';
 import VueParticles from 'vue-particles';
 import axios from 'axios';
 import qs from 'qs';
+<<<<<<< HEAD
 import { Message } from 'element-ui';
+=======
+import { Message,MessageBox } from 'element-ui';
+import ECharts from 'vue-echarts';
+>>>>>>> 1ed06e2347f48320175d43a0ae5d2f657c0294a2
 
 // 设置axios为form-data
 axios.defaults.headers.post['Content-Type'] = 'application/json;';
@@ -27,6 +32,11 @@ Vue.config.productionTip = false;
 Vue.prototype.$http = axios;
 Vue.prototype.$qs = qs;
 Vue.prototype.$message = Message;
+<<<<<<< HEAD
+=======
+Vue.prototype.$prompt = MessageBox.prompt;
+// Vue.prototype.$echarts = echarts;
+>>>>>>> 1ed06e2347f48320175d43a0ae5d2f657c0294a2
 
 //配置请求的根路径
 axios.defaults.withCredentials = true;

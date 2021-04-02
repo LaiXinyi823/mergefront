@@ -4,7 +4,7 @@
     <div class="header">
       <span class="el-icon-kg">&#xe918;</span>
       <h2 class="title">
-        领工云知识图谱编辑工具
+        专业内容知识图谱编辑工具
       </h2>
       <div class="demo-basic--circle">
         <div class="block" @click="logout()">
@@ -16,7 +16,7 @@
     <!-- 导航栏 -->
     <div class="nav">
       <el-container>
-        <el-menu :collapse="false" class="el-menu-vertical-demo">  
+        <el-menu :collapse="false" class="el-menu-vertical-demo" style="width:200px;">  
         <el-submenu :index='item.id' v-for="item in menuList" :key="item.id">
         <template slot="title">
           <i :class="item.icon"></i>
@@ -34,7 +34,9 @@
         <div class="right-content">    
           <router-view name="myproject" v-if="opt=='myproject'" />
           <router-view name="mygraph" v-if="opt=='mygraph' && isRouterAlive" />
-          <router-view name="mydomain" v-if="opt=='mydomain' && isRouterAlive" />
+          <router-view name="mydomain" v-if="opt=='mydomain' && isRouterAlive" /> 
+          <router-view name="labelproject" v-if="opt=='labelproject' && isRouterAlive" /> 
+          <router-view name="myDB" v-if="opt=='myDB' && isRouterAlive" /> 
         </div>
         <!-- 我的项目-子路由 -->
         <!-- <div v-if="opt=='myproject'" class="right-content">    
@@ -100,15 +102,21 @@ export default {
       menuList:[
         {'id':'1','menuName':'我的项目','icon':'el-icon-menu',
         'children':[
-          {'subID':'1','subName':'项目管理','subIcon':'el-icon-setting','option':'myproject'}
+          {'subID':'1','subName':'标注项目','subIcon':'el-icon-s-flag','option':'labelproject'},
+          {'subID':'2','subName':'融合项目','subIcon':'el-icon-menu','option':'mergeproject'}
         ]},
         {'id':'2','menuName':'我的数据','icon':'el-icon-coin',
-        'children':[]},
+        'children':[
+          {'subID':'1','subName':'文本数据','subIcon':'el-icon-document','option':'myDB'},
+          {'subID':'2','subName':'三元组数据','subIcon':'el-icon-postcard','option':'myfile'}]},
         {'id':'3','menuName':'我的图谱','icon':'el-icon-share',
         'children':[
-          {'subID':'1','subName':'图谱管理','subIcon':'el-icon-s-grid','option':'mygraph'},
+          {'subID':'1','subName':'图谱管理','subIcon':'el-icon-picture-outline','option':'mygraph'},
           {'subID':'2','subName':'领域管理','subIcon':'el-icon-s-home','option':'mydomain'}]},
-        {'id':'4','menuName':'我的模型','icon':'el-icon-help','children':[]},
+        {'id':'4','menuName':'我的模型','icon':'el-icon-help',
+        'children':[
+          {'subID':'1','subName':'模型管理','subIcon':'el-icon-s-opportunity','option':'mygraph'}
+        ]},
       ],
       graph_list:[]
     };
@@ -153,7 +161,7 @@ export default {
   font-family: "Microsoft YaHei";
   color: #1e90ff;
   position: absolute;
-  left: 5%;
+  left: 80px;
   top: 0;
 }
 
@@ -188,7 +196,7 @@ export default {
   width: 100%;
   margin-bottom: 0;
   margin-left: 10px;
-  margin-right: 35px;
+  margin-right: 20px;
 }
 
 .child-1{
@@ -205,7 +213,7 @@ export default {
 }
 
 .child-3{
-  width: 40%;
+  width: 30%;
   margin-bottom: 0;
   margin-left: 10px;
 }
@@ -213,7 +221,7 @@ export default {
 .child-4{
   width: 50%;
   margin-bottom: 0;
-  margin-left: 40px;
+  // margin-left: 100px;
 }
 
 .right-right-content2{

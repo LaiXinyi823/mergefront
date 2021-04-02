@@ -94,11 +94,11 @@ export default {
             }
         },
         async getDomainList (){
-            const res = await this.$http.get('list_domain');
+            const res = await this.$http.get('domain');
             this.domainList = res.data.data;
         },
         async addNewDomain (){
-            const {data:res} = await this.$http.post('add_domain',this.newDomain);
+            const {data:res} = await this.$http.post('domain',this.newDomain);
             this.domainList = res.data;
             this.addDialogVisible = false;
             console.log(res);
