@@ -35,8 +35,7 @@
           <router-view name="myproject" v-if="opt=='myproject'" />
           <router-view name="mygraph" v-if="opt=='mygraph' && isRouterAlive" />
           <router-view name="mydomain" v-if="opt=='mydomain' && isRouterAlive" /> 
-          <router-view name="labelproject" v-if="opt=='labelproject' && isRouterAlive" /> 
-          <router-view name="myDB" v-if="opt=='myDB' && isRouterAlive" /> 
+          <router-view name="QA" v-if="opt=='QA' && isRouterAlive" /> 
         </div>
         <!-- 我的项目-子路由 -->
         <!-- <div v-if="opt=='myproject'" class="right-content">    
@@ -99,24 +98,30 @@ export default {
       isCollapse: true,
       circleUrl: 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png',
       opt: '',
+      // menuList:[
+      //   {'id':'1','menuName':'我的项目','icon':'el-icon-menu',
+      //   'children':[
+      //     {'subID':'1','subName':'项目管理','subIcon':'el-icon-setting','option':'myproject'}
+      //   ]},
+      //   {'id':'2','menuName':'我的数据','icon':'el-icon-coin'},
+      //   {'id':'3','menuName':'我的图谱','icon':'el-icon-share',
+      //   'children':[
+      //     {'subID':'1','subName':'图谱管理','subIcon':'el-icon-s-grid','option':'mygraph'},
+      //     {'subID':'2','subName':'领域管理','subIcon':'el-icon-s-home','option':'mydomain'}]},
+      //   {'id':'4','menuName':'我的模型','icon':'el-icon-help','children':[]},
+      // ],
       menuList:[
-        {'id':'1','menuName':'我的项目','icon':'el-icon-menu',
+        {'id':'1','menuName':'实体识别','icon':'el-icon-menu',
         'children':[
-          {'subID':'1','subName':'标注项目','subIcon':'el-icon-s-flag','option':'labelproject'},
-          {'subID':'2','subName':'融合项目','subIcon':'el-icon-menu','option':'mergeproject'}
+          {'subID':'1','subName':'','subIcon':'el-icon-setting','option':'myproject'}
         ]},
-        {'id':'2','menuName':'我的数据','icon':'el-icon-coin',
+        {'id':'2','menuName':'关系提取','icon':'el-icon-coin'},
+        {'id':'3','menuName':'知识图谱构建','icon':'el-icon-share',
         'children':[
-          {'subID':'1','subName':'文本数据','subIcon':'el-icon-document','option':'myDB'},
-          {'subID':'2','subName':'三元组数据','subIcon':'el-icon-postcard','option':'myfile'}]},
-        {'id':'3','menuName':'我的图谱','icon':'el-icon-share',
-        'children':[
-          {'subID':'1','subName':'图谱管理','subIcon':'el-icon-picture-outline','option':'mygraph'},
+          {'subID':'1','subName':'图谱管理','subIcon':'el-icon-s-grid','option':'mygraph'},
           {'subID':'2','subName':'领域管理','subIcon':'el-icon-s-home','option':'mydomain'}]},
-        {'id':'4','menuName':'我的模型','icon':'el-icon-help',
-        'children':[
-          {'subID':'1','subName':'模型管理','subIcon':'el-icon-s-opportunity','option':'mygraph'}
-        ]},
+        {'id':'4','menuName':'智能问答','icon':'el-icon-help','children':[{'subID':'1','subName':'智能问答','subIcon':'el-icon-s-help','option':'QA'},]},
+        {'id':'5','menuName':'文本摘要','icon':'el-icon-s-claim','children':[]},
       ],
       graph_list:[]
     };

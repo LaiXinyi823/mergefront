@@ -15,6 +15,7 @@ import myDomain from '@/components/myDomain.vue';
 import graphDetail from '@/components/graphDetail.vue';
 import labelproject from '@/components/labelproject.vue';
 import myDB from '@/components/myDB.vue';
+import QA from '@/components/QA.vue';
 
 Vue.use(VueRouter);
 
@@ -53,7 +54,8 @@ export default new VueRouter({
           entityResult: entityResult,
           KG:KG,
           labelproject:labelproject,
-          myDB:myDB
+          myDB:myDB,
+          QA:QA
         }
       },
       {
