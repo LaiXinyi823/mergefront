@@ -7,15 +7,17 @@
             添加新项目</i>
         </el-card>
       </div>
-      <el-card class="box-card" v-for="project in projectList" :key="project.project_id" shadow="never">
-        <div slot="header" class="clearfix">
-          <span>{{ project.project_name }}</span>
-          <el-button style="float: right; padding: 3px 0" type="text" @click="projectDetail(project.project_id, project.project_name)">
-            查看详情</el-button>
-        </div>
-        <div class="text item">所属领域：</div>
-        <div class="text item">权限：</div>
-      </el-card>
+      <div @click="projectDetail(project.project_id, project.project_name)">
+        <el-card class="box-card" v-for="project in projectList" :key="project.project_id" shadow="never">
+          <div slot="header" class="clearfix">
+            <span>{{ project.project_name }}</span>
+            <el-button style="float: right; padding: 3px 0" type="text" >
+              查看详情</el-button>
+          </div>
+          <div class="text item">所属领域：</div>
+          <div class="text item">权限：</div>
+        </el-card>
+      </div>
       <el-dialog title="新增项目" :visible.sync="addDialogVisible">
         <el-form :model="newProject">
             <el-form-item label="项目名称" :label-width="formLabelWidth">

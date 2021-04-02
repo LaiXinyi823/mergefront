@@ -755,7 +755,6 @@ export default {
                 this.searchResults[i].name = this.searchResults[i].value
             }          
             this.searchLen = this.searchResults.length
-            console.log(this.searchResults)
         },
         // 重命名中心实体名称
         async renameVertex(){
