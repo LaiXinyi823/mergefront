@@ -1,14 +1,17 @@
 <template>
-<div class="right-content">
-    <div id="main" style="width: 600px;height:400px;"></div>
-</div>
+  <div class="right-content">
+    <div
+      id="main"
+      style="width: 600px;height:400px;"
+    />
+  </div>
 </template>
 
 <style>
 </style>
 
 <script>
-import * as echarts from 'echarts'
+import * as echarts from 'echarts';
 export default {
   created (){},
   mounted(){
@@ -99,7 +102,7 @@ export default {
 
     option && myChart.setOption(option);
   }
-}
+};
 </script>
 
 <style scoped>

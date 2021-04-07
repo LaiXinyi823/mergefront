@@ -35,51 +35,8 @@
           <router-view name="myproject" v-if="opt=='myproject'" />
           <router-view name="mygraph" v-if="opt=='mygraph' && isRouterAlive" />
           <router-view name="mydomain" v-if="opt=='mydomain' && isRouterAlive" /> 
-          <router-view name="QA" v-if="opt=='QA' && isRouterAlive" /> 
+          <router-view name="myDB" v-if="opt=='myDB' && isRouterAlive" /> 
         </div>
-        <!-- 我的项目-子路由 -->
-        <!-- <div v-if="opt=='myproject'" class="right-content">    
-          <router-view name="myproject" />
-        </div> -->
-        <!-- 我的数据-子路由 -->
-        <!-- <div v-if="opt=='mydata'" class="right-content">    
-          <router-view name="mydata" />
-        </div> -->
-        <!-- 我的图谱-子路由 -->
-        <!-- <div v-if="opt=='mygraph'" class="right-content">    
-          <router-view name="mygraph" :visible="opt=='mygraph'"></router-view>
-        </div> -->
-        <!-- 知识图谱编辑-子路由 -->
-        <!-- <div v-if="opt=='edit'" class="right-content">
-        <div class="child-1" style="float:left;"> -->
-            <!-- 知识图谱编辑搜索模块 -->
-            <!-- <router-view name="search" /> -->
-            <!-- 实体搜索结果模块 -->
-            <!-- <router-view name="entityResult" />
-          </div>
-          <div class="child-2" style="float:left;">
-            <router-view name="KG" />
-          </div>
-        </div> -->
-        <!-- 文本生成及图谱融合-子路由 -->
-        <!-- <div
-          v-if="opt=='merge'"
-          class="right-content"
-        >
-          <div
-            class="child-3"
-            style="float:left;"
-          > -->
-            <!-- 文本输入框 -->
-            <!-- <router-view name="textinput" /> -->
-            <!-- 文本生成子图显示模块 -->
-            <!-- <router-view name="childKG" />
-          </div>
-          <div class="child-4" style="float:left;"> -->
-            <!-- 待融合显示模块 -->
-            <!-- <router-view name="originKG" />
-          </div>
-        </div> -->
       </el-container>
     </div>
   </div>
@@ -98,30 +55,21 @@ export default {
       isCollapse: true,
       circleUrl: 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png',
       opt: '',
-      // menuList:[
-      //   {'id':'1','menuName':'我的项目','icon':'el-icon-menu',
-      //   'children':[
-      //     {'subID':'1','subName':'项目管理','subIcon':'el-icon-setting','option':'myproject'}
-      //   ]},
-      //   {'id':'2','menuName':'我的数据','icon':'el-icon-coin'},
-      //   {'id':'3','menuName':'我的图谱','icon':'el-icon-share',
-      //   'children':[
-      //     {'subID':'1','subName':'图谱管理','subIcon':'el-icon-s-grid','option':'mygraph'},
-      //     {'subID':'2','subName':'领域管理','subIcon':'el-icon-s-home','option':'mydomain'}]},
-      //   {'id':'4','menuName':'我的模型','icon':'el-icon-help','children':[]},
-      // ],
       menuList:[
-        {'id':'1','menuName':'实体识别','icon':'el-icon-menu',
+        {'id':'1','menuName':'我的项目','icon':'el-icon-menu',
         'children':[
-          {'subID':'1','subName':'','subIcon':'el-icon-setting','option':'myproject'}
+          {'subID':'1','subName':'项目管理','subIcon':'el-icon-setting','option':'myproject'}
         ]},
-        {'id':'2','menuName':'关系提取','icon':'el-icon-coin'},
-        {'id':'3','menuName':'知识图谱构建','icon':'el-icon-share',
+        {'id':'2','menuName':'我的数据','icon':'el-icon-coin',
+        'children':[
+          {'subID':'1','subName':'文本数据','subIcon':'el-icon-s-grid','option':'myDB'},
+          {'subID':'2','subName':'三元组数据','subIcon':'el-icon-s-home','option':'mydomain'}]
+        },
+        {'id':'3','menuName':'我的图谱','icon':'el-icon-share',
         'children':[
           {'subID':'1','subName':'图谱管理','subIcon':'el-icon-s-grid','option':'mygraph'},
           {'subID':'2','subName':'领域管理','subIcon':'el-icon-s-home','option':'mydomain'}]},
-        {'id':'4','menuName':'智能问答','icon':'el-icon-help','children':[{'subID':'1','subName':'智能问答','subIcon':'el-icon-s-help','option':'QA'},]},
-        {'id':'5','menuName':'文本摘要','icon':'el-icon-s-claim','children':[]},
+        {'id':'4','menuName':'我的模型','icon':'el-icon-help','children':[]},
       ],
       graph_list:[]
     };
