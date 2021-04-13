@@ -101,6 +101,7 @@
                     <el-image :src="src" style="width:40%;height:50%;margin-left:30%;"/>
                   </div>
                   <h5 style="color:#800000;">提示：新增4个实体，对应3种关系</h5>
+                  <el-link style="float:right" @click="drawer=true" :underline="false">查看融合报告<i class="el-icon-view el-icon--right"></i> </el-link>
                   <el-drawer
                     title="我是标题"
                     :visible.sync="drawer"
