@@ -94,28 +94,23 @@
                     <el-radio label="false">否</el-radio>
                   </el-radio-group>
                 </el-form-item>
-                <el-form-item label="选择文件" :label-width="formLabelWidth" style="width:500px">
-                  <el-upload
-                  class="upload-demo"
-                  ref="upload"
-                  action
-                  :http-request="add_raw_data_file"
-                  :on-preview="handlePreview"
-                  :on-exceed="handleExceed"
-                  :file-list="file_list"
-                  :data="new_raw_data_file"
-                  accept=".txt,.csv,.json"
-                  :show-file-list="true"
-                  >
-                  <el-button slot="trigger" size="small" type="info">选取文件</el-button>
-                  <div slot="tip" class="el-upload__tip"><i class="el-icon-warning-outline" style="color:red"/><font color="red">只能上传txt/csv/json文件</font></div>
-                  </el-upload>  
-                </el-form-item>
-                <el-form-item>
-                  <el-button @click="confirm_add_file" type="primary" style="margin-left:10%;width:250px;">确 定</el-button>
-                  <el-button @click="resetForm">重 置</el-button>               
-                </el-form-item>
               </el-form>
+              <el-upload
+                class="upload-demo"
+                ref="upload"
+                action="http://127.0.0.1:5000/api/v1.0/raw_data"
+                :on-preview="handlePreview"
+                :on-exceed="handleExceed"
+                :file-list="file_list"
+                :data="new_raw_data_file"
+                accept=".txt"
+                :show-file-list="true"
+                style="margin-left:13%"
+                >
+                <el-button slot="trigger" size="small" type="info">选取文件</el-button>
+                <el-button style="margin-left: 10px;" size="small" type="success" @click="confirm_add_file">确认上传</el-button>
+                <div slot="tip" class="el-upload__tip"><i class="el-icon-warning-outline" style="color:red"/><font color="red">只能上传txt文件</font></div>
+              </el-upload>
             </div>
         </el-tab-pane>
       </el-tabs>
@@ -220,7 +215,10 @@ export default {
       }
     },
     confirm_add_file(){
-      const {data : res} = this.$http.post('raw_data', this.params)
+      for(var pair of this.params.entries()) {
+        console.log(pair[0]+ ', '+ pair[1]);
+      }
+      const res = this.$http.post('raw_data', this.params)
       console.log(res)
     },
     // 重置导入数据表格(有问题)

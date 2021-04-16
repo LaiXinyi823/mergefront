@@ -295,23 +295,10 @@
                 label="节点名称"
                 width="250"
               />
-              <el-table-column
-                label="操作"
-                width="320"
-              >
+              <el-table-column label="操作" width="320">
                 <template slot-scope="scope">
-                  <el-button
-                    type="success"
-                    icon="el-icon-picture"
-                    circle
-                    @click="graphVisible=true;vertex=scope.row"
-                  />
-                  <el-button
-                    type="primary"
-                    icon="el-icon-edit"
-                    circle
-                    @click="editVisible=true;vertex=scope.row"
-                  />
+                  <el-button type="success" icon="el-icon-picture" circle @click="graphVisible=true;vertex=scope.row"/>
+                  <el-button type="primary" icon="el-icon-edit" circle @click="editVisible=true;vertex=scope.row"/>
                   <el-popconfirm
                     confirm-button-text="确定"
                     cancel-button-text="取消"
@@ -411,9 +398,52 @@
             </div>
           </el-dialog>
           <!-- 展示该图谱的中心实体对应的关系列表（编辑功能） -->
-          <el-dialog
-            :title="'图谱编辑-中心节点：'+ vertex._id"
+          <el-drawer
+            :title="'中心节点：' + vertex.name"
             :visible.sync="editVisible"
+            direction="rtl"
+            size="60%"
+            height="100%"
+            @opened="openDialog('1')"
+          >
+            <el-table
+              ref="filterTable"
+              :data="graph_links"
+              max-height="600"
+              style="width: 95%;margin-left:2%;">
+              <el-table-column fixed="left" type="index" width="50"></el-table-column>
+              <el-table-column prop="e1_type" label="起始类型" sortable width="180"></el-table-column>
+              <el-table-column prop="e1_name" label="起始节点名" width="180"></el-table-column>
+              <el-table-column prop="relation" label="关系" width="180">
+                <template slot-scope="scope">
+                  <el-tag size="medium" type="primary">{{ scope.row.relation}}</el-tag>
+                </template>
+              </el-table-column>
+              <el-table-column prop="e2_type" label="终止类型" width="180"></el-table-column>
+              <el-table-column prop="e2_name" label="终止节点名" width="180"></el-table-column>
+              <el-table-column fixed="right" label="操作" width="120">
+                <template slot-scope="scope">
+                  <el-button
+                    type="text"
+                    size="small">
+                    移除
+                  </el-button>
+                  <el-button
+                    type="text"
+                    size="small">
+                    编辑
+                  </el-button>
+                </template>
+              </el-table-column>
+            </el-table>
+          </el-drawer>
+
+
+
+
+          <!-- <el-dialog
+            :title="'图谱编辑-中心节点：'+ vertex.name"
+            :visible.sync="graphVisible"
             @opened="openDialog('1')"
           >
             <el-table
@@ -422,7 +452,7 @@
             >
               <el-table-column
                 label="关系类型"
-                width="140"
+                width="180"
               >
                 <template slot-scope="scope">
                   <span style="margin-left: 10px">{{ scope.row.relation }}        
@@ -435,19 +465,12 @@
                       circle
                       @click="addNewEdgeVisible=true"
                     />
-                  </span>
+                  </span> -->
                   <!-- 新增与中心实体有关的节点 -->
-                  <el-dialog
-                    title="新增关系节点"
-                    :visible.sync="addNewEdgeVisible"
-                  >
-                    <el-form :model="newEdge">
+                  <!-- <el-dialog title="新增关系节点" :visible.sync="addNewEdgeVisible">
+                    <el-form :model="newEdge"> -->
                       <!-- 模糊查询选择要添加的节点 -->
-                      <el-form-item
-                        label="选择节点"
-                        prop="resource"
-                        label-width="100px"
-                      >
+                      <!-- <el-form-item label="选择节点" prop="resource" label-width="100px">
                         <el-autocomplete
                           v-model="newEdge.name"
                           :fetch-suggestions="querySearchAsync"
@@ -455,252 +478,112 @@
                           @select="handleSelectNewEdge"
                         />
                       </el-form-item>
-                      <el-form-item
-                        label="节点类型"
-                        prop="resource"
-                      >
+                      <el-form-item label="节点类型" prop="resource">
                         <el-radio-group v-model="newEdge.node_type">
-                          <el-radio
-                            v-model="newEdge.node_type"
-                            label="from"
-                          >
-                            起始节点
-                          </el-radio>
-                          <el-radio
-                            v-model="newEdge.node_type"
-                            label="to"
-                          >
-                            终点节点
-                          </el-radio>
+                          <el-radio v-model="newEdge.node_type" label="from">起始节点</el-radio>
+                          <el-radio v-model="newEdge.node_type" label="to">终点节点</el-radio>
                         </el-radio-group>
                       </el-form-item>               
                     </el-form>
-                    <div
-                      slot="footer"
-                      class="dialog-footer"
-                    >
-                      <el-button @click="addRelationVisible = false">
-                        取 消
-                      </el-button>
-                      <el-button
-                        type="primary"
-                        @click="addEdge(scope.row.relation)"
-                      >
-                        确 定
-                      </el-button>
+                    <div slot="footer" class="dialog-footer">
+                      <el-button @click="addRelationVisible = false">取 消</el-button>
+                      <el-button type="primary" @click="addEdge(scope.row.relation)">确 定</el-button>
                     </div>
                   </el-dialog>
                 </template>
-              </el-table-column>
+              </el-table-column> -->
                     
               <!-- 显示与中心节点有关的起始节点 -->
-              <el-table-column
-                width="240"
-                label="起点实体"
-              >
+              <!-- <el-table-column width="240" label="起点实体">
                 <template slot-scope="scope">
-                  <div
-                    v-for="node in scope.row.nodes"
-                    :key="node.node_id"
-                    style="float:left;margin-right:5px"
-                  >
+                  <div v-for="node in scope.row.nodes" :key="node.node_id" style="float:left;margin-right:5px">
                     <div v-if="node.from_or_to=='source'">
-                      <div
-                        slot="reference"
-                        class="name-wrapper"
-                        style="margin-bottom:3px;"
-                      >
+                      <div slot="reference" class="name-wrapper" style="margin-bottom:3px;">
                         <el-tag size="medium">
                           {{ node.node_name }} 
-                          <i
-                            class="el-icon-close"
-                            @click="node.node_deleteVisible=true"
-                          />
+                          <i class="el-icon-close" @click="node.node_deleteVisible=true"/>
                         </el-tag>
                       </div>
-                      <el-dialog
-                        title="提示"
-                        :visible.sync="node.node_deleteVisible"
-                        width="30%"
-                        center
-                      >
+                      <el-dialog title="提示" :visible.sync="node.node_deleteVisible" width="30%" center>
                         <span>您确定要删除当前节点:{{ node.node_id }}吗？</span>
-                        <span
-                          slot="footer"
-                          class="dialog-footer"
-                        >
+                        <span slot="footer" class="dialog-footer">
                           <el-button @click="node.node_deleteVisible = false">取 消</el-button>
-                          <el-button
-                            type="primary"
-                            @click="deleteEdge(node.node_id)"
-                          >确 定</el-button>
+                          <el-button type="primary" @click="deleteEdge(node.node_id)">确 定</el-button>
                         </span>
                       </el-dialog>  
                     </div>
                   </div>
                 </template>
-              </el-table-column>
+              </el-table-column> -->
 
               <!-- 显示与中心实体有关的终点实体 -->
-              <el-table-column
-                width="240"
-                label="终点实体"
-              >
+              <!-- <el-table-column width="240" label="终点实体">
                 <template slot-scope="scope">
-                  <div
-                    v-for="node in scope.row.nodes"
-                    :key="node.node_id"
-                    style="float:left;margin-right:5px"
-                  >
+                  <div v-for="node in scope.row.nodes" :key="node.node_id" style="float:left;margin-right:5px">
                     <div v-if="node.from_or_to=='target'">
-                      <div
-                        slot="reference"
-                        class="name-wrapper"
-                      >
+                      <div slot="reference" class="name-wrapper">
                         <el-tag size="medium">
                           {{ node.node_name }}
-                          <i
-                            class="el-icon-close"
-                            @click="node.node_deleteVisible=true"
-                          />
+                          <i class="el-icon-close" @click="node.node_deleteVisible=true"/>
                         </el-tag>
                       </div>
-                      <el-dialog
-                        title="提示"
-                        :visible.sync="node.node_deleteVisible"
-                        width="30%"
-                        center
-                      >
+                      <el-dialog title="提示" :visible.sync="node.node_deleteVisible" width="30%" center>
                         <span>您确定要删除当前节点:{{ node.node_id }}吗？</span>
-                        <span
-                          slot="footer"
-                          class="dialog-footer"
-                        >
+                        <span slot="footer" class="dialog-footer">
                           <el-button @click="node.node_deleteVisible = false">取 消</el-button>
-                          <el-button
-                            type="primary"
-                            @click="deleteEdge(node.node_id)"
-                          >确 定</el-button>
+                          <el-button type="primary" @click="deleteEdge(node.node_id)">确 定</el-button>
                         </span>
                       </el-dialog>
                     </div>
                   </div>   
                 </template>
               </el-table-column>
-            </el-table>
+            </el-table> -->
 
             <!-- 为中心实体创建新的关系类型 -->
-            <el-button
-              type="text"
-              @click="addRelationVisible = true"
-            >
-              为该节点创建新的关系
-            </el-button>
-            <el-dialog
-              title="新增关系类型"
-              :visible.sync="addRelationVisible"
-            >
+            <!-- <el-button type="text" @click="addRelationVisible = true">为该节点创建新的关系</el-button>
+            <el-dialog title="新增关系类型" :visible.sync="addRelationVisible">
               <el-form :model="newRelation">
-                <el-form-item
-                  label="关系类型名称"
-                  label-width="100px"
-                >
-                  <el-input
-                    v-model="newRelation.relationName"
-                    autocomplete="off"
-                  />
+                <el-form-item label="关系类型名称" label-width="100px">
+                  <el-input v-model="newRelation.relationName" autocomplete="off"/>
                 </el-form-item>
-                <el-form-item
-                  label="选择节点"
-                  prop="resource"
-                  label-width="100px"
-                >
-                  <el-autocomplete
-                    v-model="newRelation.name"
-                    :fetch-suggestions="querySearchAsync"
-                    placeholder="请输入内容"
-                    @select="handleSelectNewRelation"
-                  />
+                <el-form-item label="选择节点" prop="resource" label-width="100px">
+                  <el-autocomplete v-model="newRelation.name" :fetch-suggestions="querySearchAsync" placeholder="请输入内容" @select="handleSelectNewRelation"/>
                 </el-form-item>
-                <el-form-item
-                  label="所选节点为"
-                  label-width="100px"
-                >
+                <el-form-item label="所选节点为" label-width="100px">
                   <template>
-                    <el-radio
-                      v-model="newRelation.relationRadio"
-                      label="source"
-                    >
-                      起始节点
-                    </el-radio>
-                    <el-radio
-                      v-model="newRelation.relationRadio"
-                      label="target"
-                    >
-                      终点节点
-                    </el-radio>
+                    <el-radio v-model="newRelation.relationRadio" label="source">起始节点</el-radio>
+                    <el-radio v-model="newRelation.relationRadio" label="target">终点节点</el-radio>
                   </template>
                 </el-form-item>                    
               </el-form>
-              <div
-                slot="footer"
-                class="dialog-footer"
-              >
-                <el-button @click="addRelationVisible = false">
-                  取 消
-                </el-button>
-                <el-button
-                  type="primary"
-                  @click="addRelation()"
-                >
-                  确 定
-                </el-button>
+              <div slot="footer" class="dialog-footer">
+                <el-button @click="addRelationVisible = false">取 消</el-button>
+                <el-button type="primary" @click="addRelation()">确 定</el-button>
               </div>
-            </el-dialog>
+            </el-dialog> -->
 
             <!-- 重命名某中心实体 -->
-            <div>
-              <el-button
-                type="text"
-                @click="renameVertexVisible = true"
-              >
+            <!-- <div>
+              <el-button type="text" @click="renameVertexVisible = true">
                 重命名该中心节点名称
               </el-button>
             </div>
-            <el-dialog
-              title="重命名该中心节点"
-              :visible.sync="renameVertexVisible"
-            >
+            <el-dialog title="重命名该中心节点" :visible.sync="renameVertexVisible">
               <el-form>
-                <el-form-item
-                  label="原名称"
-                  label-width="100px"
-                >
+                <el-form-item label="原名称" label-width="100px">
                   {{ vertex.name }}
                 </el-form-item>    
-                <el-form-item
-                  label="新名称"
-                  label-width="100px"
-                >
+                <el-form-item label="新名称" label-width="100px">
                   <el-input v-model="rename" />
                 </el-form-item>                 
               </el-form>
-              <div
-                slot="footer"
-                class="dialog-footer"
-              >
-                <el-button @click="addRelationVisible = false">
-                  取 消
-                </el-button>
-                <el-button
-                  type="primary"
-                  @click="renameVertex()"
-                >
-                  确 定
-                </el-button>
+              <div slot="footer" class="dialog-footer">
+                <el-button @click="addRelationVisible = false">取 消</el-button>
+                <el-button type="primary" @click="renameVertex()">确 定</el-button>
               </div>
             </el-dialog>
-          </el-dialog>       
+          </el-dialog>        -->
         </el-card>        
       </div>
     </div>
@@ -778,7 +661,6 @@ export default {
     methods: {
         // 获取我的图谱
         async getMygraphList(selectDomainID){
-            console.log(selectDomainID);
             const res = await this.$http.get(selectDomainID+'/graph');
             this.graph_list = res.data.data;
         },
@@ -860,55 +742,55 @@ export default {
         async showEditGraph(maxDepth){
             this.graph_nodes = []; // 节点数据初始化
             this.graph_links = []; // 关系数据初始化
-            const { data:res } = await this.$http.post(this.domain_id+'/graph/'+this.graph_id+'/traverse',
-            {
-                startVertex:this.vertex._id,
-                direction:'any',
-                maxDepth:parseInt(maxDepth),
-                minDepth:0
-            });
-            
-            var len=res.data.paths.length;
-            // 每个path中包括1或2条边edges数组以及涉及到的节点vertices数组
-            for(var i=0;i<len;i++){
-                var vertices=res.data.paths[i].vertices;
-                var links=res.data.paths[i].edges;
-                var v_len=vertices.length;
-                var l_len=links.length;
-                // 获取节点数据
-                for(var j=0;j<v_len;j++){
-                    vertices[j]['id']=vertices[j]['_id'];
-                    delete vertices[j]['_id'];
-                    if(JSON.stringify(this.graph_nodes).indexOf(JSON.stringify(vertices[j]))>-1){
-                    }
-                    else{
-                        this.graph_nodes.push(vertices[j]); // 得到与中心实体相关的所有实体
-                    }
-                }
-                // 获取关系数据
-                // 关系数据格式
-                // { "source": "persons/alice","id": "knows/247922","target": "persons/bob"}
-                for(var k=0;k<l_len;k++)
-                {
-                    var relation={
-                        id:links[k]._id,
-                        source:links[k]._from,
-                        target:links[k]._to
-                    };
-                    if(links[k].length!=0 && JSON.stringify(this.graph_links).indexOf(JSON.stringify(relation))==-1)
-                        this.graph_links.push(relation);
-                }
-                    
-            }
-            // 节点数据格式
-            // {"id": "persons/alice","_key": "alice","_rev": "_bukg8Sa---","name": "Alice"}
-            this.graph_nodes.map(function(item){
-                return{
-                    id:item._id
-                };
-            });
-
+            // 展示图谱
             if(this.graphVisible){
+              const { data:res } = await this.$http.post(this.domain_id+'/graph/'+this.graph_id+'/traverse',
+              {
+                  startVertex:this.vertex._id,
+                  direction:'any',
+                  maxDepth:parseInt(maxDepth),
+                  minDepth:0
+              });
+              
+              var len=res.data.paths.length;
+              // 每个path中包括1或2条边edges数组以及涉及到的节点vertices数组
+              for(var i=0;i<len;i++){
+                  var vertices=res.data.paths[i].vertices;
+                  var links=res.data.paths[i].edges;
+                  var v_len=vertices.length;
+                  var l_len=links.length;
+                  // 获取节点数据
+                  for(var j=0;j<v_len;j++){
+                      vertices[j]['id']=vertices[j]['_id'];
+                      delete vertices[j]['_id'];
+                      if(JSON.stringify(this.graph_nodes).indexOf(JSON.stringify(vertices[j]))>-1){
+                      }
+                      else{
+                          this.graph_nodes.push(vertices[j]); // 得到与中心实体相关的所有实体
+                      }
+                  }
+                  // 获取关系数据
+                  // 关系数据格式
+                  // { "source": "persons/alice","id": "knows/247922","target": "persons/bob"}
+                  for(var k=0;k<l_len;k++)
+                  {
+                      var relation={
+                          id:links[k]._id,
+                          source:links[k]._from,
+                          target:links[k]._to
+                      };
+                      if(links[k].length!=0 && JSON.stringify(this.graph_links).indexOf(JSON.stringify(relation))==-1)
+                          this.graph_links.push(relation);
+                  }
+                        
+                }
+                // 节点数据格式
+                // {"id": "persons/alice","_key": "alice","_rev": "_bukg8Sa---","name": "Alice"}
+                this.graph_nodes.map(function(item){
+                    return{
+                        id:item._id
+                    };
+                });
                 // 使用Echarts展示
                 var myChart = echarts.init(this.$refs.graph);
                 console.log(this.graph_nodes);
@@ -989,30 +871,49 @@ export default {
             }
 
             else if(this.editVisible){
-                this.graph_links_sorted=[];
-                var relations=[];// 如 ['knows','love']
-                for(var i=0;i<this.graph_links.length;i++){
-                    console.log(i);
-                    var source_node = this.graph_links[i]['source'];
-                    if(source_node == this.vertex._id)//中心节点为source节点
-                        var from_or_to = 'target'; //待将target节点加入列表中
-                    else
-                        var from_or_to = 'source'; //待将source节点加入列表中
-                    var relation = this.graph_links[i]['id'].split('/')[0];
-                    var type_index = relations.indexOf(relation);
-                    if(type_index==-1){
-                        relations.push(relation); // 加入新关系类型
-                        this.graph_links_sorted.push({relation:relation,nodes:[]}); 
-                        // 加入新关系类型，及其相关节点列表 [{'knows':[{'BOB'},{'Alice'}]},{'love':[{'Kate'}]}]
-                    }
-                    type_index = relations.indexOf(relation);
-                    var link_id = this.graph_links[i]['id'];
-                    console.log(this.graph_links[i]);
-                    var node_type = this.graph_links[i][from_or_to].split('/')[0];
-                    var node_name = this.graph_links[i][from_or_to].split('/')[1];
-                    var node_deleteVisible;
-                    this.graph_links_sorted[type_index].nodes.push({link_id:link_id,from_or_to:from_or_to,node_name:node_name,node_type:node_type,node_id:this.graph_links[i][from_or_to],node_deleteVisible:false});
-                }
+              this.graph_links = [];
+              const { data:result } = await this.$http.post(this.domain_id+'/graph/'+this.graph_id+'/neighbor',
+              {
+                  startVertex:this.vertex._id
+              });
+              var links=result.data;
+              for(var i=0;i<links.length;i++){
+                var link={};
+                link['e1_type']=links[i]['_from'].split('/')[0];
+                link['e1_name']=links[i]['_from_name'];
+                link['e2_type']=links[i]['_to'].split('/')[0];
+                link['e2_name']=links[i]['_to_name'];
+                link['relation']=links[i]['_id'].split('/')[0];
+                this.graph_links.push(link);
+              }
+              console.log(this.graph_links);
+                // this.graph_links_sorted=[];
+                // var relations=[];// 如 ['knows','love']
+                // for(var i=0;i<this.graph_links.length;i++){
+                //     var source_node = this.graph_links[i]['source'];
+                //     if(source_node == this.vertex._id)//中心节点为source节点
+                //         var from_or_to = 'target'; //待将target节点加入列表中
+                //     else
+                //         var from_or_to = 'source'; //待将source节点加入列表中
+                //     var relation = this.graph_links[i]['id'].split('/')[0];
+                //     var type_index = relations.indexOf(relation);
+                //     if(type_index==-1){
+                //         relations.push(relation); // 加入新关系类型
+                //         this.graph_links_sorted.push({relation:relation,nodes:[]}); 
+                //         // 加入新关系类型，及其相关节点列表 [{'knows':[{'BOB'},{'Alice'}]},{'love':[{'Kate'}]}]
+                //     }
+                //     type_index = relations.indexOf(relation);
+                //     var link_id = this.graph_links[i]['id'];
+                //     var node_type = this.graph_links[i][from_or_to].split('/')[0];
+                //     var node_name = this.graph_links[i][from_or_to].split('/')[1];
+                //     var node_deleteVisible;
+                //     this.graph_links_sorted[type_index].nodes.push({link_id:link_id,from_or_to:from_or_to,node_name:node_name,node_type:node_type,node_id:this.graph_links[i][from_or_to],node_deleteVisible:false});
+                // }
+                const { data:res } = await this.$http.post(this.domain_id+'/graph/'+this.graph_id+'/neighbor',
+                {
+                    startVertex:this.vertex._id
+                });
+                
             }  
         },
         // 全屏显示知识图谱
@@ -1195,6 +1096,14 @@ export default {
                 });
             }
             this.showVertexs(this.collection,this.currentPage);
+        },
+        // 表格过滤器
+        filterTag(value, row) {
+        return row.tag === value;
+        },
+        filterHandler(value, row, column) {
+          const property = column['property'];
+          return row[property] === value;
         }
     }
 };

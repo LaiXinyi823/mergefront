@@ -36,6 +36,7 @@
           <router-view name="mygraph" v-if="opt=='mygraph' && isRouterAlive" />
           <router-view name="mydomain" v-if="opt=='mydomain' && isRouterAlive" /> 
           <router-view name="myDB" v-if="opt=='myDB' && isRouterAlive" /> 
+          <router-view name="myTripleData" v-if="opt=='myTripleData' && isRouterAlive" /> 
         </div>
       </el-container>
     </div>
@@ -63,7 +64,7 @@ export default {
         {'id':'2','menuName':'我的数据','icon':'el-icon-coin',
         'children':[
           {'subID':'1','subName':'文本数据','subIcon':'el-icon-s-grid','option':'myDB'},
-          {'subID':'2','subName':'三元组数据','subIcon':'el-icon-s-home','option':'mydomain'}]
+          {'subID':'2','subName':'三元组数据','subIcon':'el-icon-s-home','option':'myTripleData'}]
         },
         {'id':'3','menuName':'我的图谱','icon':'el-icon-share',
         'children':[
