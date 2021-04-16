@@ -43,80 +43,99 @@
       <div style="width: 100%; margin-top: 5px">
         <el-tabs type="border-card">
           <el-tab-pane>
-            <span slot="label"><i class="el-icon-document"/> 文本生成知识图谱子图</span>
-            <div style="float:left;width:40%">
-              <!-- 输入文本数据 -->
-              <el-aside width="100%">
-                <el-card shadow="always">
-                  <h5 style="margin: 0; display: inline; width: 30px">输入文本</h5>
-                  <el-divider content-position="left"/>
-                  <el-input type="textarea" :rows="10" placeholder="请输入待生成知识图谱的文本内容" v-model="textarea" class="textinput"/>
-                  <el-button @click="gen_childGraph()" type="primary" plain style="float:right;margin-top:3px;margin-bottom:3px;">确认生成</el-button>
-                </el-card>
-              </el-aside>
-              <!-- 生成知识图谱子图 -->
-              <div style="margin-top:5px;">
+            <span slot="label"><i class="el-icon-document"/> 标注项目</span>
+            <div style="margin-bottom:10px;">
+              标注方式：
+              <el-radio v-model="label_op" label="DB">数据库</el-radio>
+              <el-radio v-model="label_op" label="TEXT">文本</el-radio>
+            </div>
+            <el-divider><i class="el-icon-s-flag"></i></el-divider>
+            <div v-if="label_op=='DB'">
+              选择数据库：
+              <el-select v-model="label_DB" placeholder="请选择">
+                <el-option
+                  v-for="item in DBList"
+                  :key="item.data_id"
+                  :label="item.data_name"
+                  :value="item.data_id">
+                </el-option>
+              </el-select>
+            </div>
+            <div v-if="label_op=='TEXT'">
+              <div style="float:left;width:40%">
+                <!-- 输入文本数据 -->
+                <el-aside width="100%">
+                  <el-card shadow="always">
+                    <h5 style="margin: 0; display: inline; width: 30px">输入文本</h5>
+                    <el-divider content-position="left"/>
+                    <el-input type="textarea" :rows="10" placeholder="请输入待生成知识图谱的文本内容" v-model="textarea" class="textinput"/>
+                    <el-button @click="gen_childGraph()" type="primary" plain style="float:right;margin-top:3px;margin-bottom:3px;">确认生成</el-button>
+                  </el-card>
+                </el-aside>
+                <!-- 生成知识图谱子图 -->
+                <div style="margin-top:5px;">
+                  <el-aside width="100%" height="100%">
+                    <el-card shadow="always">
+                      <h5 style="margin: 0; display: inline; width: 50px">生成子图</h5>
+                      <el-link style="float:right" @click="childTableVisible=true" :underline="false">查看对应数据表格<i class="el-icon-view el-icon--right"></i> </el-link>
+                      <el-divider content-position="left" style="margin: 15px"/>
+                      <el-dialog title="子图对应的三元组数据" :visible.sync="childTableVisible" width="40%">
+                        <el-table
+                          :data="child_graph_data"
+                          height="320"
+                          font-size="12px"
+                          border
+                          style="width: 100%"
+                          :row-style="{ height: '10px' }"
+                          :cell-style="{ padding: '0' }"
+                        >
+                          <el-table-column fixed type="index" label="序号" width="50"/>
+                          <el-table-column prop="e1" label="起点实体" width="110"/>
+                          <el-table-column prop="e1_type" label="起点实体类型" width="110"/>
+                          <el-table-column prop="e2" label="终点实体" width="110"/>
+                          <el-table-column prop="e2_type" label="终点实体类型" width="110"/>
+                          <el-table-column prop="relation_type" label="关系类型" width="110"/>
+                          <el-table-column fixed="right" label="操作" width="100">
+                            <template slot-scope="scope">
+                              <el-button @click="handleClick(scope.row)" type="text" size="small">编辑</el-button>
+                              <el-button type="text" size="small">删除</el-button>
+                            </template>
+                          </el-table-column>
+                        </el-table>
+                      </el-dialog>
+                      <div id="main" ref="childGraph" style="width: 600px;height:300px;"/>
+                    </el-card>
+                  </el-aside>
+                </div>
+              </div>
+
+              <!-- 知识图谱融合 -->
+              <div style="float:left;width:58%;margin-left:20px;">
                 <el-aside width="100%" height="100%">
                   <el-card shadow="always">
-                    <h5 style="margin: 0; display: inline; width: 50px">生成子图</h5>
-                    <el-link style="float:right" @click="childTableVisible=true" :underline="false">查看对应数据表格<i class="el-icon-view el-icon--right"></i> </el-link>
-                    <el-divider content-position="left" style="margin: 15px"/>
-                    <el-dialog title="子图对应的三元组数据" :visible.sync="childTableVisible" width="40%">
-                      <el-table
-                        :data="child_graph_data"
-                        height="320"
-                        font-size="12px"
-                        border
-                        style="width: 100%"
-                        :row-style="{ height: '10px' }"
-                        :cell-style="{ padding: '0' }"
-                      >
-                        <el-table-column fixed type="index" label="序号" width="50"/>
-                        <el-table-column prop="e1" label="起点实体" width="110"/>
-                        <el-table-column prop="e1_type" label="起点实体类型" width="110"/>
-                        <el-table-column prop="e2" label="终点实体" width="110"/>
-                        <el-table-column prop="e2_type" label="终点实体类型" width="110"/>
-                        <el-table-column prop="relation_type" label="关系类型" width="110"/>
-                        <el-table-column fixed="right" label="操作" width="100">
-                          <template slot-scope="scope">
-                            <el-button @click="handleClick(scope.row)" type="text" size="small">编辑</el-button>
-                            <el-button type="text" size="small">删除</el-button>
-                          </template>
-                        </el-table-column>
-                      </el-table>
-                    </el-dialog>
-                    <div id="main" ref="childGraph" style="width: 600px;height:300px;"/>
+                    <h5 style="margin:0;display:inline;width:50px;">知识图谱融合预览</h5>
+                    <el-divider content-position="left" style="margin:10px"/>
+                    <div class="block">
+                      <el-image :src="src" style="width:40%;height:50%;margin-left:30%;"/>
+                    </div>
+                    <h5 style="color:#800000;">提示：新增4个实体，对应3种关系</h5>
+                    <el-link style="float:right" @click="drawer=true" :underline="false">查看融合报告<i class="el-icon-view el-icon--right"></i> </el-link>
+                    <el-drawer
+                      title="我是标题"
+                      :visible.sync="drawer"
+                      :direction="direction"
+                      :before-close="handleClose">
+                      <span>我来啦!</span>
+                    </el-drawer>
+
+                    <h4 style="float:left;margin:0;">显示层数：</h4>
+                    <el-input-number size="mini" v-model="num1" style="float:left"/>
+                    <h4 style="float:left;margin:0;margin-left:30px;">显示条数：</h4>
+                    <el-input-number size="mini" v-model="num2" style="float:left"/>
+                    <el-button style="float:right" type="primary" plain>确认融合</el-button>
                   </el-card>
                 </el-aside>
               </div>
-            </div>
-
-            <!-- 知识图谱融合 -->
-            <div style="float:left;width:58%;margin-left:20px;">
-              <el-aside width="100%" height="100%">
-                <el-card shadow="always">
-                  <h5 style="margin:0;display:inline;width:50px;">知识图谱融合预览</h5>
-                  <el-divider content-position="left" style="margin:10px"/>
-                  <div class="block">
-                    <el-image :src="src" style="width:40%;height:50%;margin-left:30%;"/>
-                  </div>
-                  <h5 style="color:#800000;">提示：新增4个实体，对应3种关系</h5>
-                  <el-link style="float:right" @click="drawer=true" :underline="false">查看融合报告<i class="el-icon-view el-icon--right"></i> </el-link>
-                  <el-drawer
-                    title="我是标题"
-                    :visible.sync="drawer"
-                    :direction="direction"
-                    :before-close="handleClose">
-                    <span>我来啦!</span>
-                  </el-drawer>
-
-                  <h4 style="float:left;margin:0;">显示层数：</h4>
-                  <el-input-number size="mini" v-model="num1" style="float:left"/>
-                  <h4 style="float:left;margin:0;margin-left:30px;">显示条数：</h4>
-                  <el-input-number size="mini" v-model="num2" style="float:left"/>
-                  <el-button style="float:right" type="primary" plain>确认融合</el-button>
-                </el-card>
-              </el-aside>
             </div>
           </el-tab-pane>
 
@@ -135,10 +154,12 @@ import * as echarts from 'echarts';
 export default {
   created() {
     this.getProjectList();
+    this.getDBList();
   },
   data() {
     return {
       projectList: [],
+      DBList:[],
       currentDate: new Date(),
       addDialogVisible: false,
       formLabelWidth: '100px',
@@ -157,12 +178,27 @@ export default {
       child_graph_data: [],
       childTableVisible:false,
       drawer: false,
+      label_op:'DB',
+      label_DB:''
     };
   },
   methods: {
+    // 获取项目列表
     async getProjectList() {
       const res = await this.$http.get('list_projects');
       this.projectList = res.data.data;
+    },
+    // 获取DB列表
+    async getDBList(){
+      const {data: res} = await this.$http.get('raw_data');
+      console.log(res.data)
+      for(var i=0;i<res.data.length;i++){
+        if(res.data[i].data_type==0){
+          res.data.splice(i,1);
+        }
+      }
+      this.DBList = res.data;
+      console.log(this.DBList)
     },
     // 查看项目详情
     projectDetail(project_id, project_name) {
