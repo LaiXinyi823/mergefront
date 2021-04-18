@@ -8,16 +8,16 @@
         </el-card>
         <el-card style="margin-top:20px;">
             <h3>答案：</h3>
-            <el-input placeholder="" v-model="answer" class="input-with-select">
+            <el-input type="textarea" placeholder="" v-model="answer" :autosize="{ minRows: 2, maxRows: 4}" class="input-with-select">
             </el-input>
         </el-card>
         <el-card style="margin-top:20px;">
             <h3>知识图谱子图：</h3>
             <div id="main" ref="graph" style="width: 600px;height:400px;"></div>
                 <!-- 图中显示层数 -->
-            <div style="position:absolute;margin-left:25%;bottom: 10px;">
+            <div style="margin-left:25%;bottom: 10px;">
                 显示层数：
-                <el-select v-model="maxDepth" placeholder="2" size="mini" @change="showEditGraph(maxDepth)">
+                <el-select v-model="maxDepth" placeholder="1" size="mini" @change="showEditGraph(maxDepth)">
                     <el-option
                     v-for="i in 5"
                     :key="i"
