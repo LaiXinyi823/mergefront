@@ -60,6 +60,20 @@
                   :value="item.data_id">
                 </el-option>
               </el-select>
+              <el-divider></el-divider>
+               选择模型：
+              <el-select v-model="label_model" placeholder="请选择">
+                <el-option
+                  v-for="item in modelList"
+                  :key="item.data_id"
+                  :label="item.data_name"
+                  :value="item.data_id">
+                </el-option>
+              </el-select>
+              <div style="margin-top:20px;">
+                <el-button type="primary">开始标注</el-button>
+                <el-button type="success" style="margin-left:50px;">暂存</el-button>
+              </div>
             </div>
             <div v-if="label_op=='TEXT'">
               <div style="float:left;width:40%">
@@ -68,8 +82,19 @@
                   <el-card shadow="always">
                     <h5 style="margin: 0; display: inline; width: 30px">输入文本</h5>
                     <el-divider content-position="left"/>
-                    <el-input type="textarea" :rows="10" placeholder="请输入待生成知识图谱的文本内容" v-model="textarea" class="textinput"/>
-                    <el-button @click="gen_childGraph()" type="primary" plain style="float:right;margin-top:3px;margin-bottom:3px;">确认生成</el-button>
+                    <el-input type="textarea" :rows="7" placeholder="请输入待生成知识图谱的文本内容" v-model="textarea" class="textinput"/>
+                    <el-divider></el-divider>
+                    选择模型：
+                    <el-select v-model="label_model" placeholder="请选择">
+                      <el-option
+                        v-for="item in modelList"
+                        :key="item.data_id"
+                        :label="item.data_name"
+                        :value="item.data_id">
+                      </el-option>
+                    </el-select>
+                      <el-button type="primary" style="margin-left:30px;" @click="gen_childGraph()">开始标注</el-button>
+                      <el-button type="success" style="margin-left:10px;">暂存</el-button>
                   </el-card>
                 </el-aside>
                 <!-- 生成知识图谱子图 -->

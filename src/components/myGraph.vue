@@ -124,22 +124,10 @@
         style="width:100%;height:65px;background-color:#fff;"
         shadow="never"
       >
-        <el-page-header
-          @back="goBack()"
-          :content="graph_name + ' 图谱详情'"
-          style="float:left"
-        />
+        <el-page-header @back="goBack()" :content="graph_name + ' 图谱详情'" style="float:left"/>
         <div style="width:20%;float:right;">
-          <el-input
-            placeholder="输入节点名称"
-            v-model="searchVertexName"
-            class="input-with-select"
-          >
-            <el-button
-              slot="append"
-              icon="el-icon-search"
-              @click="searchVertex()"
-            />
+          <el-input placeholder="输入节点名称" v-model="searchVertexName" class="input-with-select">
+            <el-button slot="append" icon="el-icon-search" @click="searchVertex()"/>
           </el-input>
         </div>
       </el-card>
@@ -153,11 +141,7 @@
             style="margin-left:10px;margin-right:10px;margin-top:10px;margin-bottom:10px;"
             circle
           />添加实体类型
-          <el-menu
-            default-active="2"
-            class="el-menu-vertical-demo"
-            style="margin-top:3px;"
-          >
+          <el-menu default-active="2" class="el-menu-vertical-demo" style="margin-top:3px;">
             <el-menu-item>实体类型列表</el-menu-item>
             <el-menu-item
               v-for="collection in collections_list"
@@ -358,45 +342,25 @@
             </div>
           </el-dialog>
           <!-- 以中心节点方式展示图谱 -->
-          <el-dialog
+          <el-drawer
             title="图谱显示"
-            width="35%"
-            :fullscreen="fullscreen"
             :visible.sync="graphVisible"
-            @opened="openDialog(maxDepth)"
-            @close="closeFullScreen()"
+            direction="rtl"
+            size="60%"
+            @opened="openDialog('1')"
           >
-            <div
-              id="main"
-              ref="graph"
-              style="width: 600px;height:400px;"
-            />
+            <div style="width:80%;height:70%;margin-left:20px;margin-right:20px;">
+              <div id="graph" ref="graph" :style="{width:'100%', height:'100%'}"/>
+            </div>
             <!-- 图中显示层数 -->
-            <div style="position:absolute;margin-left:25%;bottom: 10px;">
+            <div style="margin-left:40%;bottom: 10px;">
               显示层数：
-              <el-select
-                v-model="maxDepth"
-                placeholder="2"
-                size="mini"
-                @change="showEditGraph(maxDepth)"
-              >
-                <el-option
-                  v-for="i in 5"
-                  :key="i"
-                  :label="i"
-                  :value="i"
-                />
+              <el-select v-model="maxDepth" placeholder="2" size="mini" @change="showEditGraph(maxDepth)">
+                <el-option v-for="i in 5" :key="i" :label="i" :value="i"/>
               </el-select>
             </div>
-            <div style="position:absolute;top: 16px;right:60px;float:left">
-              <el-link
-                @click="fullGraph()"
-                :underline="false"
-              >
-                <i class="el-icon-full-screen" />
-              </el-link>
-            </div>
-          </el-dialog>
+          </el-drawer>
+          
           <!-- 展示该图谱的中心实体对应的关系列表（编辑功能） -->
           <el-drawer
             :title="'中心节点：' + vertex.name"
@@ -423,19 +387,77 @@
               <el-table-column prop="e2_name" label="终止节点名" width="180"></el-table-column>
               <el-table-column fixed="right" label="操作" width="120">
                 <template slot-scope="scope">
-                  <el-button
-                    type="text"
-                    size="small">
-                    移除
-                  </el-button>
-                  <el-button
-                    type="text"
-                    size="small">
-                    编辑
-                  </el-button>
+                  <el-button type="text" size="small">移除</el-button>
+                  <el-button type="text" size="small" @click="innerDrawer = true">编辑</el-button>
                 </template>
               </el-table-column>
             </el-table>
+          <el-divider><i class="el-icon-star-on"></i></el-divider>
+          <el-button type="primary" icon="el-icon-plus" style="margin-left:2%;" @click="addNewEdgeVisible==true">新增关系节点</el-button>
+              <!-- 新增关系节点-drawer -->
+              <el-drawer
+                title="编辑数据"
+                :append-to-body="true"
+                :visible.sync="addNewEdgeVisible">
+                <el-form :inline="true" :model="newEdge" class="demo-form-inline">
+                  <!-- 模糊查询选择要添加的节点 -->
+                    <el-form-item label="选择关系" prop="resource" label-width="100px">
+                      <el-autocomplete
+                        v-model="newEdge.name"
+                        :fetch-suggestions="querySearchAsync"
+                        placeholder="请输入内容"
+                        @select="handleSelectNewEdge"
+                      />
+                    </el-form-item>
+                    <el-form-item label="选择节点" prop="resource" label-width="100px">
+                      <el-autocomplete
+                        v-model="newEdge.name"
+                        :fetch-suggestions="querySearchAsync"
+                        placeholder="请输入内容"
+                        @select="handleSelectNewEdge"
+                      />
+                    </el-form-item>
+                          <el-radio-group v-model="newEdge.node_type">
+                        <el-radio v-model="newEdge.node_type" label="from">起始节点</el-radio>
+                        <el-radio v-model="newEdge.node_type" label="to">终点节点</el-radio>
+                      </el-radio-group>
+                    <el-form-item>
+                      <el-button type="primary" @click="addEdge()">查询</el-button>
+                    </el-form-item>
+                  
+                </el-form>
+              </el-drawer>
+              <!-- 编辑关系节点-drawer -->
+              <el-drawer
+                title="编辑数据"
+                :append-to-body="true"
+                :visible.sync="innerDrawer">
+                <p>_(:зゝ∠)_</p>
+              </el-drawer>
+            <!-- 新增与中心实体有关的节点 -->
+              <el-dialog title="新增关系节点" :visible.sync="addNewEdgeVisible">
+                <el-form :model="newEdge">
+                  <!-- 模糊查询选择要添加的节点 -->
+                  <el-form-item label="选择节点" prop="resource" label-width="100px">
+                    <el-autocomplete
+                      v-model="newEdge.name"
+                      :fetch-suggestions="querySearchAsync"
+                      placeholder="请输入内容"
+                      @select="handleSelectNewEdge"
+                    />
+                  </el-form-item>
+                  <el-form-item label="节点类型" prop="resource">
+                    <el-radio-group v-model="newEdge.node_type">
+                      <el-radio v-model="newEdge.node_type" label="from">起始节点</el-radio>
+                      <el-radio v-model="newEdge.node_type" label="to">终点节点</el-radio>
+                    </el-radio-group>
+                  </el-form-item>               
+                </el-form>
+                <div slot="footer" class="dialog-footer">
+                  <el-button @click="addRelationVisible = false">取 消</el-button>
+                  <el-button type="primary" @click="addEdge(scope.row.relation)">确 定</el-button>
+                </div>
+              </el-dialog>
           </el-drawer>
 
 
@@ -616,7 +638,7 @@ export default {
             graph_nodes:[], // 展示图所涉及到的节点数据
             graph_links:[], // 展示图所涉及到的关系数据
             graph_links_sorted:[], // 按照关系类型进一步分类的数据
-            maxDepth:2, // 图谱层数，默认为2
+            maxDepth:1, // 图谱层数，默认为1
             selectDomainID: '',
             table:'false',
             newGraph:{
@@ -639,6 +661,7 @@ export default {
                 name:'',
                 node_type:''
             },
+            myChart:{},
             searchEdges:[],
             rename:'',
             formLabelWidth: '120px',
@@ -651,6 +674,7 @@ export default {
             addDialogVisible: false,
             addNewEdgeVisible: false,
             renameVertexVisible: false,
+            innerDrawer:false,
             fullscreen:false,
             timeout:null,
             search:false,// 当用户启用在graph_detail界面搜索某节点为true
@@ -792,9 +816,7 @@ export default {
                     };
                 });
                 // 使用Echarts展示
-                var myChart = echarts.init(this.$refs.graph);
-                console.log(this.graph_nodes);
-                console.log(this.graph_links);
+                this.myChart = echarts.init(this.$refs.graph);
                 var option = {
                     title: {
                         text: '中心节点: ' + this.vertex.name
@@ -858,9 +880,12 @@ export default {
                             }
                             ]
                         };
-                        myChart.setOption(option);    
+                        this.myChart.setOption(option); 
+                        window.onresize = function () {
+                          this.myChart.resize();
+                        }    
                         //点击事件
-                        myChart.on('click', function (params) {
+                        this.myChart.on('click', function (params) {
                             if (params.dataType == 'node') {
                                 console.log(params.name);
                             }
@@ -886,34 +911,7 @@ export default {
                 link['relation']=links[i]['_id'].split('/')[0];
                 this.graph_links.push(link);
               }
-              console.log(this.graph_links);
-                // this.graph_links_sorted=[];
-                // var relations=[];// 如 ['knows','love']
-                // for(var i=0;i<this.graph_links.length;i++){
-                //     var source_node = this.graph_links[i]['source'];
-                //     if(source_node == this.vertex._id)//中心节点为source节点
-                //         var from_or_to = 'target'; //待将target节点加入列表中
-                //     else
-                //         var from_or_to = 'source'; //待将source节点加入列表中
-                //     var relation = this.graph_links[i]['id'].split('/')[0];
-                //     var type_index = relations.indexOf(relation);
-                //     if(type_index==-1){
-                //         relations.push(relation); // 加入新关系类型
-                //         this.graph_links_sorted.push({relation:relation,nodes:[]}); 
-                //         // 加入新关系类型，及其相关节点列表 [{'knows':[{'BOB'},{'Alice'}]},{'love':[{'Kate'}]}]
-                //     }
-                //     type_index = relations.indexOf(relation);
-                //     var link_id = this.graph_links[i]['id'];
-                //     var node_type = this.graph_links[i][from_or_to].split('/')[0];
-                //     var node_name = this.graph_links[i][from_or_to].split('/')[1];
-                //     var node_deleteVisible;
-                //     this.graph_links_sorted[type_index].nodes.push({link_id:link_id,from_or_to:from_or_to,node_name:node_name,node_type:node_type,node_id:this.graph_links[i][from_or_to],node_deleteVisible:false});
-                // }
-                const { data:res } = await this.$http.post(this.domain_id+'/graph/'+this.graph_id+'/neighbor',
-                {
-                    startVertex:this.vertex._id
-                });
-                
+              console.log(this.graph_links); 
             }  
         },
         // 全屏显示知识图谱
@@ -935,6 +933,14 @@ export default {
                 height: '400px'
             });
         },
+        // 关闭编辑drawer的提示
+        // handleClose(done) {
+        //   this.$confirm('还有未保存的工作哦确定关闭吗？')
+        //     .then(_ => {
+        //       done();
+        //     })
+        //     .catch(_ => {});
+        // },
         // 添加中心节点
         async addNode(type){
             console.log(this.newVertex);
@@ -1110,6 +1116,11 @@ export default {
 </script>
 
 <style>
+#graph{
+  width: 100%;
+  height: 300px;
+}
+
 .icon-block{
 width:100px;
 height:80px;
@@ -1129,6 +1140,10 @@ width:50%;
 }
 .switch{
  float:right;
+}
+.item {
+  margin-top: 10px;
+  margin-right: 40px;
 }
 
 </style>
