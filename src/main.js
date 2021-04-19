@@ -7,8 +7,6 @@ import './assets/icon/iconfont.css';
 import VueParticles from 'vue-particles';
 import axios from 'axios';
 import qs from 'qs';
-import { Message } from 'element-ui';
-import { MessageBox } from 'element-ui';
 import ECharts from 'vue-echarts';
 
 
@@ -24,12 +22,10 @@ axios.defaults.transformRequest = [function (data) {
 }];
 
 // Vue.use(echarts);
-Vue.use(Message);
 Vue.use(VueParticles);
 Vue.config.productionTip = false;
 Vue.prototype.$http = axios;
 Vue.prototype.$qs = qs;
-Vue.prototype.$message = Message;
 
 //配置请求的根路径
 axios.defaults.withCredentials = true;
