@@ -1,59 +1,150 @@
 <template>
+  <div>
+    <el-table
+      ref="multipleTable"
+      :data="domainList"
+      style="width: 100%"
+      @selection-change="handleSelectionChange"
+    >
+      <el-table-column
+        type="selection"
+        width="55"
+      />
+      <el-table-column
+        label="ID"
+        prop="domain_id"
+      />
+      <el-table-column
+        label="领域名称"
+        prop="domain_name"
+      />
+      <!-- <el-table-column label="操作权限" prop="name"> </el-table-column> -->
+      <el-table-column align="right">
+        <template slot="header">
+          <el-input
+            v-model="search"
+            size="mini"
+            placeholder="输入关键字搜索"
+          />
+        </template>
+        <template slot-scope="scope">
+          <el-button
+            size="mini"
+            style="margin-right: 5px;"
+            @click="renameDialogVisible = true;rename.domain_id=scope.row.domain_id"
+          >
+            编辑
+          </el-button>
+          <el-button
+            size="mini"
+            type="danger"
+            @click="delDialogVisible = true;domain_id=scope.row.domain_id"
+          >
+            删除
+          </el-button>
+        </template>
+      </el-table-column>
+    </el-table>
     <div>
-        <el-table ref="multipleTable" :data="domainList" style="width: 100%" @selection-change="handleSelectionChange">
-            <el-table-column type="selection" width="55"></el-table-column>
-            <el-table-column label="ID" prop="domain_id"> </el-table-column>
-            <el-table-column label="领域名称" prop="domain_name"> </el-table-column>
-            <!-- <el-table-column label="操作权限" prop="name"> </el-table-column> -->
-            <el-table-column align="right">
-            <template slot="header">
-                <el-input v-model="search" size="mini" placeholder="输入关键字搜索" />
-            </template>
-            <template slot-scope="scope">
-                <el-button size="mini" style="margin-right: 5px;" @click="renameDialogVisible = true;rename.domain_id=scope.row.domain_id">编辑</el-button>
-                <el-button size="mini" type="danger" @click="delDialogVisible = true;domain_id=scope.row.domain_id">删除</el-button>
-            </template>
-            </el-table-column>
-        </el-table>
-        <div>
-            <el-button type="danger" style="margin-top: 20px;margin-left:10px;float:right;" @click="toggleSelection()">删除所选项</el-button>
-            <el-button type="primary" style="margin-top: 20px;float:right;" @click="addDialogVisible = true">添加新领域</el-button>
-            <el-button style="margin-top: 20px;float:left;" @click="toggleSelection()">取消全选</el-button>
-        </div>
-        <el-dialog
-            title="删除提示"
-            :visible.sync="delDialogVisible"
-            width="30%"
-        >
-            <span>确认删除该领域？</span>
-            <span slot="footer" class="dialog-footer">
-                <el-button @click="delDialogVisible = false">取 消</el-button>
-                <el-button type="primary" @click="deleteDomain(domain_id)">确 定</el-button>
-            </span>
-        </el-dialog>
-        <el-dialog title="重命名该领域" :visible.sync="renameDialogVisible">
-            <el-form :model="newDomain">
-                <el-form-item label="输入新名称" :label-width="formLabelWidth">
-                <el-input v-model="rename.name" autocomplete="off"></el-input>
-                </el-form-item>
-            </el-form>
-            <div slot="footer" class="dialog-footer">
-                <el-button @click="renameDialogVisible = false">取 消</el-button>
-                <el-button type="primary" @click="renameDomain()">确 定</el-button>
-            </div>
-        </el-dialog>
-        <el-dialog title="添加新领域" :visible.sync="addDialogVisible">
-            <el-form :model="newDomain">
-                <el-form-item label="输入新领域名称" :label-width="formLabelWidth">
-                <el-input v-model="newDomain.name" autocomplete="off"></el-input>
-                </el-form-item>
-            </el-form>
-            <div slot="footer" class="dialog-footer">
-                <el-button @click="addDialogVisible = false">取 消</el-button>
-                <el-button type="primary" @click="addNewDomain()">确 定</el-button>
-            </div>
-        </el-dialog>
+      <el-button
+        type="danger"
+        style="margin-top: 20px;margin-left:10px;float:right;"
+        @click="toggleSelection()"
+      >
+        删除所选项
+      </el-button>
+      <el-button
+        type="primary"
+        style="margin-top: 20px;float:right;"
+        @click="addDialogVisible = true"
+      >
+        添加新领域
+      </el-button>
+      <el-button
+        style="margin-top: 20px;float:left;"
+        @click="toggleSelection()"
+      >
+        取消全选
+      </el-button>
     </div>
+    <el-dialog
+      title="删除提示"
+      :visible.sync="delDialogVisible"
+      width="30%"
+    >
+      <span>确认删除该领域？</span>
+      <span
+        slot="footer"
+        class="dialog-footer"
+      >
+        <el-button @click="delDialogVisible = false">取 消</el-button>
+        <el-button
+          type="primary"
+          @click="deleteDomain(domain_id)"
+        >确 定</el-button>
+      </span>
+    </el-dialog>
+    <el-dialog
+      title="重命名该领域"
+      :visible.sync="renameDialogVisible"
+    >
+      <el-form :model="newDomain">
+        <el-form-item
+          label="输入新名称"
+          :label-width="formLabelWidth"
+        >
+          <el-input
+            v-model="rename.name"
+            autocomplete="off"
+          />
+        </el-form-item>
+      </el-form>
+      <div
+        slot="footer"
+        class="dialog-footer"
+      >
+        <el-button @click="renameDialogVisible = false">
+          取 消
+        </el-button>
+        <el-button
+          type="primary"
+          @click="renameDomain()"
+        >
+          确 定
+        </el-button>
+      </div>
+    </el-dialog>
+    <el-dialog
+      title="添加新领域"
+      :visible.sync="addDialogVisible"
+    >
+      <el-form :model="newDomain">
+        <el-form-item
+          label="输入新领域名称"
+          :label-width="formLabelWidth"
+        >
+          <el-input
+            v-model="newDomain.name"
+            autocomplete="off"
+          />
+        </el-form-item>
+      </el-form>
+      <div
+        slot="footer"
+        class="dialog-footer"
+      >
+        <el-button @click="addDialogVisible = false">
+          取 消
+        </el-button>
+        <el-button
+          type="primary"
+          @click="addNewDomain()"
+        >
+          确 定
+        </el-button>
+      </div>
+    </el-dialog>
+  </div>
 </template>
 
 <script>
