@@ -32,7 +32,8 @@
         </el-submenu>
         </el-menu>
         <div class="right-content">    
-          <router-view name="myproject" v-if="opt=='myproject'" />
+          <router-view name="myproject" v-if="opt=='annotate_project'" />
+          <router-view name="merge_project" v-if="opt=='merge_project'" />
           <router-view name="mygraph" v-if="opt=='mygraph' && isRouterAlive" />
           <router-view name="mydomain" v-if="opt=='mydomain' && isRouterAlive" /> 
           <router-view name="myDB" v-if="opt=='myDB' && isRouterAlive" /> 
@@ -57,18 +58,19 @@ export default {
       circleUrl: 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png',
       opt: '',
       menuList:[
-        {'id':'1','menuName':'我的项目','icon':'el-icon-menu',
+        {'id':'1','menuName':'我的项目','icon':'el-icon-s-promotion',
         'children':[
-          {'subID':'1','subName':'项目管理','subIcon':'el-icon-setting','option':'myproject'}
+          {'subID':'1','subName':'标注项目','subIcon':'el-icon-edit','option':'annotate_project'},
+          {'subID':'2','subName':'融合项目','subIcon':'el-icon-copy-document','option':'merge_project'}
         ]},
         {'id':'2','menuName':'我的数据','icon':'el-icon-coin',
         'children':[
           {'subID':'1','subName':'文本数据','subIcon':'el-icon-s-grid','option':'myDB'},
-          {'subID':'2','subName':'三元组数据','subIcon':'el-icon-s-home','option':'myTripleData'}]
+          {'subID':'2','subName':'三元组数据','subIcon':'el-icon-s-data','option':'myTripleData'}]
         },
         {'id':'3','menuName':'我的图谱','icon':'el-icon-share',
         'children':[
-          {'subID':'1','subName':'图谱管理','subIcon':'el-icon-s-grid','option':'mygraph'},
+          {'subID':'1','subName':'图谱管理','subIcon':'el-icon-picture','option':'mygraph'},
           {'subID':'2','subName':'领域管理','subIcon':'el-icon-s-home','option':'mydomain'}]},
         {'id':'4','menuName':'我的模型','icon':'el-icon-help','children':[]},
       ],

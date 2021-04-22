@@ -684,8 +684,11 @@ export default {
         async showEditGraph(maxDepth){
             this.graph_nodes = []; // 节点数据初始化
             this.graph_links = []; // 关系数据初始化
+            this.graph_categories = []; //  关系类型初始化
             // 展示图谱
             if(this.graphVisible){
+              this.myChart = echarts.init(this.$refs.graph);
+              this.myChart.showLoading()
               const { data:res } = await this.$http.post(this.domain_id+'/graph/'+this.graph_id+'/traverse',
               {
                   startVertex:this.vertex._id,
@@ -744,7 +747,7 @@ export default {
                     };
                 });
                 // 使用Echarts展示
-                this.myChart = echarts.init(this.$refs.graph);
+                this.myChart.hideLoading()
                 var option = {
                     title: {
                         text: '中心节点: ' + this.vertex.name,
@@ -761,7 +764,7 @@ export default {
                           return a.name;
                       })
                     }],
-                    color: ['#c23531','#2f4554', '#61a0a8', '#d48265', '#91c7ae','#749f83',  '#ca8622', '#bda29a','#6e7074', '#546570', '#c4ccd3'],
+                    color: ['#ee6666', '#91cc75','#fac858', '#fc8452', '#9a60b4','#ea7ccc',  '#ca8622', '#bda29a','#6e7074', '#546570', '#c4ccd3'],
 
                     series: [
                         {
@@ -771,24 +774,25 @@ export default {
                             roam: true,
                             draggable: true,
                             hoverAnimation:true,
+                            notMerge:true,
                             force: {
                                 repulsion: 2500,
                                 edgeLength: [20, 50],
                                 draggable: true,
                                 layoutAnimation: false,
                             },
-                            itemStyle: {//配置节点的颜色
-                                normal: {
-                                    color: function (params) {
-                                        if (params.dataIndex == 0)
-                                            return 'red';
-                                        else{
-                                            // var colorList = ['yellow','orange', 'green', 'blue', 'gray'];
-                                            // return colorList[params.dataIndex % 6];
-                                        }                                        
-                                    },
-                                }
-                            },
+                            // itemStyle: {//配置节点的颜色
+                            //     normal: {
+                            //         color: function (params) {
+                            //             if (params.dataIndex == 0)
+                            //                 return 'red';
+                            //             else{
+                            //                 // var colorList = ['yellow','orange', 'green', 'blue', 'gray'];
+                            //                 // return colorList[params.dataIndex % 6];
+                            //             }                                        
+                            //         },
+                            //     }
+                            // },
                             symbolSize: function (value, params) {//改变节点大小
                                 if (params.dataIndex == 0)
                                     return 80;
@@ -817,11 +821,20 @@ export default {
                             lineStyle: {
                               opacity: 0.9,
                               width: 2,
-                              curveness: 0
+                              curveness: 0,
+                              // color:'source'
                             }
                             }
                             ]
                         };
+                        //节点拖拽固定
+                        this.myChart.on('mouseup', function (params) {
+                          var option = myChart.getOption();
+                          option.series[0].data[params.dataIndex].x = params.event.offsetX;
+                          option.series[0].data[params.dataIndex].y = params.event.offsetY;
+                          option.series[0].data[params.dataIndex].fixed = true;
+                          this.myChart.setOption(option);
+                        });
                         this.myChart.setOption(option); 
                         // window.onresize = function () {
                         //   this.myChart.resize();
