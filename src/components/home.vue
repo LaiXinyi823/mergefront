@@ -1,18 +1,23 @@
 <template>
   <div>
     <!-- 系统平台头部 -->
-    <div class="header">
+    <el-header style="background-color:white">
+      <span class="el-icon-kg">&#xe918;
+      </span>
+      <span style="color:#409EFF;font-size:25px;">  专业内容知识图谱编辑工具</span>
+    </el-header>
+    <!-- <div class="header">
       <span class="el-icon-kg">&#xe918;</span>
       <h2 class="title">
         专业内容知识图谱编辑工具
       </h2>
       <div class="demo-basic--circle">
-        <div class="block" @click="logout()">
+        <div class="block" @click="logout()"> -->
           <!-- 头像 -->
-          <el-avatar :size="30" :src="circleUrl"/>
+          <!-- <el-avatar :size="30" :src="circleUrl"/>
         </div>
-      </div>
-    </div>
+      </div> -->
+    <!-- </div> -->
     <!-- 导航栏 -->
     <div class="nav">
       <el-container>
@@ -111,14 +116,6 @@ export default {
   color: #1e90ff;
   margin-left: 1px;
   font-size: 50px;
-}
-
-.title {
-  font-family: "Microsoft YaHei";
-  color: #1e90ff;
-  position: absolute;
-  left: 80px;
-  top: 0;
 }
 
 .el-menu-vertical-demo:not(.el-menu--collapse) {
