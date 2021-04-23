@@ -1,52 +1,72 @@
 <template>
-  <div>
+    <el-container>
     <!-- 系统平台头部 -->
-    <el-header style="background-color:white">
-      <span class="el-icon-kg">&#xe918;
-      </span>
-      <span style="color:#409EFF;font-size:25px;">  专业内容知识图谱编辑工具</span>
-    </el-header>
-    <!-- <div class="header">
-      <span class="el-icon-kg">&#xe918;</span>
-      <h2 class="title">
-        专业内容知识图谱编辑工具
-      </h2>
-      <div class="demo-basic--circle">
-        <div class="block" @click="logout()"> -->
-          <!-- 头像 -->
-          <!-- <el-avatar :size="30" :src="circleUrl"/>
+      <el-header style="background-color:white" >
+        <span class="el-icon-kg">&#xe918;
+        </span>
+        <span style="color:#409EFF;font-size:25px;">  专业内容知识图谱编辑工具</span>
+        <div class="demo-basic--circle">
+          <div class="block" @click="logout()"> 
+            <!-- 头像 -->
+            <el-avatar :size="30" :src="circleUrl"/>注销
+          </div>
         </div>
-      </div> -->
-    <!-- </div> -->
-    <!-- 导航栏 -->
-    <div class="nav">
+      </el-header>
       <el-container>
-        <el-menu :collapse="false" class="el-menu-vertical-demo" style="width:200px;">  
-        <el-submenu :index='item.id' v-for="item in menuList" :key="item.id">
-        <template slot="title">
-          <i :class="item.icon"></i>
-          <span>{{item.menuName}}</span>
-        </template>
-          <el-menu-item v-for="subitem in item.children" :key="subitem.subID"
-          :unique-opened="true" @click="show(subitem.option)" >
+        <!-- 导航栏 -->
+        <el-aside width="200px">
+          <div style="background-color:#fff;height:800px;">
+            <el-menu
+              default-active="2"
+              class="el-menu-vertical-demo"
+              background-color="white"
+              text-color="black"
+              active-text-color="#ffd04b"
+            >
+              <el-submenu :index='item.id' v-for="item in menuList" :key="item.id">
+                <template slot="title">
+                  <i :class="item.icon"></i>
+                  <span>{{item.menuName}}</span>
+                </template>
+                <el-menu-item v-for="subitem in item.children" :key="subitem.subID"
+                :unique-opened="true" @click="show(subitem.option)" >
+                <template slot="title">
+                  <i :class="subitem.subIcon"></i>
+                  <span>{{subitem.subName}}</span>
+                </template>
+                </el-menu-item>
+              </el-submenu>
+            </el-menu>
+          </div>
+          <!-- <el-menu :collapse="false" class="el-menu-vertical-demo">  
+          <el-submenu :index='item.id' v-for="item in menuList" :key="item.id">
           <template slot="title">
-            <i :class="subitem.subIcon"></i>
-            <span>{{subitem.subName}}</span>
+            <i :class="item.icon"></i>
+            <span>{{item.menuName}}</span>
           </template>
-          </el-menu-item>
-        </el-submenu>
-        </el-menu>
-        <div class="right-content">    
+            <el-menu-item v-for="subitem in item.children" :key="subitem.subID"
+            :unique-opened="true" @click="show(subitem.option)" >
+            <template slot="title">
+              <i :class="subitem.subIcon"></i>
+              <span>{{subitem.subName}}</span>
+            </template>
+            </el-menu-item>
+          </el-submenu>
+          </el-menu> -->
+        </el-aside>
+        <!-- <div class="right-content">     -->
+        <el-main>
           <router-view name="myproject" v-if="opt=='annotate_project'" />
           <router-view name="merge_project" v-if="opt=='merge_project'" />
           <router-view name="mygraph" v-if="opt=='mygraph' && isRouterAlive" />
           <router-view name="mydomain" v-if="opt=='mydomain' && isRouterAlive" /> 
           <router-view name="myDB" v-if="opt=='myDB' && isRouterAlive" /> 
           <router-view name="myTripleData" v-if="opt=='myTripleData' && isRouterAlive" /> 
-        </div>
+        </el-main>
+        <!-- </div> -->
       </el-container>
-    </div>
-  </div>
+    </el-container>
+  <!-- </div> -->
 </template>
 
 <script>
@@ -103,35 +123,13 @@ export default {
 </script>
 
 <style lang="less" scoped>
-.header {
-  background-color: #fff;
-  height: 10%;
-  padding: 0px;
-  margin-left: 20px;
-  margin-top: 10px;
-  margin-right: 20px;
-}
 
 .el-icon-kg {
-  color: #1e90ff;
+  color: #409EFF;
   margin-left: 1px;
   font-size: 50px;
 }
 
-.el-menu-vertical-demo:not(.el-menu--collapse) {
-  top: 0;
-  width: 250px;
-  min-height: 700px;
-  margin-left: 10px;
-}
-
-.nav {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  margin-top: 10px;
-  margin-left: 10px;
-}
 
 .content {
   background-color: #fff;

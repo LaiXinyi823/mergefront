@@ -116,22 +116,16 @@
         </div>
       </el-dialog>
     </div>
-    <div
-      v-if="opt=='graphDetail'"
-      style="width:100%;height:100px;"
-    >
-      <el-card
-        style="width:100%;height:65px;background-color:#fff;"
-        shadow="never"
-      >
-        <el-page-header @back="goBack()" :content="graph_name + ' 图谱详情'" style="float:left"/>
+    <div v-if="opt=='graphDetail'" style="width:100%;height:100px;">
+      <el-card style="width:100%;height:65px;background-color:#fff;" shadow="never">
+        <el-page-header @back="goBack()" :content="graph_name + ' 图谱详情'" style="float:left;"/>
         <div style="width:20%;float:right;">
           <el-input placeholder="输入节点名称" v-model="searchVertexName" class="input-with-select">
             <el-button slot="append" icon="el-icon-search" @click="searchVertex()"/>
           </el-input>
-        </div>
+        </div>         
       </el-card>
-      <div style="margin-top:5px;">
+      <div style="margin-top:5px;background-color:#fff;">
         <el-col :span="3">
           <el-button
             @click="addVertexVisible=true"
@@ -141,7 +135,7 @@
             style="margin-left:10px;margin-right:10px;margin-top:10px;margin-bottom:10px;"
             circle
           />添加实体类型
-          <el-menu default-active="2" class="el-menu-vertical-demo" style="margin-top:3px;">
+          <el-menu default-active="2" class="el-menu-vertical-demo">
             <el-menu-item>实体类型列表</el-menu-item>
             <el-menu-item
               v-for="collection in collections_list"
@@ -161,10 +155,7 @@
       <div style="margin-left:130px;margin-top:5px;">
         <el-card shadow="never">
           <!-- 显示某类型下的所有实体 -->
-          <div
-            v-if="search==false"
-            style="height:100%"
-          >
+          <div v-if="search==false" style="height:100%;float:left;">
             <el-button
               @click="addVertexVisible=true"
               size="mini"
@@ -173,30 +164,11 @@
               style="margin-left:10px;margin-right:10px;margin-bottom:10px;"
               circle
             />添加{{ collection }}节点
-            <el-table
-              :data="vertexs_list"
-              border
-              style="width: 100%"
-              size="mini"
-            >
-              <el-table-column
-                type="index"
-                width="50"
-              />
-              <el-table-column
-                prop="_id"
-                label="ID"
-                width="310"
-              />
-              <el-table-column
-                prop="name"
-                label="节点名称"
-                width="310"
-              />
-              <el-table-column
-                label="操作"
-                width="400"
-              >
+            <el-table :data="vertexs_list" border style="width: 100%" size="mini">
+              <el-table-column type="index" width="50"/>
+              <el-table-column prop="_id" label="ID" width="310"/>
+              <el-table-column prop="name" label="节点名称" width="310"/>
+              <el-table-column label="操作" width="400">
                 <template slot-scope="scope">
                   <el-button
                     type="success"
@@ -772,14 +744,14 @@ export default {
                             layout: 'force',
                             symbolSize: 50,
                             roam: true,
-                            draggable: true,
+                            // draggable: true,
                             hoverAnimation:true,
                             notMerge:true,
                             force: {
                                 repulsion: 2500,
                                 edgeLength: [20, 50],
                                 draggable: true,
-                                layoutAnimation: false,
+                                layoutAnimation: true,
                             },
                             // itemStyle: {//配置节点的颜色
                             //     normal: {
@@ -812,7 +784,7 @@ export default {
                             categories: this.graph_categories, // 节点数据类型
                             edgeLabel: {//边的标签设置
                                 show: true,
-                                position: "middle",
+                                // position: "middle",
                                 fontSize: 12,
                                 formatter: (params) => {
                                     return params.data.id.split('/')[0];
