@@ -116,22 +116,16 @@
         </div>
       </el-dialog>
     </div>
-    <div
-      v-if="opt=='graphDetail'"
-      style="width:100%;height:100px;"
-    >
-      <el-card
-        style="width:100%;height:65px;background-color:#fff;"
-        shadow="never"
-      >
-        <el-page-header @back="goBack()" :content="graph_name + ' 图谱详情'" style="float:left"/>
+    <div v-if="opt=='graphDetail'" style="width:100%;height:100px;">
+      <el-card style="width:100%;height:65px;background-color:#fff;" shadow="never">
+        <el-page-header @back="goBack()" :content="graph_name + ' 图谱详情'" style="float:left;"/>
         <div style="width:20%;float:right;">
           <el-input placeholder="输入节点名称" v-model="searchVertexName" class="input-with-select">
             <el-button slot="append" icon="el-icon-search" @click="searchVertex()"/>
           </el-input>
-        </div>
+        </div>         
       </el-card>
-      <div style="margin-top:5px;">
+      <div style="margin-top:5px;background-color:#fff;">
         <el-col :span="3">
           <el-button
             @click="addVertexVisible=true"
@@ -141,7 +135,7 @@
             style="margin-left:10px;margin-right:10px;margin-top:10px;margin-bottom:10px;"
             circle
           />添加实体类型
-          <el-menu default-active="2" class="el-menu-vertical-demo" style="margin-top:3px;">
+          <el-menu default-active="2" class="el-menu-vertical-demo">
             <el-menu-item>实体类型列表</el-menu-item>
             <el-menu-item
               v-for="collection in collections_list"
@@ -161,10 +155,7 @@
       <div style="margin-left:130px;margin-top:5px;">
         <el-card shadow="never">
           <!-- 显示某类型下的所有实体 -->
-          <div
-            v-if="search==false"
-            style="height:100%"
-          >
+          <div v-if="search==false" style="height:100%;float:left;">
             <el-button
               @click="addVertexVisible=true"
               size="mini"
@@ -173,30 +164,11 @@
               style="margin-left:10px;margin-right:10px;margin-bottom:10px;"
               circle
             />添加{{ collection }}节点
-            <el-table
-              :data="vertexs_list"
-              border
-              style="width: 100%"
-              size="mini"
-            >
-              <el-table-column
-                type="index"
-                width="50"
-              />
-              <el-table-column
-                prop="_id"
-                label="ID"
-                width="310"
-              />
-              <el-table-column
-                prop="name"
-                label="节点名称"
-                width="310"
-              />
-              <el-table-column
-                label="操作"
-                width="400"
-              >
+            <el-table :data="vertexs_list" border style="width: 100%" size="mini">
+              <el-table-column type="index" width="50"/>
+              <el-table-column prop="_id" label="ID" width="310"/>
+              <el-table-column prop="name" label="节点名称" width="310"/>
+              <el-table-column label="操作" width="400">
                 <template slot-scope="scope">
                   <el-button
                     type="success"
@@ -684,8 +656,11 @@ export default {
         async showEditGraph(maxDepth){
             this.graph_nodes = []; // 节点数据初始化
             this.graph_links = []; // 关系数据初始化
+            this.graph_categories = []; //  关系类型初始化
             // 展示图谱
             if(this.graphVisible){
+              this.myChart = echarts.init(this.$refs.graph);
+              this.myChart.showLoading()
               const { data:res } = await this.$http.post(this.domain_id+'/graph/'+this.graph_id+'/traverse',
               {
                   startVertex:this.vertex._id,
@@ -744,7 +719,7 @@ export default {
                     };
                 });
                 // 使用Echarts展示
-                this.myChart = echarts.init(this.$refs.graph);
+                this.myChart.hideLoading()
                 var option = {
                     title: {
                         text: '中心节点: ' + this.vertex.name,
@@ -761,7 +736,7 @@ export default {
                           return a.name;
                       })
                     }],
-                    color: ['#c23531','#2f4554', '#61a0a8', '#d48265', '#91c7ae','#749f83',  '#ca8622', '#bda29a','#6e7074', '#546570', '#c4ccd3'],
+                    color: ['#ee6666', '#91cc75','#fac858', '#fc8452', '#9a60b4','#ea7ccc',  '#ca8622', '#bda29a','#6e7074', '#546570', '#c4ccd3'],
 
                     series: [
                         {
@@ -769,26 +744,27 @@ export default {
                             layout: 'force',
                             symbolSize: 50,
                             roam: true,
-                            draggable: true,
+                            // draggable: true,
                             hoverAnimation:true,
+                            notMerge:true,
                             force: {
                                 repulsion: 2500,
                                 edgeLength: [20, 50],
                                 draggable: true,
-                                layoutAnimation: false,
+                                layoutAnimation: true,
                             },
-                            itemStyle: {//配置节点的颜色
-                                normal: {
-                                    color: function (params) {
-                                        if (params.dataIndex == 0)
-                                            return 'red';
-                                        else{
-                                            // var colorList = ['yellow','orange', 'green', 'blue', 'gray'];
-                                            // return colorList[params.dataIndex % 6];
-                                        }                                        
-                                    },
-                                }
-                            },
+                            // itemStyle: {//配置节点的颜色
+                            //     normal: {
+                            //         color: function (params) {
+                            //             if (params.dataIndex == 0)
+                            //                 return 'red';
+                            //             else{
+                            //                 // var colorList = ['yellow','orange', 'green', 'blue', 'gray'];
+                            //                 // return colorList[params.dataIndex % 6];
+                            //             }                                        
+                            //         },
+                            //     }
+                            // },
                             symbolSize: function (value, params) {//改变节点大小
                                 if (params.dataIndex == 0)
                                     return 80;
@@ -808,7 +784,7 @@ export default {
                             categories: this.graph_categories, // 节点数据类型
                             edgeLabel: {//边的标签设置
                                 show: true,
-                                position: "middle",
+                                // position: "middle",
                                 fontSize: 12,
                                 formatter: (params) => {
                                     return params.data.id.split('/')[0];
@@ -817,11 +793,20 @@ export default {
                             lineStyle: {
                               opacity: 0.9,
                               width: 2,
-                              curveness: 0
+                              curveness: 0,
+                              // color:'source'
                             }
                             }
                             ]
                         };
+                        //节点拖拽固定
+                        this.myChart.on('mouseup', function (params) {
+                          var option = myChart.getOption();
+                          option.series[0].data[params.dataIndex].x = params.event.offsetX;
+                          option.series[0].data[params.dataIndex].y = params.event.offsetY;
+                          option.series[0].data[params.dataIndex].fixed = true;
+                          this.myChart.setOption(option);
+                        });
                         this.myChart.setOption(option); 
                         // window.onresize = function () {
                         //   this.myChart.resize();

@@ -10,6 +10,7 @@ import KG from '@/components/KG.vue';
 import login from '@/components/login.vue';
 import register from '@/components/register.vue';
 import myProject from '@/components/myProject.vue';
+import merge_project from '@/components/merge_project.vue';
 import myGraph from '@/components/myGraph.vue';
 import myDomain from '@/components/myDomain.vue';
 import graphDetail from '@/components/graphDetail.vue';
@@ -57,7 +58,8 @@ export default new VueRouter({
           labelproject:labelproject,
           myDB:myDB,
           myTripleData:myTripleData,
-          QA:QA
+          QA:QA,
+          merge_project:merge_project
         }
       },
       {
