@@ -51,7 +51,7 @@
             </div>
             <el-divider><i class="el-icon-s-flag"></i></el-divider>
             <div v-if="label_op=='DB'">
-              <el-form ref="form" :model="form" label-width="120px">
+              <el-form ref="form" :model="DBList" label-width="120px">
                 <el-form-item style="float:left" label="选择数据库：">
                   <el-select v-model="label_DB" placeholder="请选择">
                     <el-option
@@ -149,7 +149,8 @@
                     </template>
                   </el-table-column>
                 </el-table>
-                <div style="margin-top:20px;margin-left:20px"><el-button type="success" icon="el-icon-check">审核通过，暂存</el-button></div>
+                <div style="margin-top:20px;margin-left:30px;float:left"><el-button type="primary" icon="el-icon-check">审核通过，暂存数据</el-button></div>
+                <div style="margin-top:20px;margin-left:20px;float:left"><el-button type="success" icon="el-icon-check">直接创建融合项目</el-button></div>
               </div>
             </div>
 

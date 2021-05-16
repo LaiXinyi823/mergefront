@@ -4,6 +4,39 @@
       <!-- 数据列表 -->
       <el-tabs type="border-card">
         <el-tab-pane label="数据列表">
+          <el-table :data="triple_data_list">
+            <el-table-column label="数据ID" width="180">
+              <template slot-scope="scope">
+                <span>{{ scope.row.data_id }}</span>
+              </template>
+            </el-table-column>
+            <el-table-column label="数据名称" width="250">
+              <template slot-scope="scope">
+                <span><div style="font-weight:bold">{{ scope.row.data_name }}</div></span>
+              </template>
+            </el-table-column>
+            <el-table-column label="数据类型" width="180">
+              <template slot-scope="scope">
+                <el-tag v-if="scope.row.data_type=='0'" size="medium">三元组</el-tag>
+                <el-tag v-if="scope.row.data_type=='1'" size="medium">MySQL</el-tag>
+                <el-tag v-if="scope.row.data_type=='2'" size="medium" type="warning">MongoDB</el-tag>
+              </template>
+            </el-table-column>
+            <el-table-column label="数据权限" width="180">
+              <template slot-scope="scope">
+                <div slot="reference" class="name-wrapper">
+                  <el-tag v-if="scope.row.private==true" size="medium" type="danger">私有</el-tag>
+                  <el-tag v-else size="medium" type="success">公开</el-tag>
+                </div>
+              </template>
+            </el-table-column>
+            <el-table-column label="操作" style="margin-left: 10px">
+              <template slot-scope="scope">
+                <el-button size="mini" @click="handleEdit(scope.$index, scope.row)">查看编辑</el-button>
+                <el-button size="mini" type="danger" @click="handleDelete(scope.$index, scope.row)">删除</el-button>
+              </template>
+            </el-table-column>
+          </el-table>
         </el-tab-pane>
         <!-- 添加新的raw_data -->
         <el-tab-pane label="导入数据">
@@ -49,11 +82,11 @@
 export default {
   inject:['reload'],
   created() {
-    this.get_raw_data_list();
+    this.get_triple_data_list();
   },
   data() {
     return {
-      raw_data_list: [],
+      triple_data_list: [],
       addDialogVisible: false,
       formLabelWidth: '120px',
       opt: 'raw_data_list',
@@ -89,9 +122,10 @@ export default {
     };
   },
   methods: {
-    async get_raw_data_list() {
+    async get_triple_data_list() {
       const {data: res} = await this.$http.get('triple_data');
-      this.raw_data_list = res.data;
+      console.log(res.data)
+      this.triple_data_list = res.data;
     },
     // 详情界面返回函数
     goBack() {

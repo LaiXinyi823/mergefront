@@ -321,6 +321,7 @@
             size="60%"
             @opened="openDialog('1')"
             height="100%"
+            @close="maxDepth=1"
           >
             <div style="width:90%;height:90%;margin-left:20px;margin-right:20px;">
               <div id="graph" ref="graph" :style="{width:'100%', height:'100%'}"/>
@@ -328,7 +329,7 @@
             <!-- 图中显示层数 -->
             <div style="margin-left:40%;margin-top:10px;bottom: 10px;">
               显示层数：
-              <el-select v-model="maxDepth" placeholder="2" size="mini" @change="showEditGraph(maxDepth)">
+              <el-select v-model="maxDepth" placeholder="1" size="mini" @change="showEditGraph(maxDepth)">
                 <el-option v-for="i in 5" :key="i" :label="i" :value="i"/>
               </el-select>
             </div>

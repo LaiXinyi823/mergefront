@@ -95,21 +95,35 @@
                   </el-radio-group>
                 </el-form-item>
               </el-form>
-              <el-upload
+              <!-- <el-upload
                 class="upload-demo"
                 ref="upload"
                 action="http://127.0.0.1:5000/api/v1.0/raw_data"
                 :on-preview="handlePreview"
                 :on-exceed="handleExceed"
-                :file-list="file_list"
                 :data="new_raw_data_file"
                 accept=".txt"
                 :show-file-list="true"
                 style="margin-left:13%"
+                :with-credentials="true"
+                :auto-upload="false"
                 >
                 <el-button slot="trigger" size="small" type="info">选取文件</el-button>
                 <el-button style="margin-left: 10px;" size="small" type="success" @click="confirm_add_file">确认上传</el-button>
                 <div slot="tip" class="el-upload__tip"><i class="el-icon-warning-outline" style="color:red"/><font color="red">只能上传txt文件</font></div>
+              </el-upload> -->
+              <el-upload
+                class="upload-demo"
+                ref="upload"
+                action
+                :http-request="confirm_add_file" 
+                :on-preview="handlePreview"
+                :on-remove="handleRemove"
+                :file-list="fileList"
+                :auto-upload="false">
+                <el-button slot="trigger" size="small" type="primary">选取文件</el-button>
+                <el-button style="margin-left: 10px;" size="small" type="success" @click="submitUpload">上传到服务器</el-button>
+                <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过500kb</div>
               </el-upload>
             </div>
         </el-tab-pane>
@@ -133,6 +147,7 @@ export default {
   },
   data() {
     return {
+      fileList: [],
       raw_data_list: [],
       addDialogVisible: false,
       formLabelWidth: '120px',
@@ -150,7 +165,6 @@ export default {
         "password":'',
         "db":''
       },
-      file_list:[],
       file:{},
       params:{},
       new_raw_data_file:{
@@ -206,7 +220,7 @@ export default {
     add_raw_data_file(fileObj){
       this.file = fileObj.file
       this.params = new FormData(); 
-      this.params.append("data", this.file);
+      this.params.append("file", this.file);
       this.params.append("data_type", 0);
       this.params.append("private",this.new_raw_data_file.private);
       this.params.append("name",this.new_raw_data_file.name);
@@ -214,11 +228,15 @@ export default {
         console.log(pair[0]+ ', '+ pair[1]);
       }
     },
-    confirm_add_file(){
-      for(var pair of this.params.entries()) {
-        console.log(pair[0]+ ', '+ pair[1]);
-      }
-      const res = this.$http.post('raw_data', this.params)
+    confirm_add_file(fileObj){
+      let formData = new FormData();
+      formData.set("file", fileObj.file);
+      const res = this.$http.post('/raw_data', formData,
+        {
+          headers: {
+            "Content-type": "multipart/form-data"
+          }
+        })
       console.log(res)
     },
     // 重置导入数据表格(有问题)
@@ -229,12 +247,15 @@ export default {
     raw_data_detail(){
       this.opt = 'DBDetail';
     },
+    submitUpload() {
+      this.$refs.upload.submit();
+    },
+    handleRemove(file, fileList) {
+      console.log(file, fileList);
+    },
     handlePreview(file) {
-        console.log(file);
-    },
-    handleExceed(files, fileList) {
-        this.$message.warning(`当前限制选择 3 个文件，本次选择了 ${files.length} 个文件，共选择了 ${files.length + fileList.length} 个文件`);
-    },
+      console.log(file);
+    }
 
   }
 };

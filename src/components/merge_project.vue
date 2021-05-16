@@ -47,12 +47,12 @@
             <div style="margin-bottom:10px;">
               融合数据：
               <el-radio v-model="label_op" label="DB">三元组</el-radio>
-              <el-radio v-model="label_op" label="TEXT">单文本</el-radio>
+              <!-- <el-radio v-model="label_op" label="TEXT">单文本</el-radio> -->
             </div>
             <el-divider><i class="el-icon-s-flag"></i></el-divider>
             <div v-if="label_op=='DB'">
-              <el-form ref="form" :model="form" label-width="120px">
-                <el-form-item style="float:left" label="选择数据库：">
+              <el-form ref="form" :model="form" label-width="140px">
+                <el-form-item label="选择数据库：">
                   <el-select v-model="label_DB" placeholder="请选择">
                     <el-option
                       v-for="item in DBList"
@@ -62,7 +62,17 @@
                     </el-option>
                   </el-select>
                 </el-form-item>
-                <el-form-item style="float:left" label="选择模型：">
+                <el-form-item label="选择模型：">
+                  <el-select v-model="label_model" placeholder="请选择">
+                    <el-option
+                      v-for="item in modelList"
+                      :key="item.data_id"
+                      :label="item.data_name"
+                      :value="item.data_id">
+                    </el-option>
+                  </el-select>
+                </el-form-item>
+                <el-form-item label="选择要融合的图谱：">
                   <el-select v-model="label_model" placeholder="请选择">
                     <el-option
                       v-for="item in modelList"
@@ -73,138 +83,137 @@
                   </el-select>
                 </el-form-item>
                 <el-form-item>
-                  <el-button type="primary" style="margin-left:50px;" @click="tripledataVisible=true">生成融合报告</el-button>
+                  <el-button type="primary" @click="tripledataVisible=true">生成待融合报告</el-button>
                 </el-form-item>
               </el-form>
               <!-- 模型抽取生成三元组列表 -->
               <div v-if="tripledataVisible==true">
                 <div style="margin-left:20px;margin-bottom:10px;">
-                    <el-divider content-position="left"><span style="color:#409EFF"><i class="el-icon-paperclip"></i>  情况1: 存在节点已位于知识图谱</span>
+                    <el-divider content-position="left"><span style="color:#409EFF"><i class="el-icon-paperclip"></i>  情况1: 至少一个实体已存在知识图谱中</span>
                     </el-divider>
                 </div>
-                <el-table
-                  ref="filterTable"
-                  border
-                  :data="tripledata"
-                  max-height="600"
-                  style="width: 67%;margin-left:2%;">
-                  <el-table-column fixed="left" type="index" width="50"></el-table-column>
-                  <el-table-column prop="e1_type" label="起始类型" sortable width="180"></el-table-column>
-                  <el-table-column prop="e1_name" label="起始节点名" width="180"></el-table-column>
-                  <el-table-column prop="relation" label="关系" width="180">
-                    <template slot-scope="scope">
-                      <el-tag size="medium" type="success">{{ scope.row.relation}}</el-tag>
-                    </template>
-                  </el-table-column>
-                  <el-table-column prop="e2_type" label="终止类型" width="180"></el-table-column>
-                  <el-table-column prop="e2_name" label="终止节点名" width="180"></el-table-column>
-                  <el-table-column fixed="right" label="操作" width="120">
-                    <template slot-scope="scope">
-                      <el-button type="text" size="small">移除</el-button>
-                        <!-- 删除某一条边 -->
-                        <!-- <el-dialog title="提示" :visible.sync="scope.row.link_deleteVisible" width="30%" center>
-                          <span>您确定要删除这条关系数据吗？{{scope.row.relation_id}}</span>
-                          <span slot="footer" class="dialog-footer">
-                            <el-button @click="scope.row.link_deleteVisible = false">取 消</el-button>
-                            <el-button type="primary">确 定</el-button>
-                          </span>
-                        </el-dialog>   -->
-                      <el-button type="text" size="small">编辑</el-button>
-                        <!-- 编辑关系节点-drawer -->
-                        <!-- <el-drawer
-                          title="编辑数据"
-                          :append-to-body="true"
-                          :visible.sync="scope.row.link_editVisible">
-                          <p>_(:зゝ∠)_</p>
-                        </el-drawer> -->
-                    </template>
-                  </el-table-column>
-                </el-table>
+                    <el-table
+                      ref="filterTable"
+                      border
+                      :data="tripledata"
+                      max-height="600"
+                      style="width: 67%;margin-left:2%;">
+                      <el-table-column fixed="left" type="index" width="50"></el-table-column>
+                      <el-table-column prop="e1_type" label="起始类型" sortable width="180"></el-table-column>
+                      <el-table-column prop="e1_name" label="起始节点名" width="180"></el-table-column>
+                      <el-table-column prop="relation" label="关系" width="180">
+                        <template slot-scope="scope">
+                          <el-tag size="medium" type="success">{{ scope.row.relation}}</el-tag>
+                        </template>
+                      </el-table-column>
+                      <el-table-column prop="e2_type" label="终止类型" width="180"></el-table-column>
+                      <el-table-column prop="e2_name" label="终止节点名" width="180"></el-table-column>
+                      <el-table-column fixed="right" label="操作" width="120">
+                        <template slot-scope="scope">
+                          <el-button type="text" size="small">移除</el-button>
+                            <!-- 删除某一条边 -->
+                            <!-- <el-dialog title="提示" :visible.sync="scope.row.link_deleteVisible" width="30%" center>
+                              <span>您确定要删除这条关系数据吗？{{scope.row.relation_id}}</span>
+                              <span slot="footer" class="dialog-footer">
+                                <el-button @click="scope.row.link_deleteVisible = false">取 消</el-button>
+                                <el-button type="primary">确 定</el-button>
+                              </span>
+                            </el-dialog>   -->
+                          <el-button type="text" size="small">编辑</el-button>
+                            <!-- 编辑关系节点-drawer -->
+                            <!-- <el-drawer
+                              title="编辑数据"
+                              :append-to-body="true"
+                              :visible.sync="scope.row.link_editVisible">
+                              <p>_(:зゝ∠)_</p>
+                            </el-drawer> -->
+                        </template>
+                      </el-table-column>
+                    </el-table>
                 <div style="margin-left:20px;margin-bottom:10px;margin-top:20px;">
-                    <el-divider content-position="left"><span style="color:#E6A23C"><i class="el-icon-circle-plus-outline"></i>  情况2: 两节点均为新节点</span>
+                    <el-divider content-position="left"><span style="color:#67C23A"><i class="el-icon-circle-plus-outline"></i>  情况2: 两实体均为新实体</span>
                     </el-divider>
                 </div>
-                <el-table
-                  ref="filterTable"
-                  border
-                  :data="tripledata"
-                  max-height="600"
-                  style="width: 67%;margin-left:2%;">
-                  <el-table-column fixed="left" type="index" width="50"></el-table-column>
-                  <el-table-column prop="e1_type" label="起始类型" sortable width="180"></el-table-column>
-                  <el-table-column prop="e1_name" label="起始节点名" width="180"></el-table-column>
-                  <el-table-column prop="relation" label="关系" width="180">
-                    <template slot-scope="scope">
-                      <el-tag size="medium" type="success">{{ scope.row.relation}}</el-tag>
-                    </template>
-                  </el-table-column>
-                  <el-table-column prop="e2_type" label="终止类型" width="180"></el-table-column>
-                  <el-table-column prop="e2_name" label="终止节点名" width="180"></el-table-column>
-                  <el-table-column fixed="right" label="操作" width="120">
-                    <template slot-scope="scope">
-                      <el-button type="text" size="small">移除</el-button>
-                        <!-- 删除某一条边 -->
-                        <!-- <el-dialog title="提示" :visible.sync="scope.row.link_deleteVisible" width="30%" center>
-                          <span>您确定要删除这条关系数据吗？{{scope.row.relation_id}}</span>
-                          <span slot="footer" class="dialog-footer">
-                            <el-button @click="scope.row.link_deleteVisible = false">取 消</el-button>
-                            <el-button type="primary">确 定</el-button>
-                          </span>
-                        </el-dialog>   -->
-                      <el-button type="text" size="small">编辑</el-button>
-                        <!-- 编辑关系节点-drawer -->
-                        <!-- <el-drawer
-                          title="编辑数据"
-                          :append-to-body="true"
-                          :visible.sync="scope.row.link_editVisible">
-                          <p>_(:зゝ∠)_</p>
-                        </el-drawer> -->
-                    </template>
-                  </el-table-column>
-                </el-table>
+                    <el-table
+                      ref="filterTable"
+                      border
+                      :data="tripledata"
+                      max-height="600"
+                      style="width: 67%;margin-left:2%;">
+                      <el-table-column fixed="left" type="index" width="50"></el-table-column>
+                      <el-table-column prop="e1_type" label="起始类型" sortable width="180"></el-table-column>
+                      <el-table-column prop="e1_name" label="起始节点名" width="180"></el-table-column>
+                      <el-table-column prop="relation" label="关系" width="180">
+                        <template slot-scope="scope">
+                          <el-tag size="medium" type="success">{{ scope.row.relation}}</el-tag>
+                        </template>
+                      </el-table-column>
+                      <el-table-column prop="e2_type" label="终止类型" width="180"></el-table-column>
+                      <el-table-column prop="e2_name" label="终止节点名" width="180"></el-table-column>
+                      <el-table-column fixed="right" label="操作" width="120">
+                        <template slot-scope="scope">
+                          <el-button type="text" size="small">移除</el-button>
+                            <!-- 删除某一条边 -->
+                            <!-- <el-dialog title="提示" :visible.sync="scope.row.link_deleteVisible" width="30%" center>
+                              <span>您确定要删除这条关系数据吗？{{scope.row.relation_id}}</span>
+                              <span slot="footer" class="dialog-footer">
+                                <el-button @click="scope.row.link_deleteVisible = false">取 消</el-button>
+                                <el-button type="primary">确 定</el-button>
+                              </span>
+                            </el-dialog>   -->
+                          <el-button type="text" size="small">编辑</el-button>
+                            <!-- 编辑关系节点-drawer -->
+                            <!-- <el-drawer
+                              title="编辑数据"
+                              :append-to-body="true"
+                              :visible.sync="scope.row.link_editVisible">
+                              <p>_(:зゝ∠)_</p>
+                            </el-drawer> -->
+                        </template>
+                      </el-table-column>
+                    </el-table>
                 <div style="margin-left:20px;margin-bottom:10px;margin-top:20px;">
                     <el-divider content-position="left"><span style="color:#909399"><i class="el-icon-warning"></i>  情况3: 孤立新节点</span>
                     </el-divider>
                 </div>
-                <el-table
-                  ref="filterTable"
-                  border
-                  :data="tripledata"
-                  max-height="600"
-                  style="width: 35%;margin-left:2%;">
-                  <el-table-column fixed="left" type="index" width="50"></el-table-column>
-                  <el-table-column prop="e1_type" label="类型" sortable width="180"></el-table-column>
-                  <el-table-column prop="e1_name" label="节点名" width="180"></el-table-column>
-                  <el-table-column fixed="right" label="操作" width="120">
-                    <template slot-scope="scope">
-                      <el-button type="text" size="small">移除</el-button>
-                        <!-- 删除某一条边 -->
-                        <!-- <el-dialog title="提示" :visible.sync="scope.row.link_deleteVisible" width="30%" center>
-                          <span>您确定要删除这条关系数据吗？{{scope.row.relation_id}}</span>
-                          <span slot="footer" class="dialog-footer">
-                            <el-button @click="scope.row.link_deleteVisible = false">取 消</el-button>
-                            <el-button type="primary">确 定</el-button>
-                          </span>
-                        </el-dialog>   -->
-                      <el-button type="text" size="small">编辑</el-button>
-                        <!-- 编辑关系节点-drawer -->
-                        <!-- <el-drawer
-                          title="编辑数据"
-                          :append-to-body="true"
-                          :visible.sync="scope.row.link_editVisible">
-                          <p>_(:зゝ∠)_</p>
-                        </el-drawer> -->
-                    </template>
-                  </el-table-column>
-                </el-table>
-                <div style="margin-top:20px;margin-left:20px"><el-button type="success" icon="el-icon-check">审核通过，暂存</el-button></div>
+                    <el-table
+                      ref="filterTable"
+                      border
+                      :data="tripledata"
+                      max-height="600"
+                      style="width: 35%;margin-left:2%;">
+                      <el-table-column fixed="left" type="index" width="50"></el-table-column>
+                      <el-table-column prop="e1_type" label="类型" sortable width="180"></el-table-column>
+                      <el-table-column prop="e1_name" label="节点名" width="180"></el-table-column>
+                      <el-table-column fixed="right" label="操作" width="120">
+                        <template slot-scope="scope">
+                          <el-button type="text" size="small">移除</el-button>
+                            <!-- 删除某一条边 -->
+                            <!-- <el-dialog title="提示" :visible.sync="scope.row.link_deleteVisible" width="30%" center>
+                              <span>您确定要删除这条关系数据吗？{{scope.row.relation_id}}</span>
+                              <span slot="footer" class="dialog-footer">
+                                <el-button @click="scope.row.link_deleteVisible = false">取 消</el-button>
+                                <el-button type="primary">确 定</el-button>
+                              </span>
+                            </el-dialog>   -->
+                          <el-button type="text" size="small">编辑</el-button>
+                            <!-- 编辑关系节点-drawer -->
+                            <!-- <el-drawer
+                              title="编辑数据"
+                              :append-to-body="true"
+                              :visible.sync="scope.row.link_editVisible">
+                              <p>_(:зゝ∠)_</p>
+                            </el-drawer> -->
+                        </template>
+                      </el-table-column>
+                    </el-table>
+                <div style="margin-top:20px;margin-left:30px;float:left"><el-button type="primary" icon="el-icon-check">审核通过，确认融合</el-button></div>
               </div>
             </div>
 
 
-            <div v-if="label_op=='TEXT'">
+            <!-- <div v-if="label_op=='TEXT'">
               <div style="float:left;width:40%">
-                <!-- 输入文本数据 -->
                 <el-aside width="100%">
                   <el-card shadow="always">
                     <h5 style="margin: 0; display: inline; width: 30px">输入文本</h5>
@@ -224,7 +233,6 @@
                       <el-button type="success" style="margin-left:10px;">暂存</el-button>
                   </el-card>
                 </el-aside>
-                <!-- 生成知识图谱子图 -->
                 <div style="margin-top:5px;">
                   <el-aside width="100%" height="100%">
                     <el-card shadow="always">
@@ -261,7 +269,6 @@
                 </div>
               </div>
 
-              <!-- 知识图谱融合 -->
               <div style="float:left;width:58%;margin-left:20px;">
                 <el-aside width="100%" height="100%">
                   <el-card shadow="always">
@@ -288,13 +295,9 @@
                   </el-card>
                 </el-aside>
               </div>
-            </div>
+            </div> -->
           </el-tab-pane>
 
-          <el-tab-pane>
-            <span slot="label"><i class="el-icon-user" /> 用户管理</span>
-            用户管理
-          </el-tab-pane>
         </el-tabs>
       </div>
     </div>
