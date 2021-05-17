@@ -3,15 +3,22 @@
     <div class="login_box">
       <!-- 头像区域 -->
       <div class="avatar_box">
-        <!-- <img
-          src="../assets/linggongyun.jpg"
-          alt=""
-        > -->
         <img
           src="../assets/cqu1.jpg"
           alt=""
         >
       </div>
+
+      <!-- 领工云图标 -->
+      <!-- <div class="avatar_box_linggongyun">
+      <img
+          src="../assets/linggongyun.jpg"
+          alt=""
+      > -->
+    <!-- </div> -->
+    
+    
+      
       <!-- 登录表单区域 -->
       <el-form
         label-width="80px"
@@ -201,16 +208,16 @@ export default {
   }
 
   // 领工云
-  // .avatar_box{
-  //   height: 10px;
-  //   width: 130px;
-  //   margin-left: 30%;
-  //   margin-top:10px;
-  //   img{
-  //     width:120%;
-  //     height: 150;
-  //   }
-  // }
+  .avatar_box_linggongyun{
+    height: 10px;
+    width: 130px;
+    margin-left: 30%;
+    margin-top:10px;
+    img{
+      width:120%;
+      height: 150;
+    }
+  }
 }
 
 .login_form {

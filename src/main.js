@@ -30,7 +30,7 @@ axios.interceptors.request.use(
       if (curPost === "raw_data") {
         return config; // 这里对上传文件/图片的 api 不做传参序列化处理
       } else {
-         config.data = JSON.stringify(data);
+         config.data = JSON.stringify(config.data);
          return config;
        }
      }

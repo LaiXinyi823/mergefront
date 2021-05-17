@@ -15,9 +15,10 @@ import myGraph from '@/components/myGraph.vue';
 import myDomain from '@/components/myDomain.vue';
 import graphDetail from '@/components/graphDetail.vue';
 import labelproject from '@/components/labelproject.vue';
-import myDB from '@/components/myDB.vue';
+import myRawdata from '@/components/myRawdata.vue';
 import myTripleData from '@/components/myTripleData.vue';
 import QA from '@/components/QA.vue';
+import myModel from '@/components/myModel.vue';
 
 Vue.use(VueRouter);
 
@@ -56,10 +57,11 @@ export default new VueRouter({
           entityResult: entityResult,
           KG:KG,
           labelproject:labelproject,
-          myDB:myDB,
+          myRawdata:myRawdata,
           myTripleData:myTripleData,
           QA:QA,
-          merge_project:merge_project
+          merge_project:merge_project,
+          mymodel:myModel
         }
       },
       {

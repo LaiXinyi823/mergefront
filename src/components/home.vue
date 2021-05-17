@@ -8,7 +8,7 @@
         <div class="demo-basic--circle">
           <div class="block" @click="logout()"> 
             <!-- 头像 -->
-            <el-avatar :size="30" :src="circleUrl"/>注销
+            <el-link :underline="false" icon="el-icon-user-solid">注销</el-link>
           </div>
         </div>
       </el-header>
@@ -55,13 +55,14 @@
           </el-menu> -->
         </el-aside>
         <!-- <div class="right-content">     -->
-        <el-main>
+        <el-main style="height:100%;">
           <router-view name="myproject" v-if="opt=='annotate_project'" />
           <router-view name="merge_project" v-if="opt=='merge_project'" />
           <router-view name="mygraph" v-if="opt=='mygraph' && isRouterAlive" />
           <router-view name="mydomain" v-if="opt=='mydomain' && isRouterAlive" /> 
-          <router-view name="myDB" v-if="opt=='myDB' && isRouterAlive" /> 
+          <router-view name="myRawdata" v-if="opt=='myrawdata' && isRouterAlive" /> 
           <router-view name="myTripleData" v-if="opt=='myTripleData' && isRouterAlive" /> 
+          <router-view name="mymodel" v-if="opt=='mymodel' && isRouterAlive" /> 
         </el-main>
         <!-- </div> -->
       </el-container>
@@ -90,14 +91,17 @@ export default {
         ]},
         {'id':'2','menuName':'我的数据','icon':'el-icon-coin',
         'children':[
-          {'subID':'1','subName':'文本数据','subIcon':'el-icon-s-grid','option':'myDB'},
+          {'subID':'1','subName':'文本数据','subIcon':'el-icon-s-grid','option':'myrawdata'},
           {'subID':'2','subName':'三元组数据','subIcon':'el-icon-s-data','option':'myTripleData'}]
         },
         {'id':'3','menuName':'我的图谱','icon':'el-icon-share',
         'children':[
           {'subID':'1','subName':'图谱管理','subIcon':'el-icon-picture','option':'mygraph'},
           {'subID':'2','subName':'领域管理','subIcon':'el-icon-s-home','option':'mydomain'}]},
-        {'id':'4','menuName':'我的模型','icon':'el-icon-help','children':[]},
+        {'id':'4','menuName':'我的模型','icon':'el-icon-help',
+        'children':[
+          {'subID':'1','subName':'模型管理','subIcon':'el-icon-s-opportunity','option':'mymodel'},
+        ]},
       ],
       graph_list:[]
     };

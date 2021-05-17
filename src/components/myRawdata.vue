@@ -37,6 +37,16 @@
             </template>
           </el-table-column>
         </el-table>
+        <div class="block" style="margin-top:2%;margin-left:10%">
+          <el-pagination
+            @size-change="handleSizeChange"
+            @current-change="handleCurrentChange"
+            :current-page.sync="currentPage"
+            :page-size="10"
+            layout="total, prev, pager, next, jumper"
+            :total="totalPage">
+          </el-pagination>
+        </div>
         </el-tab-pane>
         <!-- 添加新的raw_data -->
         <el-tab-pane label="导入数据">
@@ -90,41 +100,26 @@
                 </el-form-item>
                 <el-form-item label="是否设置私有" :label-width="formLabelWidth" style="width:500px">
                   <el-radio-group v-model="new_raw_data_file.private">
-                    <el-radio label="true">是</el-radio>
-                    <el-radio label="false">否</el-radio>
+                    <el-radio :label="true">是</el-radio>
+                    <el-radio :label="false">否</el-radio>
                   </el-radio-group>
                 </el-form-item>
               </el-form>
-              <!-- <el-upload
-                class="upload-demo"
-                ref="upload"
-                action="http://127.0.0.1:5000/api/v1.0/raw_data"
-                :on-preview="handlePreview"
-                :on-exceed="handleExceed"
-                :data="new_raw_data_file"
-                accept=".txt"
-                :show-file-list="true"
-                style="margin-left:13%"
-                :with-credentials="true"
-                :auto-upload="false"
-                >
-                <el-button slot="trigger" size="small" type="info">选取文件</el-button>
-                <el-button style="margin-left: 10px;" size="small" type="success" @click="confirm_add_file">确认上传</el-button>
-                <div slot="tip" class="el-upload__tip"><i class="el-icon-warning-outline" style="color:red"/><font color="red">只能上传txt文件</font></div>
-              </el-upload> -->
-              <el-upload
-                class="upload-demo"
-                ref="upload"
-                action
-                :http-request="confirm_add_file" 
-                :on-preview="handlePreview"
-                :on-remove="handleRemove"
-                :file-list="fileList"
-                :auto-upload="false">
-                <el-button slot="trigger" size="small" type="primary">选取文件</el-button>
-                <el-button style="margin-left: 10px;" size="small" type="success" @click="submitUpload">上传到服务器</el-button>
-                <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过500kb</div>
-              </el-upload>
+              <div style="margin-left:10%">
+                <el-upload
+                  class="upload-demo"
+                  ref="upload"
+                  action
+                  :http-request="confirm_add_file" 
+                  :on-preview="handlePreview"
+                  :on-remove="handleRemove"
+                  :file-list="fileList"
+                  :auto-upload="false">
+                  <el-button slot="trigger" size="small" type="primary">选取文件</el-button>
+                  <el-button style="margin-left:10px;" size="small" type="success" @click="submitUpload">上传到服务器</el-button>
+                  <div slot="tip" class="el-upload__tip" style="color:red">只能上传.txt文件</div>
+                </el-upload>
+              </div>
             </div>
         </el-tab-pane>
       </el-tabs>
@@ -180,12 +175,15 @@ export default {
         name:''
       },
       tempDialogVisible:false,
+      currentPage:1,
+      totalPage:0
     };
   },
   methods: {
     async get_raw_data_list() {
       const {data: res} = await this.$http.get('raw_data');
       this.raw_data_list = res.data;
+      this.totalPage = res.data.length;
     },
     // 详情界面返回函数
     goBack() {
@@ -217,17 +215,6 @@ export default {
           });
       }    
     },
-    add_raw_data_file(fileObj){
-      this.file = fileObj.file
-      this.params = new FormData(); 
-      this.params.append("file", this.file);
-      this.params.append("data_type", 0);
-      this.params.append("private",this.new_raw_data_file.private);
-      this.params.append("name",this.new_raw_data_file.name);
-      for(var pair of this.params.entries()) {
-        console.log(pair[0]+ ', '+ pair[1]);
-      }
-    },
     confirm_add_file(fileObj){
       let formData = new FormData();
       formData.set("file", fileObj.file);
@@ -237,7 +224,22 @@ export default {
             "Content-type": "multipart/form-data"
           }
         })
-      console.log(res)
+      // if (res.data.errno==="0"){
+      //   this.$message({
+      //       showClose: true,
+      //       message: '导入成功！',
+      //       type: 'success'
+      //   });
+      //   this.reload();
+      // }
+      // else{
+      //     this.$message({
+      //         showClose: true,
+      //         message: '导入失败！',
+      //         type: 'error'
+      //     });
+      // } 
+      console.log(res[Promise])
     },
     // 重置导入数据表格(有问题)
     resetForm() {
