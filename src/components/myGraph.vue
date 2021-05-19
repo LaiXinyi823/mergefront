@@ -2,7 +2,7 @@
   <el-container>
     <div
       v-if="opt=='graphs'"
-      style="width:100%;height:100px;"
+      style="width:100%;height:100%;"
     >
       选择查看某领域知识图谱：
       <el-select
@@ -116,7 +116,7 @@
         </div>
       </el-dialog>
     </div>
-    <div v-if="opt=='graphDetail'" style="width:100%;height:100px;">
+    <div v-if="opt=='graphDetail'" style="width:100%;height:100%;">
       <el-card style="width:100%;height:65px;background-color:#fff;" shadow="never">
         <el-page-header @back="goBack()" :content="graph_name + ' 图谱详情'" style="float:left;"/>
         <div style="width:20%;float:right;">
@@ -321,7 +321,7 @@
             size="60%"
             @opened="openDialog('1')"
             height="100%"
-            @close="maxDepth=1"
+            @close="maxDepth"
           >
             <div style="width:90%;height:90%;margin-left:20px;margin-right:20px;">
               <div id="graph" ref="graph" :style="{width:'100%', height:'100%'}"/>
