@@ -24,7 +24,6 @@ axios.defaults.headers.post['Content-Type'] = 'application/json;';
 
 axios.interceptors.request.use(
   config => {
-    console.log(config, "request");
     if (config.method === "post") {
       let curPost = config.url.split("/")[config.url.split("/").length - 1];
       if (curPost === "raw_data") {

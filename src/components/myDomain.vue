@@ -1,147 +1,65 @@
 <template>
-  <div>
-    <el-table
-      ref="multipleTable"
-      :data="domainList"
-      style="width: 100%"
-      @selection-change="handleSelectionChange"
-    >
-      <el-table-column
-        type="selection"
-        width="55"
-      />
-      <el-table-column
-        label="ID"
-        prop="domain_id"
-      />
-      <el-table-column
-        label="领域名称"
-        prop="domain_name"
-      />
-      <!-- <el-table-column label="操作权限" prop="name"> </el-table-column> -->
-      <el-table-column align="right">
-        <template slot="header">
-          <el-input
-            v-model="search"
-            size="mini"
-            placeholder="输入关键字搜索"
-          />
+  <div style="margin:0 auto">
+    <el-table :data="domainList" style="width: 100%;">
+      <el-table-column type="index" width="200">
+      </el-table-column>
+      <el-table-column label="领域ID" width="300">
+        <template slot-scope="scope">
+          <span style="margin-left: 10px">{{ scope.row.domain_id }}</span>
         </template>
+      </el-table-column>
+      <el-table-column label="领域名称" width="300">
+        <template slot-scope="scope">
+            <div slot="reference" class="name-wrapper">
+              <el-tag size="medium">{{ scope.row.domain_name }}</el-tag>
+            </div>
+        </template>
+      </el-table-column>
+      <el-table-column label="操作">
         <template slot-scope="scope">
           <el-button
             size="mini"
-            style="margin-right: 5px;"
-            @click="renameDialogVisible = true;rename.domain_id=scope.row.domain_id"
-          >
-            编辑
-          </el-button>
+            @click="renameDialogVisible = true;domain_id=scope.row.domain_id">重命名</el-button>
           <el-button
             size="mini"
             type="danger"
-            @click="delDialogVisible = true;domain_id=scope.row.domain_id"
-          >
-            删除
-          </el-button>
+            @click="delDialogVisible = true;domain_id=scope.row.domain_id">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
-    <div>
-      <el-button
-        type="danger"
-        style="margin-top: 20px;margin-left:10px;float:right;"
-        @click="toggleSelection()"
-      >
-        删除所选项
-      </el-button>
-      <el-button
-        type="primary"
-        style="margin-top: 20px;float:right;"
-        @click="addDialogVisible = true"
-      >
-        添加新领域
-      </el-button>
-      <el-button
-        style="margin-top: 20px;float:left;"
-        @click="toggleSelection()"
-      >
-        取消全选
-      </el-button>
+    <div style="float:left">
+      <el-button type="primary" style="margin-top: 20px;" @click="addDialogVisible = true">添加新领域</el-button>
     </div>
-    <el-dialog
-      title="删除提示"
-      :visible.sync="delDialogVisible"
-      width="30%"
-    >
+    <!-- 删除某领域 -->
+    <el-dialog title="删除提示" :visible.sync="delDialogVisible" width="30%">
       <span>确认删除该领域？</span>
-      <span
-        slot="footer"
-        class="dialog-footer"
-      >
+      <span slot="footer" class="dialog-footer">
         <el-button @click="delDialogVisible = false">取 消</el-button>
-        <el-button
-          type="primary"
-          @click="deleteDomain(domain_id)"
-        >确 定</el-button>
+        <el-button type="danger" @click="deleteDomain()">确 定</el-button>
       </span>
     </el-dialog>
-    <el-dialog
-      title="重命名该领域"
-      :visible.sync="renameDialogVisible"
-    >
+    <!-- 重命名该领域 -->
+    <el-dialog title="重命名该领域" :visible.sync="renameDialogVisible">
       <el-form :model="newDomain">
-        <el-form-item
-          label="输入新名称"
-          :label-width="formLabelWidth"
-        >
-          <el-input
-            v-model="rename.name"
-            autocomplete="off"
-          />
+        <el-form-item label="输入新名称" :label-width="formLabelWidth">
+          <el-input v-model="rename.name" autocomplete="off"/>
         </el-form-item>
       </el-form>
-      <div
-        slot="footer"
-        class="dialog-footer"
-      >
-        <el-button @click="renameDialogVisible = false">
-          取 消
-        </el-button>
-        <el-button
-          type="primary"
-          @click="renameDomain()"
-        >
-          确 定
-        </el-button>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="renameDialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="renameDomain()">确 定</el-button>
       </div>
     </el-dialog>
-    <el-dialog
-      title="添加新领域"
-      :visible.sync="addDialogVisible"
-    >
+    <!-- 添加新领域 -->
+    <el-dialog title="添加新领域" :visible.sync="addDialogVisible">
       <el-form :model="newDomain">
-        <el-form-item
-          label="输入新领域名称"
-          :label-width="formLabelWidth"
-        >
-          <el-input
-            v-model="newDomain.name"
-            autocomplete="off"
-          />
+        <el-form-item label="输入新领域名称" :label-width="formLabelWidth">
+          <el-input v-model="newDomain.name" autocomplete="off"/>
         </el-form-item>
       </el-form>
-      <div
-        slot="footer"
-        class="dialog-footer"
-      >
-        <el-button @click="addDialogVisible = false">
-          取 消
-        </el-button>
-        <el-button
-          type="primary"
-          @click="addNewDomain()"
-        >
-          确 定
-        </el-button>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="addDialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="addNewDomain()">确 定</el-button>
       </div>
     </el-dialog>
   </div>
@@ -161,85 +79,71 @@ export default {
         renameDialogVisible: false,
         addDialogVisible: false,
         delDialogVisible: false,
-        rename:{'domain_id':'','name':''},
+        rename:{'name':''},
         newDomain:{name:''},
         formLabelWidth: '120px',
-        domain_id:'',
+        domain_id:0,
         domain_id_list:[]
         };
     },
     methods: {
-        handleEdit(index, row) {
-            console.log(index, row);
-        },
-        handleSelectionChange(val) {
-            this.multipleSelection = val;
-        },
-        toggleSelection(rows) {
-            if (rows) {
-            rows.forEach(row => {
-            });
-            } else {
-                console.log( this.$refs.multipleTable);
-                this.$refs.multipleTable.clearSelection();
-            }
-        },
-        async getDomainList (){
-            const res = await this.$http.get('domain');
-            this.domainList = res.data.data;
-        },
-        async addNewDomain (){
-            const {data:res} = await this.$http.post('domain',this.newDomain);
-            this.domainList = res.data;
-            this.addDialogVisible = false;
-            console.log(res);
-            if (res.errno==="0"){
-                this.$message({
-                    showClose: true,
-                    message: '添加新领域成功！',
-                    type: 'success'
-                });
-            }
-            else if (res.errno==="4003"){
-                this.$message({
-                    showClose: true,
-                    message: '添加失败，该领域已存在！',
-                    type: 'error'
-                });
-            }
-            this.reload();
-        },
-        async renameDomain (){
-            const {data:res} = await this.$http.post('rename_domain',this.rename);
-            this.renameDialogVisible = false;
-            console.log(res);
-            if (res.errno==="0"){
-                this.$message({
-                    showClose: true,
-                    message: '重命名成功！',
-                    type: 'success'
-                });
-            }
-            else if (res.errno==="4001"){
-                this.$message({
-                    showClose: true,
-                    message: '修改失败，数据库异常！',
-                    type: 'error'
-                });
-            }
-            this.reload();
-        },
-        async deleteDomain(domain_id) {
-            const {data:res} = this.$http.post('delete_domain',{'domain_id':domain_id});
-            this.delDialogVisible = true;
-            console.log(res);
+      // 获取领域列表
+      async getDomainList (){
+        const res = await this.$http.get('domain');
+        this.domainList = res.data.data;
+      },
+      // 添加新的领域
+      async addNewDomain (){
+        const {data:res} = await this.$http.post('domain',this.newDomain);
+        this.domainList = res.data;
+        this.addDialogVisible = false;
+        if (res.message==="Create domain succeed."){
             this.$message({
                 showClose: true,
-                message: '删除成功！',
+                message: '添加新领域成功！',
                 type: 'success'
             });
-            this.reload();
         }
+        else{
+            this.$message({
+                showClose: true,
+                message: '添加失败，该领域已存在！',
+                type: 'error'
+            });
+        }
+        this.reload();
+      },
+      // 重命名领域名称
+      async renameDomain (){
+        const {data:res} = await this.$http.patch('domain/'+this.domain_id,this.rename);
+        this.renameDialogVisible = false;
+        if (res.message==="Updata domain succeed."){
+            this.$message({
+                showClose: true,
+                message: '重命名成功！',
+                type: 'success'
+            });
+        }
+        else{
+            this.$message({
+                showClose: true,
+                message: '修改失败，数据库异常！',
+                type: 'error'
+            });
+        }
+        this.reload();
+      },
+      // 删除领域
+      async deleteDomain() {
+        console.log(this.domain_id);
+        const res= this.$http.delete('domain/'+this.domain_id);
+        this.$message({
+            showClose: true,
+            message: '删除该领域成功！',
+            type: 'success'
+        });
+        this.reload();
+      }
     },
 };
 </script>
