@@ -2,7 +2,7 @@
   <el-container>
     <div
       v-if="opt=='graphs'"
-      style="width:100%;height:100px;"
+      style="width:100%;height:100%;"
     >
       选择查看某领域知识图谱：
       <el-select
@@ -116,7 +116,7 @@
         </div>
       </el-dialog>
     </div>
-    <div v-if="opt=='graphDetail'" style="width:100%;height:100px;">
+    <div v-if="opt=='graphDetail'" style="width:100%;height:100%;">
       <el-card style="width:100%;height:65px;background-color:#fff;" shadow="never">
         <el-page-header @back="goBack()" :content="graph_name + ' 图谱详情'" style="float:left;"/>
         <div style="width:20%;float:right;">
@@ -321,6 +321,7 @@
             size="60%"
             @opened="openDialog('1')"
             height="100%"
+            @close="maxDepth"
           >
             <div style="width:90%;height:90%;margin-left:20px;margin-right:20px;">
               <div id="graph" ref="graph" :style="{width:'100%', height:'100%'}"/>
@@ -328,7 +329,7 @@
             <!-- 图中显示层数 -->
             <div style="margin-left:40%;margin-top:10px;bottom: 10px;">
               显示层数：
-              <el-select v-model="maxDepth" placeholder="2" size="mini" @change="showEditGraph(maxDepth)">
+              <el-select v-model="maxDepth" placeholder="1" size="mini" @change="showEditGraph(maxDepth)">
                 <el-option v-for="i in 5" :key="i" :label="i" :value="i"/>
               </el-select>
             </div>
@@ -349,18 +350,19 @@
               max-height="600"
               style="width: 95%;margin-left:2%;">
               <el-table-column fixed="left" type="index" width="50"></el-table-column>
-              <el-table-column prop="e1_type" label="起始类型" sortable width="180"></el-table-column>
-              <el-table-column prop="e1_name" label="起始节点名" width="180"></el-table-column>
+              <el-table-column prop="e1_type" label="头节点类型" sortable width="180"></el-table-column>
+              <el-table-column prop="e1_name" label="头节点名" width="180"></el-table-column>
               <el-table-column prop="relation" label="关系" width="180">
                 <template slot-scope="scope">
                   <el-tag size="medium" type="success">{{ scope.row.relation}}</el-tag>
                 </template>
               </el-table-column>
-              <el-table-column prop="e2_type" label="终止类型" width="180"></el-table-column>
-              <el-table-column prop="e2_name" label="终止节点名" width="180"></el-table-column>
+              <el-table-column prop="e2_type" label="尾节点类型" width="180"></el-table-column>
+              <el-table-column prop="e2_name" label="尾节点名" width="180"></el-table-column>
               <el-table-column fixed="right" label="操作" width="120">
                 <template slot-scope="scope">
-                  <el-button type="text" size="small" @click="deleteEdge(scope.row.relation_id)">移除</el-button>
+                  <el-button type="text" size="small" @click="scope.row.link_editVisible=true">编辑</el-button>
+                  <el-button type="text" size="small" style="color:red"  @click="deleteEdge(scope.row.relation_id)">移除</el-button>
                     <!-- 删除某一条边 -->
                     <el-dialog title="提示" :visible.sync="scope.row.link_deleteVisible" width="30%" center>
                       <span>您确定要删除这条关系数据吗？{{scope.row.relation_id}}</span>
@@ -369,13 +371,38 @@
                         <el-button type="primary" @click="deleteEdge(scope.row.relation_id)">确 定</el-button>
                       </span>
                     </el-dialog>  
-                  <el-button type="text" size="small" @click="scope.row.link_editVisible=true">编辑</el-button>
+                  
                     <!-- 编辑关系节点-drawer -->
                     <el-drawer
                       title="编辑数据"
                       :append-to-body="true"
                       :visible.sync="scope.row.link_editVisible">
-                      <p>_(:зゝ∠)_</p>
+                      <el-form label-width="200px" :model="newRelationData">
+                        <el-form-item label="头节点实体">
+                          <el-input v-model="newRelationData.e1_name" :placeholder="scope.row.e1_name" style="width:250px;"></el-input>
+                        </el-form-item>
+                        <el-form-item label="头节点实体类型">
+                          <el-select v-model="newRelationData.e1_type" :placeholder="scope.row.e1_type" style="width:250px;">
+                            <el-option v-for="collection in collections_list" :key="collection" :label="collection" :value="collection"></el-option>
+                          </el-select>
+                        </el-form-item>
+                        <el-form-item label="关系类型">
+                          <el-select v-model="newRelationData.e1_type" :placeholder="scope.row.relation" style="width:250px;">
+                            <el-option v-for="relation in relation_list" :key="relation" :label="relation" :value="relation"></el-option>
+                          </el-select>
+                        </el-form-item>
+                        <el-form-item label="尾节点实体">
+                          <el-input v-model="newRelationData.e1_name" :placeholder="scope.row.e2_name" style="width:250px;"></el-input>
+                        </el-form-item>
+                        <el-form-item label="尾节点实体类型">
+                          <el-select v-model="newRelationData.e1_type" :placeholder="scope.row.e2_type" style="width:250px;">
+                            <el-option v-for="collection in collections_list" :key="collection" :label="collection" :value="collection"></el-option>
+                          </el-select>
+                        </el-form-item>
+                        <el-form-item>
+                          <el-button type="primary" @click="editData()">确认修改</el-button>
+                        </el-form-item>
+                      </el-form>
                     </el-drawer>
                 </template>
               </el-table-column>
@@ -421,7 +448,8 @@
                   <el-form-item label="选择关系">
                     <el-select v-model="newEdge.relation" placeholder="请选择关系类型" style="width:60%;">
                       <el-option v-for="relation in relation_list" :key="relation" :label="relation" :value="relation"></el-option>
-                    </el-select>
+                    </el-select> 
+                    <el-button type="primary" icon="el-icon-plus" style="margin-left:10px;" circle @click="addRelationVisible = true"></el-button>
                   </el-form-item>
                   <el-form-item label="节点类型">
                     <el-radio-group v-model="newEdge.node_type">
@@ -435,42 +463,20 @@
                 </el-form>
               </el-drawer>
           </el-drawer>
-
-
-
-
-          <!-- <el-dialog
-            :title="'图谱编辑-中心节点：'+ vertex.name"
-            :visible.sync="graphVisible"
-            @opened="openDialog('1')"
-          >
            
-              
-                    
-  
 
-            <!-- 为中心实体创建新的关系类型 -->
-            <!-- <el-button type="text" @click="addRelationVisible = true">为该节点创建新的关系</el-button>
-            <el-dialog title="新增关系类型" :visible.sync="addRelationVisible">
+            <!-- 为中心实体创建新的关系类型  -->
+            <el-dialog title="新增关系类型" :visible.sync="addRelationVisible" style="width:50%;margin:0 auto">
               <el-form :model="newRelation">
                 <el-form-item label="关系类型名称" label-width="100px">
                   <el-input v-model="newRelation.relationName" autocomplete="off"/>
-                </el-form-item>
-                <el-form-item label="选择节点" prop="resource" label-width="100px">
-                  <el-autocomplete v-model="newRelation.name" :fetch-suggestions="querySearchAsync" placeholder="请输入内容" @select="handleSelectNewRelation"/>
-                </el-form-item>
-                <el-form-item label="所选节点为" label-width="100px">
-                  <template>
-                    <el-radio v-model="newRelation.relationRadio" label="source">起始节点</el-radio>
-                    <el-radio v-model="newRelation.relationRadio" label="target">终点节点</el-radio>
-                  </template>
-                </el-form-item>                    
+                </el-form-item>                 
               </el-form>
               <div slot="footer" class="dialog-footer">
                 <el-button @click="addRelationVisible = false">取 消</el-button>
                 <el-button type="primary" @click="addRelation()">确 定</el-button>
               </div>
-            </el-dialog> -->
+            </el-dialog> 
 
             <!-- 重命名某中心实体 -->
             <!-- <div>
@@ -515,8 +521,8 @@ export default {
             graph_list: [],
             domain_list: [],
             relation_list:[],
-            domain_id:'', // 被选中图谱的domain_id
             collections_list:[],// 所有实体类型列表
+            domain_id:'', // 被选中图谱的domain_id
             collection:'', // 当前所选择的实体类型
             vertex:{},// 当前所选节点
             vertexs_list:[], // 某一类下所有实体列表
@@ -548,6 +554,16 @@ export default {
                 node_id:'',
                 name:'',
                 node_type:'',
+                relation:''
+            },
+            newRelationData:{
+                e1_id:'',
+                e1_type:'',
+                e1_name:'',
+                e2_id:'',
+                e2_type:'',
+                e2_name:'',
+                relation_id:'',
                 relation:''
             },
             myChart:{},
@@ -854,24 +870,6 @@ export default {
                 height: '600px'
             });                 
         },
-        // 关闭全屏
-        closeFullScreen(){
-            this.maxDepth=2;
-            this.fullscreen=false;
-            var myChart = echarts.init(this.$refs.graph);
-            myChart.resize({
-                width: '600px',
-                height: '400px'
-            });
-        },
-        // 关闭编辑drawer的提示
-        // handleClose(done) {
-        //   this.$confirm('还有未保存的工作哦确定关闭吗？')
-        //     .then(_ => {
-        //       done();
-        //     })
-        //     .catch(_ => {});
-        // },
         // 添加中心节点
         async addNode(type){
             const res = await this.$http.post(this.domain_id+'/graph/'+this.graph_id+'/vertex/'+type,this.newVertex);
@@ -1014,7 +1012,24 @@ export default {
                 name:this.rename
             };
             var {data:res} = await this.$http.patch(this.domain_id+'/graph/'+this.graph_id+'/vertex/'+ this.vertex._id,param);
-            console.log(res)
+            if(res.errno=="0"){
+                this.$message({
+                    showClose: true,
+                    message: '重命名成功！',
+                    type: 'success'
+                });
+                this.addNewEdgeVisible = false;
+            }
+            else{
+                this.$message({
+                    showClose: true,
+                    message: '重命名失败！',
+                    type: 'error'
+                });
+            }
+            this.renameVertexVisible = false;
+            this.editVisible = false;
+            this.showVertexs(this.collection,this.currentPage);
         },
         // 删除某个中心实体
         async deleteVertex(){
@@ -1042,6 +1057,10 @@ export default {
         filterHandler(value, row, column) {
           const property = column['property'];
           return row[property] === value;
+        },
+        // 图谱数据更改
+        editData(){
+
         }
     }
 };
