@@ -9,8 +9,8 @@ import entityResult from '@/components/entityResult.vue';
 import KG from '@/components/KG.vue';
 import login from '@/components/login.vue';
 import register from '@/components/register.vue';
-import myProject from '@/components/myProject.vue';
-import merge_project from '@/components/merge_project.vue';
+import annotate_project from '@/components/annotate_project.vue';
+import fusion_project from '@/components/fusion_project.vue';
 import myGraph from '@/components/myGraph.vue';
 import myDomain from '@/components/myDomain.vue';
 import graphDetail from '@/components/graphDetail.vue';
@@ -47,7 +47,8 @@ export default new VueRouter({
         path:'/',
         components:{
           default: home,
-          myproject: myProject,
+          annotate_project: annotate_project,
+          fusion_project:fusion_project,
           mygraph: myGraph,
           mydomain: myDomain,
           textinput: textinput,
@@ -60,7 +61,7 @@ export default new VueRouter({
           myRawdata:myRawdata,
           myTripleData:myTripleData,
           QA:QA,
-          merge_project:merge_project,
+          
           mymodel:myModel
         }
       },

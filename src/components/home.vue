@@ -56,8 +56,9 @@
         </el-aside>
         <!-- <div class="right-content">     -->
         <el-main style="height:100%;">
-          <router-view name="myproject" v-if="opt=='annotate_project'" />
-          <router-view name="merge_project" v-if="opt=='merge_project'" />
+          <router-view name="fusion_project" v-if="opt=='generate_project'" />
+          <router-view name="annotate_project" v-if="opt=='annotate_project'" />
+          <router-view name="fusion_project" v-if="opt=='fusion_project'" />
           <router-view name="mygraph" v-if="opt=='mygraph' && isRouterAlive" />
           <router-view name="mydomain" v-if="opt=='mydomain' && isRouterAlive" /> 
           <router-view name="myRawdata" v-if="opt=='myrawdata' && isRouterAlive" /> 
@@ -86,8 +87,9 @@ export default {
       menuList:[
         {'id':'1','menuName':'我的项目','icon':'el-icon-s-promotion',
         'children':[
-          {'subID':'1','subName':'标注项目','subIcon':'el-icon-edit','option':'annotate_project'},
-          {'subID':'2','subName':'融合项目','subIcon':'el-icon-copy-document','option':'merge_project'}
+          {'subID':'1','subName':'构建项目','subIcon':'el-icon-magic-stick','option':'generate_project'},
+          {'subID':'2','subName':'标注项目','subIcon':'el-icon-edit','option':'annotate_project'},
+          {'subID':'3','subName':'融合项目','subIcon':'el-icon-copy-document','option':'fusion_project'}
         ]},
         {'id':'2','menuName':'我的数据','icon':'el-icon-coin',
         'children':[

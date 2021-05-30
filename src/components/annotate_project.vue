@@ -36,46 +36,45 @@
       </el-dialog>
     </div>
 
-    <div v-if="opt == 'projectDetail'" style="width: 100%; height: 100px;">
+    <div v-if="opt == 'projectDetail'" style="width: 100%; height: 100%;">
       <el-card style="width: 100%; height: 65px;" shadow="never">
         <el-page-header @back="goBack()" :content="project_name + ' 项目详情'" style="float: left"/>
       </el-card>
       <div style="width: 100%; margin-top: 5px">
         <el-tabs type="border-card">
-          <el-tab-pane>
-            <span slot="label"><i class="el-icon-document"/> 标注项目</span>
-            <div style="margin-bottom:10px;">
+          <el-tab-pane label="标注项目">
+            <!-- <div style="margin-bottom:10px;">
               标注方式：
               <el-radio v-model="label_op" label="DB">数据库</el-radio>
               <el-radio v-model="label_op" label="TEXT">文本</el-radio>
-            </div>
+            </div> -->
             <el-divider><i class="el-icon-s-flag"></i></el-divider>
-            <div v-if="label_op=='DB'">
-              <el-form ref="form" :model="DBList" label-width="120px">
-                <el-form-item style="float:left" label="选择数据库：">
-                  <el-select v-model="label_DB" placeholder="请选择">
-                    <el-option
-                      v-for="item in DBList"
-                      :key="item.data_id"
-                      :label="item.data_name"
-                      :value="item.data_id">
-                    </el-option>
-                  </el-select>
-                </el-form-item>
-                <el-form-item style="float:left" label="选择模型：">
-                  <el-select v-model="label_model" placeholder="请选择">
-                    <el-option
-                      v-for="item in modelList"
-                      :key="item.data_id"
-                      :label="item.data_name"
-                      :value="item.data_id">
-                    </el-option>
-                  </el-select>
-                </el-form-item>
-                <el-form-item>
-                  <el-button type="primary" style="margin-left:50px;" @click="tripledataVisible=true">开始标注</el-button>
-                </el-form-item>
-              </el-form>
+            <!-- <div v-if="label_op=='DB'"> -->
+            <div style="margin-bottom:20px;">
+              <div style="float:left;margin-left:30px;">
+                选择文本数据：
+                <el-select v-model="anotation.data" placeholder="请选择">
+                  <el-option
+                    v-for="item in rawdata_list"
+                    :key="item.data_id"
+                    :label="item.data_name"
+                    :value="item.data_id">
+                  </el-option>
+                </el-select>
+              </div>
+              <div style="float:left;margin-left:30px;">
+                选择标注模型：
+                <el-select v-model="anotation.model" placeholder="请选择">
+                  <el-option
+                    v-for="item in modelList"
+                    :key="item.model_id"
+                    :label="item.model_name"
+                    :value="item.model_id">
+                  </el-option>
+                </el-select>
+              </div>
+              <el-button type="primary" style="margin-left:50px;" @click="tripledataVisible=true">开始标注</el-button>
+            </div>
               <!-- 模型抽取生成三元组列表 -->
               <div style="width:70%;" v-if="tripledataVisible==true">
                 <div style="margin-left:20px;margin-bottom:10px;"><span style="color:#409EFF"><i class="el-icon-s-data"></i>  三元组数据</span></div>
@@ -86,18 +85,17 @@
                   max-height="600"
                   style="width: 95%;margin-left:2%;">
                   <el-table-column fixed="left" type="index" width="50"></el-table-column>
-                  <el-table-column prop="e1_type" label="起始类型" sortable width="180"></el-table-column>
-                  <el-table-column prop="e1_name" label="起始节点名" width="180"></el-table-column>
+                  <el-table-column prop="e1_type" label="头节点类型" sortable width="180"></el-table-column>
+                  <el-table-column prop="e1_name" label="头节点名" width="180"></el-table-column>
                   <el-table-column prop="relation" label="关系" width="180">
                     <template slot-scope="scope">
                       <el-tag size="medium" type="success">{{ scope.row.relation}}</el-tag>
                     </template>
                   </el-table-column>
-                  <el-table-column prop="e2_type" label="终止类型" width="180"></el-table-column>
-                  <el-table-column prop="e2_name" label="终止节点名" width="180"></el-table-column>
+                  <el-table-column prop="e2_type" label="尾节点类型" width="180"></el-table-column>
+                  <el-table-column prop="e2_name" label="尾节点名" width="180"></el-table-column>
                   <el-table-column fixed="right" label="操作" width="120">
                     <template slot-scope="scope">
-                      <el-button type="text" size="small">移除</el-button>
                         <!-- 删除某一条边 -->
                         <!-- <el-dialog title="提示" :visible.sync="scope.row.link_deleteVisible" width="30%" center>
                           <span>您确定要删除这条关系数据吗？{{scope.row.relation_id}}</span>
@@ -107,6 +105,7 @@
                           </span>
                         </el-dialog>   -->
                       <el-button type="text" size="small">编辑</el-button>
+                      <el-button type="text" size="small" style="color:red">移除</el-button>
                         <!-- 编辑关系节点-drawer -->
                         <!-- <el-drawer
                           title="编辑数据"
@@ -117,8 +116,8 @@
                     </template>
                   </el-table-column>
                 </el-table>
-                <div style="margin-left:20px;margin-top:20px;margin-bottom:10px;"><span style="color:#E6A23C"><i class="el-icon-warning"></i>  孤立节点</span></div>
-                <el-table
+                <!-- <div style="margin-left:20px;margin-top:20px;margin-bottom:10px;"><span style="color:#E6A23C"><i class="el-icon-warning"></i>  孤立节点</span></div> -->
+                <!-- <el-table
                   ref="filterTable"
                   border
                   :data="tripledata"
@@ -129,7 +128,7 @@
                   <el-table-column prop="e1_name" label="节点名" width="180"></el-table-column>
                   <el-table-column fixed="right" label="操作" width="120">
                     <template slot-scope="scope">
-                      <el-button type="text" size="small">移除</el-button>
+                      <el-button type="text" size="small">移除</el-button> -->
                         <!-- 删除某一条边 -->
                         <!-- <el-dialog title="提示" :visible.sync="scope.row.link_deleteVisible" width="30%" center>
                           <span>您确定要删除这条关系数据吗？{{scope.row.relation_id}}</span>
@@ -138,7 +137,7 @@
                             <el-button type="primary">确 定</el-button>
                           </span>
                         </el-dialog>   -->
-                      <el-button type="text" size="small">编辑</el-button>
+                      <!-- <el-button type="text" size="small">编辑</el-button> -->
                         <!-- 编辑关系节点-drawer -->
                         <!-- <el-drawer
                           title="编辑数据"
@@ -146,19 +145,19 @@
                           :visible.sync="scope.row.link_editVisible">
                           <p>_(:зゝ∠)_</p>
                         </el-drawer> -->
-                    </template>
+                    <!-- </template>
                   </el-table-column>
-                </el-table>
+                </el-table> -->
                 <div style="margin-top:20px;margin-left:30px;float:left"><el-button type="primary" icon="el-icon-check">审核通过，暂存数据</el-button></div>
-                <div style="margin-top:20px;margin-left:20px;float:left"><el-button type="success" icon="el-icon-check">直接创建融合项目</el-button></div>
+                <div style="margin-top:20px;margin-left:20px;float:left"><el-button type="success" icon="el-icon-pie-chart">直接创建融合项目</el-button></div>
               </div>
-            </div>
+            <!-- </div> -->
 
 
-            <div v-if="label_op=='TEXT'">
-              <div style="float:left;width:40%">
+            <!-- <div v-if="label_op=='TEXT'"> -->
+              <!-- <div style="float:left;width:40%"> -->
                 <!-- 输入文本数据 -->
-                <el-aside width="100%">
+                <!-- <el-aside width="100%">
                   <el-card shadow="always">
                     <h5 style="margin: 0; display: inline; width: 30px">输入文本</h5>
                     <el-divider content-position="left"/>
@@ -176,9 +175,9 @@
                       <el-button type="primary" style="margin-left:30px;" @click="gen_childGraph()">开始标注</el-button>
                       <el-button type="success" style="margin-left:10px;">暂存</el-button>
                   </el-card>
-                </el-aside>
+                </el-aside> -->
                 <!-- 生成知识图谱子图 -->
-                <div style="margin-top:5px;">
+                <!-- <div style="margin-top:5px;">
                   <el-aside width="100%" height="100%">
                     <el-card shadow="always">
                       <h5 style="margin: 0; display: inline; width: 50px">生成子图</h5>
@@ -212,10 +211,10 @@
                     </el-card>
                   </el-aside>
                 </div>
-              </div>
+              </div> -->
 
               <!-- 知识图谱融合 -->
-              <div style="float:left;width:58%;margin-left:20px;">
+              <!-- <div style="float:left;width:58%;margin-left:20px;">
                 <el-aside width="100%" height="100%">
                   <el-card shadow="always">
                     <h5 style="margin:0;display:inline;width:50px;">知识图谱融合预览</h5>
@@ -240,14 +239,14 @@
                     <el-button style="float:right" type="primary" plain>确认融合</el-button>
                   </el-card>
                 </el-aside>
-              </div>
-            </div>
+              </div> -->
+            <!-- </div> -->
           </el-tab-pane>
 
-          <el-tab-pane>
+          <!-- <el-tab-pane>
             <span slot="label"><i class="el-icon-user" /> 用户管理</span>
             用户管理
-          </el-tab-pane>
+          </el-tab-pane> -->
         </el-tabs>
       </div>
     </div>
@@ -259,12 +258,14 @@ import * as echarts from 'echarts';
 export default {
   created() {
     this.getProjectList();
-    this.getDBList();
+    this.getRawdataList();
+    //this.getModelList();
   },
   data() {
     return {
       projectList: [],
-      DBList:[],
+      rawdata_list:[],
+      modelList:[{model_id:1,model_name:'三元组抽取'}],
       currentDate: new Date(),
       addDialogVisible: false,
       formLabelWidth: '100px',
@@ -284,13 +285,13 @@ export default {
       childTableVisible:false,
       drawer: false,
       label_op:'DB',
-      label_DB:'',
-      label_model:'',
-      modelList:[],
+      anotation:{data:'',model:''},
       tripledataVisible:false,
-      tripledata:[{e1_name:'实体1',e1_type:'类型1',e2_name:'实体1',e2_type:'类型1',relation:'关系'},
-      {e1_name:'实体1',e1_type:'类型1',e2_name:'实体1',e2_type:'类型1',relation:'关系'},
-      {e1_name:'实体1',e1_type:'类型1',e2_name:'实体1',e2_type:'类型1',relation:'关系'}]
+      tripledata:[{e1_name:'深度强化学习',e1_type:'处理方法',e2_name:'知识推理',e2_type:'处理方法',relation:'应用关系'},
+      {e1_name:'深度强化学习',e1_type:'处理方法',e2_name:'自然语言处理',e2_type:'处理方法',relation:'应用关系'},
+      {e1_name:'深度强化学习',e1_type:'处理方法',e2_name:'多任务迁移深度强化学习',e2_type:'处理方法',relation:'包含关系'},
+      {e1_name:'深度强化学习',e1_type:'处理方法',e2_name:'多智能体深度强化学习',e2_type:'处理方法',relation:'包含关系'},
+      {e1_name:'深度强化学习',e1_type:'处理方法',e2_name:'分层深度强化学习',e2_type:'处理方法',relation:'包含关系'}]
     };
   },
   methods: {
@@ -300,16 +301,17 @@ export default {
       this.projectList = res.data.data;
     },
     // 获取DB列表
-    async getDBList(){
+    async getRawdataList(){
       const {data: res} = await this.$http.get('raw_data');
       console.log(res.data)
-      for(var i=0;i<res.data.length;i++){
-        if(res.data[i].data_type==0){
-          res.data.splice(i,1);
-        }
-      }
-      this.DBList = res.data;
-      console.log(this.DBList)
+      this.rawdata_list = res.data;
+      console.log(this.rawdata_list)
+    },
+    // 获取标注模型列表
+    async getModelList(){
+      const {data: res} = await this.$http.get('model/annotation');
+      this.modelList = res.data;
+      console.log(this.modelList)
     },
     // 查看项目详情
     projectDetail(project_id, project_name) {
