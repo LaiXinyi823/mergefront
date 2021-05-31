@@ -9,9 +9,10 @@ import entityResult from '@/components/entityResult.vue';
 import KG from '@/components/KG.vue';
 import login from '@/components/login.vue';
 import register from '@/components/register.vue';
+import generate_graph from '@/components/generate_graph.vue';
 import annotate_project from '@/components/annotate_project.vue';
 import fusion_project from '@/components/fusion_project.vue';
-import myGraph from '@/components/my_graph.vue';
+import my_graph from '@/components/my_graph.vue';
 import myDomain from '@/components/myDomain.vue';
 import graphDetail from '@/components/graphDetail.vue';
 import labelproject from '@/components/labelproject.vue';
@@ -47,9 +48,10 @@ export default new VueRouter({
         path:'/',
         components:{
           default: home,
+          generate_graph:generate_graph,
           annotate_project: annotate_project,
           fusion_project:fusion_project,
-          mygraph: myGraph,
+          my_graph: my_graph,
           mydomain: myDomain,
           textinput: textinput,
           childKG: childKG,

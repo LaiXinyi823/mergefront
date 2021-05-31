@@ -1,10 +1,8 @@
 <template>
   <el-container>
     <div v-if="opt == 'projectList'">
-      <div @click="addDialogVisible=true" style="height: 200px; float: left">
-        <el-card class="box-card" shadow="never" >
-          <i style="font-size: 20px; float: left; margin-top: 50px" class="el-icon-plus">添加新项目</i>
-        </el-card>
+      <div style="margin-top:10px;margin-bottom:30px;">
+        <el-button type="success" icon="el-icon-plus" circle @click="addDialogVisible=true" style="margin-left:20px;margin-right:20px;"></el-button>创建新融合项目
       </div>
       <div>
         <el-card
@@ -19,19 +17,20 @@
             <el-button @click="projectDetail(project.project_id, project.project_name)" style="float: right; padding: 3px 0" type="text">查看详情
             </el-button>
           </div>
-          <div class="text item">所属领域：</div>
-          <div class="text item">权限：</div>
+          <!-- <div class="text item">所属领域：</div>
+          <div class="text item">权限：</div> -->
         </el-card>
       </div>
-      <el-dialog title="新增项目" :visible.sync="addDialogVisible">
-        <el-form :model="newProject">
+      <!-- 创建新的标注项目 -->
+      <el-dialog title="新增标注项目" :visible.sync="addDialogVisible" style="width:40%;margin:0 auto">
+        <el-form :model="newFusionProject">
           <el-form-item label="项目名称" :label-width="formLabelWidth">
-            <el-input v-model="newProject.name" autocomplete="off"/>
+            <el-input v-model="newFusionProject.name" autocomplete="off"/>
           </el-form-item>
         </el-form>
         <div slot="footer" class="dialog-footer">
           <el-button @click="addDialogVisible = false">取 消</el-button>
-          <el-button type="primary" @click="addProject()">确 定</el-button>
+          <el-button type="primary" @click="addFusionProject()">确 定</el-button>
         </div>
       </el-dialog>
     </div>
@@ -309,8 +308,8 @@ import * as echarts from 'echarts';
 export default {
   created() {
     this.getProjectList();
-    this.getTripledataList();
-    this.getGraphList();
+    //this.getTripledataList();
+    //this.getGraphList();
   },
   data() {
     return {
@@ -324,9 +323,9 @@ export default {
       opt: 'projectList',
       project_id: 0,
       project_name: '',
-      newProject:{
-        "name":'',
-        "domain":''
+      newFusionProject:{
+        name:'',
+        type_id:1
       },
       textarea:'', // 用户输入文本内容
       num1: 1,
@@ -349,8 +348,9 @@ export default {
   methods: {
     // 获取项目列表
     async getProjectList() {
-      const res = await this.$http.get('list_projects');
+      const res = await this.$http.get('project?type=fusion');
       this.projectList = res.data.data;
+      console.log(this.projectList)
     },
     // 获取三元组数据列表
     async getTripledataList(){
@@ -366,7 +366,7 @@ export default {
     },
     // 获取图谱列表
     async getGraphList(){
-      const {data: res} = await this.$http.get('all/graph');
+      const {data: res} = await this.$http.get('graph');
       this.graphList = res.data;
       console.log(this.graphList)
     },
@@ -376,6 +376,10 @@ export default {
       this.project_name = project_name;
       this.opt = 'projectDetail';
       console.log(this.opt);
+    },
+    // 创建融合项目
+    addFusionProject(){
+      var res = this.$http.post('project',this.newFusionProject);
     },
     // 详情界面返回函数
     goBack() {

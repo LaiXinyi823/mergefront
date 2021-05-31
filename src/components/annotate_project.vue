@@ -1,10 +1,8 @@
 <template>
   <el-container>
     <div v-if="opt == 'projectList'">
-      <div @click="addDialogVisible=true" style="height: 200px; float: left">
-        <el-card class="box-card" shadow="never" >
-          <i style="font-size: 20px; float: left; margin-top: 50px" class="el-icon-plus">添加新项目</i>
-        </el-card>
+      <div style="margin-top:10px;margin-bottom:30px;">
+        <el-button type="primary" icon="el-icon-plus" circle @click="addDialogVisible=true" style="margin-left:20px;margin-right:20px;"></el-button>创建新标注项目
       </div>
       <div>
         <el-card
@@ -19,19 +17,19 @@
             <el-button @click="projectDetail(project.project_id, project.project_name)" style="float: right; padding: 3px 0" type="text">查看详情
             </el-button>
           </div>
-          <div class="text item">所属领域：</div>
-          <div class="text item">权限：</div>
+          
         </el-card>
       </div>
-      <el-dialog title="新增项目" :visible.sync="addDialogVisible">
-        <el-form :model="newProject">
+      <!-- 创建新的标注项目 -->
+      <el-dialog title="新增标注项目" :visible.sync="addDialogVisible" style="width:40%;margin:0 auto">
+        <el-form :model="newAnnotationProject">
           <el-form-item label="项目名称" :label-width="formLabelWidth">
-            <el-input v-model="newProject.name" autocomplete="off"/>
+            <el-input v-model="newAnnotationProject.name" autocomplete="off"/>
           </el-form-item>
         </el-form>
         <div slot="footer" class="dialog-footer">
           <el-button @click="addDialogVisible = false">取 消</el-button>
-          <el-button type="primary" @click="addProject()">确 定</el-button>
+          <el-button type="primary" @click="addAnnotationProject()">确 定</el-button>
         </div>
       </el-dialog>
     </div>
@@ -256,9 +254,10 @@
 <script>
 import * as echarts from 'echarts';
 export default {
+  inject:['reload'],
   created() {
     this.getProjectList();
-    this.getRawdataList();
+    //this.getRawdataList();
     //this.getModelList();
   },
   data() {
@@ -272,9 +271,9 @@ export default {
       opt: 'projectList',
       project_id: 0,
       project_name: '',
-      newProject:{
-        "name":'',
-        "domain":''
+      newAnnotationProject:{
+        name:'',
+        type_id:0
       },
       textarea:'', // 用户输入文本内容
       num1: 1,
@@ -297,7 +296,8 @@ export default {
   methods: {
     // 获取项目列表
     async getProjectList() {
-      const res = await this.$http.get('list_projects');
+      const res = await this.$http.get('project?type=annotation');
+      console.log(res)
       this.projectList = res.data.data;
     },
     // 获取DB列表
@@ -313,6 +313,23 @@ export default {
       this.modelList = res.data;
       console.log(this.modelList)
     },
+    // 新建标注项目
+    addAnnotationProject(){
+      var res = this.$http.post('project',this.newAnnotationProject);
+      // console.log(res);
+      //   this.$message({
+      //     showClose: true,
+      //     message: '创建标注项目成功！',
+      //     type: 'success',
+      //   })
+      // }{
+      //   this.$message({
+      //     showClose: true,
+      //     message: '该项目已存在！',
+      //     type: 'error',
+      //   })
+      // }
+    },
     // 查看项目详情
     projectDetail(project_id, project_name) {
       this.project_id = project_id;
@@ -325,114 +342,114 @@ export default {
       this.opt = 'projectList';
     },
     // 文本生成知识图谱子图
-    async gen_childGraph(){
-      const res = await this.$http.get('http://39.100.48.36:3012/predict_re?sentence=' + this.textarea);
-      // print(res)
-      console.log(res.data.relations);
-      var data = res.data.relations;
-      this.graph_nodes = []; // 节点数据初始化
-      this.graph_links = []; // 关系数据初始化
-      this.child_graph_data = res.data.relations;
-      var len = data.length;
-      for(var i=0;i<len;i++){
-        if(JSON.stringify(this.graph_nodes).indexOf(JSON.stringify(data[i]['e1']))>-1){
-        }
-        else{
-          this.graph_nodes.push(
-            {
-              "id":data[i]['e1_type'] + '/' + data[i]['e1'],
-              "name":data[i]['e1'],
-              "type":data[i]['e1_type']
-            }
+    // async gen_childGraph(){
+    //   const res = await this.$http.get('http://39.100.48.36:3012/predict_re?sentence=' + this.textarea);
+    //   // print(res)
+    //   console.log(res.data.relations);
+    //   var data = res.data.relations;
+    //   this.graph_nodes = []; // 节点数据初始化
+    //   this.graph_links = []; // 关系数据初始化
+    //   this.child_graph_data = res.data.relations;
+    //   var len = data.length;
+    //   for(var i=0;i<len;i++){
+    //     if(JSON.stringify(this.graph_nodes).indexOf(JSON.stringify(data[i]['e1']))>-1){
+    //     }
+    //     else{
+    //       this.graph_nodes.push(
+    //         {
+    //           "id":data[i]['e1_type'] + '/' + data[i]['e1'],
+    //           "name":data[i]['e1'],
+    //           "type":data[i]['e1_type']
+    //         }
             
-          );
-        }
-        if(JSON.stringify(this.graph_nodes).indexOf(JSON.stringify(data[i]['e2']))>-1){
-        }
-        else{
-          this.graph_nodes.push(
-            {
-              "id":data[i]['e2_type'] + '/' + data[i]['e2'],
-              "name":data[i]['e2'],
-              "type":data[i]['e2_type']
-            }
-          );
-        }
-        this.graph_links.push(
-          {
-            "id":data[i]['relation_type'] + '/' + data[i]['e1_type'] + '/'
-             + data[i]['e1'] + 'to' + data[i]['e2_type'] + '/' + data[i]['e2'],
-            "source":data[i]['e1_type'] + '/' + data[i]['e1'],
-            "target":data[i]['e2_type'] + '/' + data[i]['e2']
-          }
-        );
-      }
-      // 使用Echarts展示
-      var myChart = echarts.init(this.$refs.childGraph);
-      var option = {
-                    tooltip: {},
-                    animationDurationUpdate: 1500,
-                    animationEasingUpdate: 'quinticInOut',
-                    series: [
-                        {
-                            type: 'graph',
-                            layout: 'force',
-                            symbolSize: 50,
-                            roam: true,
-                            force: {
-                                repulsion: 2500,
-                                edgeLength: [10, 50],
-                                draggable:true
-                            },
-                            itemStyle: {//配置节点的颜色
-                                normal: {
-                                    color: function (params) {
-                                      var colorList = ['red','yellow','orange', 'green', 'blue', 'gray'];
-                                      return colorList[params.dataIndex];                                    
-                                    },
-                                }
-                            },
-                            symbolSize: function (value, params) {//改变节点大小
-                              return 40;
-                            },
-                            label: {
-                                show: true
-                            },
-                            edgeSymbol: ['circle', 'arrow'],
-                            edgeSymbolSize: [4, 10],
-                            edgeLabel: {
-                                fontSize: 20
-                            },
-                            nodes: this.graph_nodes, // 节点数据
-                            links: this.graph_links, // 关系数据
-                            edgeLabel: {//边的设置
-                                show: true,
-                                position: "middle",
-                                fontSize: 12,
-                                formatter: (params) => {
-                                    return params.data.id.split('/')[0];
-                                },
-                            },
-                            lineStyle: {
-                                opacity: 0.9,
-                                width: 2,
-                                curveness: 0
-                            }
-                            }
-                            ]
-                    };
-                    myChart.setOption(option);    
-                    //点击事件
-                    myChart.on('click', function (params) {
-                        if (params.dataType == 'node') {
-                            console.log(params.name);
-                        }
-                        else if (params.dataType == 'edge'){
-                            console.log(params);
-                        }
-                    });
-            }
-    },
+    //       );
+    //     }
+    //     if(JSON.stringify(this.graph_nodes).indexOf(JSON.stringify(data[i]['e2']))>-1){
+    //     }
+    //     else{
+    //       this.graph_nodes.push(
+    //         {
+    //           "id":data[i]['e2_type'] + '/' + data[i]['e2'],
+    //           "name":data[i]['e2'],
+    //           "type":data[i]['e2_type']
+    //         }
+    //       );
+    //     }
+    //     this.graph_links.push(
+    //       {
+    //         "id":data[i]['relation_type'] + '/' + data[i]['e1_type'] + '/'
+    //          + data[i]['e1'] + 'to' + data[i]['e2_type'] + '/' + data[i]['e2'],
+    //         "source":data[i]['e1_type'] + '/' + data[i]['e1'],
+    //         "target":data[i]['e2_type'] + '/' + data[i]['e2']
+    //       }
+    //     );
+    //   }
+    //   // 使用Echarts展示
+    //   var myChart = echarts.init(this.$refs.childGraph);
+    //   var option = {
+    //                 tooltip: {},
+    //                 animationDurationUpdate: 1500,
+    //                 animationEasingUpdate: 'quinticInOut',
+    //                 series: [
+    //                     {
+    //                         type: 'graph',
+    //                         layout: 'force',
+    //                         symbolSize: 50,
+    //                         roam: true,
+    //                         force: {
+    //                             repulsion: 2500,
+    //                             edgeLength: [10, 50],
+    //                             draggable:true
+    //                         },
+    //                         itemStyle: {//配置节点的颜色
+    //                             normal: {
+    //                                 color: function (params) {
+    //                                   var colorList = ['red','yellow','orange', 'green', 'blue', 'gray'];
+    //                                   return colorList[params.dataIndex];                                    
+    //                                 },
+    //                             }
+    //                         },
+    //                         symbolSize: function (value, params) {//改变节点大小
+    //                           return 40;
+    //                         },
+    //                         label: {
+    //                             show: true
+    //                         },
+    //                         edgeSymbol: ['circle', 'arrow'],
+    //                         edgeSymbolSize: [4, 10],
+    //                         edgeLabel: {
+    //                             fontSize: 20
+    //                         },
+    //                         nodes: this.graph_nodes, // 节点数据
+    //                         links: this.graph_links, // 关系数据
+    //                         edgeLabel: {//边的设置
+    //                             show: true,
+    //                             position: "middle",
+    //                             fontSize: 12,
+    //                             formatter: (params) => {
+    //                                 return params.data.id.split('/')[0];
+    //                             },
+    //                         },
+    //                         lineStyle: {
+    //                             opacity: 0.9,
+    //                             width: 2,
+    //                             curveness: 0
+    //                         }
+    //                         }
+    //                         ]
+    //                 };
+    //                 myChart.setOption(option);    
+    //                 //点击事件
+    //                 myChart.on('click', function (params) {
+    //                     if (params.dataType == 'node') {
+    //                         console.log(params.name);
+    //                     }
+    //                     else if (params.dataType == 'edge'){
+    //                         console.log(params);
+    //                     }
+    //                 });
+    //         }
+    // },
     handleClose(done) {
         this.$confirm('确认关闭？')
           .then(_ => {
@@ -440,6 +457,7 @@ export default {
           })
           .catch(_ => {});
     }
+  }
 };
 </script>
 <style>

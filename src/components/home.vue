@@ -56,10 +56,10 @@
         </el-aside>
         <!-- <div class="right-content">     -->
         <el-main style="height:100%;">
-          <router-view name="fusion_project" v-if="opt=='generate_project'" />
+          <router-view name="generate_graph" v-if="opt=='generate_graph'" />
           <router-view name="annotate_project" v-if="opt=='annotate_project'" />
           <router-view name="fusion_project" v-if="opt=='fusion_project'" />
-          <router-view name="mygraph" v-if="opt=='mygraph' && isRouterAlive" />
+          <router-view name="my_graph" v-if="opt=='my_graph' && isRouterAlive" />
           <router-view name="mydomain" v-if="opt=='mydomain' && isRouterAlive" /> 
           <router-view name="myRawdata" v-if="opt=='myrawdata' && isRouterAlive" /> 
           <router-view name="myTripleData" v-if="opt=='myTripleData' && isRouterAlive" /> 
@@ -87,9 +87,8 @@ export default {
       menuList:[
         {'id':'1','menuName':'我的项目','icon':'el-icon-s-promotion',
         'children':[
-          {'subID':'1','subName':'构建项目','subIcon':'el-icon-magic-stick','option':'generate_project'},
-          {'subID':'2','subName':'标注项目','subIcon':'el-icon-edit','option':'annotate_project'},
-          {'subID':'3','subName':'融合项目','subIcon':'el-icon-copy-document','option':'fusion_project'}
+          {'subID':'1','subName':'标注项目','subIcon':'el-icon-edit','option':'annotate_project'},
+          {'subID':'2','subName':'融合项目','subIcon':'el-icon-copy-document','option':'fusion_project'}
         ]},
         {'id':'2','menuName':'我的数据','icon':'el-icon-coin',
         'children':[
@@ -98,8 +97,9 @@ export default {
         },
         {'id':'3','menuName':'我的图谱','icon':'el-icon-share',
         'children':[
-          {'subID':'1','subName':'图谱管理','subIcon':'el-icon-picture','option':'mygraph'},
-          {'subID':'2','subName':'领域管理','subIcon':'el-icon-s-home','option':'mydomain'}]},
+          {'subID':'1','subName':'构建图谱','subIcon':'el-icon-magic-stick','option':'generate_graph'},
+          {'subID':'2','subName':'图谱管理','subIcon':'el-icon-picture','option':'my_graph'},
+          {'subID':'3','subName':'领域管理','subIcon':'el-icon-s-home','option':'mydomain'}]},
         {'id':'4','menuName':'我的模型','icon':'el-icon-help',
         'children':[
           {'subID':'1','subName':'模型管理','subIcon':'el-icon-s-opportunity','option':'mymodel'},
