@@ -10,6 +10,7 @@
           v-for="project in projectList"
           :key="project.project_id"
           shadow="never"
+          style="height:80%"
           @click="projectDetail(project.project_id, project.project_name)"
         >
           <div slot="header" class="clearfix">
@@ -17,7 +18,8 @@
             <el-button @click="projectDetail(project.project_id, project.project_name)" style="float: right; padding: 3px 0" type="text">查看详情
             </el-button>
           </div>
-          
+          <el-button @click="project_id=project.project_id,deleteDialogVisible=true" style="float: right;color:red" type="text">删除
+          </el-button>
         </el-card>
       </div>
       <!-- 创建新的标注项目 -->
@@ -29,10 +31,22 @@
         </el-form>
         <div slot="footer" class="dialog-footer">
           <el-button @click="addDialogVisible = false">取 消</el-button>
-          <el-button type="primary" @click="addAnnotationProject()">确 定</el-button>
+          <el-button type="primary" @click="addAnnotationProject">确 定</el-button>
         </div>
       </el-dialog>
     </div>
+    <!-- 删除标注项目 -->
+    <el-dialog
+      title="提示"
+      :visible.sync="deleteDialogVisible"
+      width="30%"
+      center>
+      <span>确认删除该项目？</span>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="deleteDialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="deleteProject(project_id)">确 定</el-button>
+      </span>
+    </el-dialog>
 
     <div v-if="opt == 'projectDetail'" style="width: 100%; height: 100%;">
       <el-card style="width: 100%; height: 65px;" shadow="never">
@@ -282,6 +296,7 @@ export default {
         'https://cube.elemecdn.com/6/94/4d3ea53c084bad6931a56d5158a48jpeg.jpeg',
       child_graph_data: [],
       childTableVisible:false,
+      deleteDialogVisible:false,
       drawer: false,
       label_op:'DB',
       anotation:{data:'',model:''},
@@ -297,7 +312,6 @@ export default {
     // 获取项目列表
     async getProjectList() {
       const res = await this.$http.get('project?type=annotation');
-      console.log(res)
       this.projectList = res.data.data;
     },
     // 获取DB列表
@@ -315,20 +329,25 @@ export default {
     },
     // 新建标注项目
     addAnnotationProject(){
-      var res = this.$http.post('project',this.newAnnotationProject);
-      // console.log(res);
-      //   this.$message({
-      //     showClose: true,
-      //     message: '创建标注项目成功！',
-      //     type: 'success',
-      //   })
-      // }{
-      //   this.$message({
-      //     showClose: true,
-      //     message: '该项目已存在！',
-      //     type: 'error',
-      //   })
-      // }
+      try{
+        const res = this.$http.post('project',this.newAnnotationProject);
+        this.$message({
+          showClose: true,
+          message: '创建标注项目成功！',
+          type: 'success',
+        })
+        this.addDialogVisible=false;
+      }
+      catch(err){
+        this.$message({
+          showClose: true,
+          message: '该项目已存在！',
+          type: 'error',
+        })
+        this.addDialogVisible=false;
+        this.reload();
+      }
+      
     },
     // 查看项目详情
     projectDetail(project_id, project_name) {
@@ -336,6 +355,27 @@ export default {
       this.project_name = project_name;
       this.opt = 'projectDetail';
       console.log(this.opt);
+    },
+    // 删除项目
+    deleteProject(project_id){
+      try{
+        let res = this.$http.delete('project/'+project_id);
+        this.$message({
+          showClose: true,
+          message: '删除项目成功！',
+          type: 'success',
+        })
+        this.deleteDialogVisible = false;
+        this.reload();
+      }
+      catch{
+        this.$message({
+          showClose: true,
+          message: '出现异常！',
+          type: 'error',
+        })
+        this.deleteDialogVisible = false;
+      }
     },
     // 详情界面返回函数
     goBack() {

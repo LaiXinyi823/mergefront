@@ -10,6 +10,7 @@
           v-for="project in projectList"
           :key="project.project_id"
           shadow="never"
+          style="height:80%"
           @click="projectDetail(project.project_id, project.project_name)"
         >
           <div slot="header" class="clearfix">

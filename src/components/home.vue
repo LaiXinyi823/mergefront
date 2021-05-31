@@ -56,9 +56,9 @@
         </el-aside>
         <!-- <div class="right-content">     -->
         <el-main style="height:100%;">
-          <router-view name="generate_graph" v-if="opt=='generate_graph'" />
-          <router-view name="annotate_project" v-if="opt=='annotate_project'" />
-          <router-view name="fusion_project" v-if="opt=='fusion_project'" />
+          <router-view name="generate_graph" v-if="opt=='generate_graph' && isRouterAlive" />
+          <router-view name="annotate_project" v-if="opt=='annotate_project' && isRouterAlive" />
+          <router-view name="fusion_project" v-if="opt=='fusion_project' && isRouterAlive" />
           <router-view name="my_graph" v-if="opt=='my_graph' && isRouterAlive" />
           <router-view name="mydomain" v-if="opt=='mydomain' && isRouterAlive" /> 
           <router-view name="myRawdata" v-if="opt=='myrawdata' && isRouterAlive" /> 
