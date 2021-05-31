@@ -11,7 +11,7 @@ import login from '@/components/login.vue';
 import register from '@/components/register.vue';
 import annotate_project from '@/components/annotate_project.vue';
 import fusion_project from '@/components/fusion_project.vue';
-import myGraph from '@/components/myGraph.vue';
+import myGraph from '@/components/my_graph.vue';
 import myDomain from '@/components/myDomain.vue';
 import graphDetail from '@/components/graphDetail.vue';
 import labelproject from '@/components/labelproject.vue';

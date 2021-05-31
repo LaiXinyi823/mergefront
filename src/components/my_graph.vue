@@ -6,15 +6,17 @@
     >
       选择查看某领域知识图谱：
       <el-select
-        v-model="selectDomainID"
-        placeholder="请选择"
+        v-model="select_domain_id"
+        placeholder="所有领域"
+        clearable
+        @change="get_my_graph_list"
+        @clear="get_my_graph_list"
       >
         <el-option
           v-for="domain in domain_list"
           :key="domain.domain_id"
           :label="domain.domain_name"
           :value="domain.domain_id"
-          @change="getMygraphList(selectDomainID)"
         />
       </el-select>
       <el-row :gutter="35">
@@ -38,7 +40,7 @@
           :key="graph.graph_id"
           :offset="0"
         >
-          <div @click="graphDetail(graph.graph_id,graph.graph_name,graph.domain_id)">
+          <div @click="get_graph_detail(graph.graph_id)">
             <el-card
               shadow="hover"
               style="width: 200px;height: 200px;margin-bottom:10px;margin-top:10px;"
@@ -109,14 +111,14 @@
           </el-button>
           <el-button
             type="primary"
-            @click="addGraph()"
+            @click="add_graph()"
           >
             确 定
           </el-button>
         </div>
       </el-dialog>
     </div>
-    <div v-if="opt=='graphDetail'" style="width:100%;height:100%;">
+    <div v-if="opt=='get_graph_detail'" style="width:100%;height:100%;">
       <el-card style="width:100%;height:65px;background-color:#fff;" shadow="never">
         <el-page-header @back="goBack()" :content="graph_name + ' 图谱详情'" style="float:left;"/>
         <div style="width:20%;float:right;">
@@ -141,7 +143,7 @@
               v-for="collection in collections_list"
               :key="collection"
               :unique-opened="true"
-              @click="showVertexs(collection,1)"
+              @click="show_graph_vertex(collection,1)"
             >
               <template slot="title">
                 <i class="el-icon-star-on" />
@@ -509,7 +511,7 @@
 import * as echarts from 'echarts';
 export default {
     created(){
-        this.getMygraphList('all');
+        this.get_my_graph_list();
         this.getMyDomainList();
     },
     data (){
@@ -533,7 +535,7 @@ export default {
             graph_links:[], // 展示图所涉及到的关系数据
             graph_categories:[], // 节点数据类型
             maxDepth:1, // 图谱层数，默认为1
-            selectDomainID: '',
+            select_domain_id: '',
             table:'false',
             newGraph:{
                 name:'',
@@ -589,55 +591,52 @@ export default {
     },
     methods: {
         // 获取我的图谱
-        async getMygraphList(selectDomainID){
-            const res = await this.$http.get(selectDomainID+'/graph');
+        async get_my_graph_list(value){
+            console.log(value)
+            if (value == undefined){
+              var res = await this.$http.get('/graph/');
+            }else{
+              var res = await this.$http.get('/graph?domain='+value);
+            }
             this.graph_list = res.data.data;
         },
         // 添加图谱
-        async addGraph (){
-            const {data:res} = await this.$http.post('create_graph',
-            {'name':this.newGraph.name,
-             'domain_id':this.newGraph.domain_id,
-             'private': parseInt(this.newGraph.private)
-            });
-            if (res.errno === '0'){
-                this.$message({
-                    showClose: true,
-                    message: '添加知识图谱成功！',
-                    type: 'success'
+        async add_graph (){
+            try{
+              const {data:res} = await this.$http.post('graph/',
+                {
+                  'name':this.newGraph.name,
+                  'domain_id':this.newGraph.domain_id,
+                  'private': parseInt(this.newGraph.private)
                 });
-                this.addDialogVisible = false;
-                this.reload();
-            }
-            else if (res.errno==="4003"){
-                this.$message({
-                    showClose: true,
-                    message: res.errmsg,
-                    type: 'warning'
-                });
-            }
-            else {
-                this.$message({
-                    showClose: true,
-                    message: res.errmsg,
-                    type: 'error'
-                });
+
+              this.$message({
+              showClose: true,
+              message: '添加知识图谱成功！',
+              type: 'success'
+              });
+              this.addDialogVisible = false;
+            }catch(err){
+              this.$message({
+                  showClose: true,
+                  message: '添加知识图谱失败',
+                  type: 'error'
+              });
+              this.addDialogVisible = false;
+              this.reload();              
             }
         },
         // 查看图谱详情
-        async graphDetail(graph_id,graph_name,domain_id) {
-            this.opt = 'graphDetail';
+        async get_graph_detail(graph_id) {
+            this.opt = 'get_graph_detail';
             this.graph_id = graph_id;
-            this.graph_name = graph_name;
-            this.domain_id = domain_id;
             // 获取所有关系类型
-            const { data:res1 } = await this.$http.get(this.domain_id+'/graph/'+this.graph_id+'/edge');
-            this.relation_list = res1.data;
+            const {data:res} = await this.$http.get('graph/'+this.graph_id);
+            this.relation_list = res.data.edges;
             // 传入graph_id，get图中所涉及的实体类型
-            const { data:res2 } = await this.$http.get(this.domain_id+'/graph/'+this.graph_id+'/vertex');
-            this.collections_list = res2.data;
+            this.collections_list = res.data.collections;
             this.collection = this.collections_list[0];
-            this.showVertexs(this.collection,1);
+            this.show_graph_vertex(this.collection,1);
         },
         // 获取我的领域列表
         async getMyDomainList(){
@@ -651,13 +650,14 @@ export default {
         // 翻页
         changePage: function(currentPage){
             this.currentPage = currentPage;
-            this.showVertexs(this.collection,this.currentPage);
+            this.show_graph_vertex(this.collection,this.currentPage);
         },
         // 以表格形式展示某类型所有实体
-        async showVertexs(collection,page){
+        async show_graph_vertex(collection,page){
             this.search = false;
             this.collection = collection;
-            const { data:res } = await this.$http.get(this.domain_id+'/graph/'+this.graph_id+'/vertex/'+collection+'?page='+page+'&len=10');
+            const { data:res } = await this.$http.get('graph/vertex/'+collection+'?page='+page+'&len=10');
+            console.log(res.data);
             this.vertexs_list=res.data.vertex;
             this.vertex_nums =res.data.count;
             this.vertex_pages=parseInt(res.data.pages);
@@ -1029,7 +1029,7 @@ export default {
             }
             this.renameVertexVisible = false;
             this.editVisible = false;
-            this.showVertexs(this.collection,this.currentPage);
+            this.show_graph_vertex(this.collection,this.currentPage);
         },
         // 删除某个中心实体
         async deleteVertex(){
@@ -1048,7 +1048,7 @@ export default {
                     type: 'error'
                 });
             }
-            this.showVertexs(this.collection,this.currentPage);
+            this.show_graph_vertex(this.collection,this.currentPage);
         },
         // 表格过滤器
         filterTag(value, row) {
