@@ -4,24 +4,28 @@
       <div style="margin-top:10px;margin-bottom:30px;">
         <el-button type="success" icon="el-icon-plus" circle @click="addDialogVisible=true" style="margin-left:20px;margin-right:20px;"></el-button>创建新融合项目
       </div>
-      <div>
-        <el-card
-          class="box-card"
-          v-for="project in projectList"
-          :key="project.project_id"
-          shadow="never"
-          style="height:80%"
-          @click="projectDetail(project.project_id, project.project_name)"
-        >
-          <div slot="header" class="clearfix">
-            <span>{{ project.project_name }}</span>
-            <el-button @click="projectDetail(project.project_id, project.project_name)" style="float: right; padding: 3px 0" type="text">查看详情
+      <el-col
+        :span="4.5"
+        v-for="project in projectList"
+        :key="project.project_id"
+        :offset="0"
+      >
+        <div @click="projectDetail(project.project_id, project.project_name)">
+          <el-card
+            class="box-card"
+            shadow="never"
+            style="height:80%"
+          >
+            <div slot="header" class="clearfix">
+              <span>{{ project.project_name }}</span>
+            </div>
+            <el-button @click="project_id=project.project_id,deleteDialogVisible=true" style="float: left;color:#606266" type="text">编辑
             </el-button>
-          </div>
-          <!-- <div class="text item">所属领域：</div>
-          <div class="text item">权限：</div> -->
-        </el-card>
-      </div>
+            <el-button @click="project_id=project.project_id,deleteDialogVisible=true" style="float: right;color:#F56C6C" type="text">删除
+            </el-button>
+          </el-card>
+        </div>
+      </el-col>
       <!-- 创建新的标注项目 -->
       <el-dialog title="新增标注项目" :visible.sync="addDialogVisible" style="width:40%;margin:0 auto">
         <el-form :model="newFusionProject">
@@ -35,6 +39,18 @@
         </div>
       </el-dialog>
     </div>
+    <!-- 删除标注项目 -->
+    <el-dialog
+      title="提示"
+      :visible.sync="deleteDialogVisible"
+      width="30%"
+      center>
+      <span>确认删除该项目？</span>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="deleteDialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="deleteProject(project_id)">确 定</el-button>
+      </span>
+    </el-dialog>
 
     <div v-if="opt == 'projectDetail'" style="width: 100%; height: 100%;">
       <el-card style="width: 100%; height: 65px;" shadow="never">
@@ -379,8 +395,47 @@ export default {
       console.log(this.opt);
     },
     // 创建融合项目
-    addFusionProject(){
-      var res = this.$http.post('project',this.newFusionProject);
+    async addFusionProject(){
+      try{
+        let res = await this.$http.post('project',this.newFusionProject);
+        this.$message({
+          showClose: true,
+          message: '创建融合项目成功！',
+          type: 'success',
+        })
+        this.addDialogVisible=false;
+      }
+      catch(err){
+        this.$message({
+          showClose: true,
+          message: '该项目已存在！',
+          type: 'error',
+        })
+        this.addDialogVisible=false;
+      }
+      this.reload();
+    },
+    // 删除项目
+    async deleteProject(project_id){
+      try{
+        let res = await this.$http.delete('project/'+project_id);
+        this.$message({
+          showClose: true,
+          message: '删除项目成功！',
+          type: 'success',
+        })
+        this.deleteDialogVisible = false;
+      this.reload();
+      }
+      catch{
+        this.$message({
+          showClose: true,
+          message: '出现异常！',
+          type: 'error',
+        })
+        this.deleteDialogVisible = false;
+      }
+      this.reload();
     },
     // 详情界面返回函数
     goBack() {

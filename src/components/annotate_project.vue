@@ -4,24 +4,28 @@
       <div style="margin-top:10px;margin-bottom:30px;">
         <el-button type="primary" icon="el-icon-plus" circle @click="addDialogVisible=true" style="margin-left:20px;margin-right:20px;"></el-button>创建新标注项目
       </div>
-      <div>
-        <el-card
-          class="box-card"
-          v-for="project in projectList"
-          :key="project.project_id"
-          shadow="never"
-          style="height:80%"
-          @click="projectDetail(project.project_id, project.project_name)"
-        >
-          <div slot="header" class="clearfix">
-            <span>{{ project.project_name }}</span>
-            <el-button @click="projectDetail(project.project_id, project.project_name)" style="float: right; padding: 3px 0" type="text">查看详情
+      <el-col
+        :span="4.5"
+        v-for="project in projectList"
+        :key="project.project_id"
+        :offset="0"
+      >
+        <div @click="projectDetail(project.project_id, project.project_name)">
+          <el-card
+            class="box-card"
+            shadow="never"
+            style="height:80%"
+          >
+            <div slot="header" class="clearfix">
+              <span>{{ project.project_name }}</span>
+            </div>
+            <el-button @click="project_id=project.project_id,deleteDialogVisible=true" style="float: left;color:#606266" type="text">编辑
             </el-button>
-          </div>
-          <el-button @click="project_id=project.project_id,deleteDialogVisible=true" style="float: right;color:red" type="text">删除
-          </el-button>
-        </el-card>
-      </div>
+            <el-button @click="project_id=project.project_id,deleteDialogVisible=true" style="float: right;color:#F56C6C" type="text">删除
+            </el-button>
+          </el-card>
+        </div>
+      </el-col>
       <!-- 创建新的标注项目 -->
       <el-dialog title="新增标注项目" :visible.sync="addDialogVisible" style="width:40%;margin:0 auto">
         <el-form :model="newAnnotationProject">
@@ -328,9 +332,9 @@ export default {
       console.log(this.modelList)
     },
     // 新建标注项目
-    addAnnotationProject(){
+    async addAnnotationProject(){
       try{
-        const res = this.$http.post('project',this.newAnnotationProject);
+        let res = await this.$http.post('project',this.newAnnotationProject);
         this.$message({
           showClose: true,
           message: '创建标注项目成功！',
@@ -345,9 +349,8 @@ export default {
           type: 'error',
         })
         this.addDialogVisible=false;
-        this.reload();
       }
-      
+      this.reload();
     },
     // 查看项目详情
     projectDetail(project_id, project_name) {
@@ -357,16 +360,16 @@ export default {
       console.log(this.opt);
     },
     // 删除项目
-    deleteProject(project_id){
+    async deleteProject(project_id){
       try{
-        let res = this.$http.delete('project/'+project_id);
+        let res = await this.$http.delete('project/'+project_id);
         this.$message({
           showClose: true,
           message: '删除项目成功！',
           type: 'success',
         })
         this.deleteDialogVisible = false;
-        this.reload();
+      this.reload();
       }
       catch{
         this.$message({
@@ -376,6 +379,7 @@ export default {
         })
         this.deleteDialogVisible = false;
       }
+      this.reload();
     },
     // 详情界面返回函数
     goBack() {
