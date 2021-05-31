@@ -119,7 +119,7 @@
         <el-dialog title="编辑模型信息" :visible.sync="editDialogVisible" style="width:50%;margin:0 auto">
             <el-form :model="update_model">
                 <el-form-item label="模型名称" :label-width="formLabelWidth">
-                <el-input v-model="update_model.name" :placeholder="current_model.model_name" autocomplete="off"></el-input>
+                <el-input v-model="update_model.name" autocomplete="off"></el-input>
                 </el-form-item>
                 <el-form-item label="模型类型" :label-width="formLabelWidth">
                 <el-select v-if="current_model.model_type==0" v-model="update_model.type" placeholder="标注模型">

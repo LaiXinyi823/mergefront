@@ -39,7 +39,7 @@
       </span>
     </el-dialog>
     <!-- 重命名该领域 -->
-    <el-dialog title="重命名该领域" :visible.sync="renameDialogVisible">
+    <el-dialog title="重命名该领域" :visible.sync="renameDialogVisible" style="width:40%">
       <el-form :model="newDomain">
         <el-form-item label="输入新名称" :label-width="formLabelWidth">
           <el-input v-model="rename.name" autocomplete="off"/>
@@ -51,7 +51,7 @@
       </div>
     </el-dialog>
     <!-- 添加新领域 -->
-    <el-dialog title="添加新领域" :visible.sync="addDialogVisible" style="width:40%">
+    <el-dialog title="添加新领域" :visible.sync="addDialogVisible" style="width:40%;margin:0 auto">
       <el-form :model="newDomain">
         <el-form-item label="输入新领域名称" :label-width="formLabelWidth">
           <el-input v-model="newDomain.name" autocomplete="off"/>

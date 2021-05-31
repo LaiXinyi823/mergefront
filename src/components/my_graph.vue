@@ -1034,11 +1034,27 @@ export default {
     },
     // 添加中心节点
     async addNode(type) {
-      const res = await this.$http.post(
+      try{
+        const res = await this.$http.post(
         this.domain_id + '/graph/' + this.graph_id + '/vertex/' + type,
         this.newVertex
       )
-      this.addVertexVisible = false
+        this.$message({
+          showClose: true,
+          message: '成功！',
+          type: 'success',
+        })
+      }
+      catch{
+        this.$message({
+          showClose: true,
+          message: 'error!',
+          type: 'error',
+        })
+      }
+      
+      this.addVertexVisible = false;
+      this.show_graph_vertex(this.collection, this.currentPage)
     },
     // 添加新的关系类型------------未加后端
     async addRelation() {
@@ -1087,28 +1103,30 @@ export default {
         type: 'warning',
       })
         .then(() => {
-          console.log('delete')
-          this.$http
+          try{
+            var res=this.$http
             .delete(
               this.domain_id + '/graph/' + this.graph_id + '/edge/' + link_id
             )
-            .then((res) => {
-              if (res.data.errno == '0') {
-                this.$message({
+            this.$message({
                   showClose: true,
-                  message: '删除节点成功！',
+                  message: '删除成功！',
                   type: 'success',
                 })
-              } else {
-                this.$message({
+
+          }
+          catch{
+            this.$message({
                   showClose: true,
                   message: '删除失败！',
                   type: 'error',
                 })
-              }
+          }
+          
+            
               this.deleteNodeVisible = false
               this.showEditGraph('1')
-            })
+
         })
         .catch(() => {
           console.log('cancel')
@@ -1137,25 +1155,29 @@ export default {
           to: this.newEdge.node_id,
           attribute: {},
         }
-      var { data: res } = await this.$http.post(
+      try{
+        var res = await this.$http.post(
         this.domain_id + '/graph/' + this.graph_id + '/edge/' + relation,
         new_edge
-      )
-      if (res.errno == '0') {
+        )
         this.$message({
           showClose: true,
           message: '添加新节点成功！',
           type: 'success',
         })
-        this.addNewEdgeVisible = false
-      } else {
+        
+      }
+      catch{
         this.$message({
           showClose: true,
           message: '添加失败！',
           type: 'error',
         })
       }
+      this.addNewEdgeVisible = false;
       this.showEditGraph('1')
+   
+      
     },
     // 模糊查找节点
     async querySearchAsync(queryString, cb) {
@@ -1204,10 +1226,12 @@ export default {
     },
     // 重命名中心实体名称
     async renameVertex() {
-      var param = {
+      
+      try{
+        var param = {
         name: this.rename,
       }
-      var { data: res } = await this.$http.patch(
+        var res = await this.$http.patch(
         this.domain_id +
           '/graph/' +
           this.graph_id +
@@ -1215,14 +1239,14 @@ export default {
           this.vertex._id,
         param
       )
-      if (res.errno == '0') {
-        this.$message({
+      this.$message({
           showClose: true,
           message: '重命名成功！',
           type: 'success',
         })
-        this.addNewEdgeVisible = false
-      } else {
+      }
+      
+      catch{
         this.$message({
           showClose: true,
           message: '重命名失败！',
@@ -1235,25 +1259,27 @@ export default {
     },
     // 删除某个中心实体
     async deleteVertex() {
-      var { data: res } = await this.$http.delete(
+      try{
+      var res = await this.$http.delete(
         this.domain_id +
           '/graph/' +
           this.graph_id +
           '/vertex/' +
           this.vertex._id
       )
-      if (res.errno == '0') {
         this.$message({
           showClose: true,
           message: '删除节点成功！',
           type: 'success',
         })
-      } else {
+      }
+      catch (e){
         this.$message({
           showClose: true,
           message: '删除失败！',
           type: 'error',
         })
+        console.log(e)
       }
       this.show_graph_vertex(this.collection, this.currentPage)
     },

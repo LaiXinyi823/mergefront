@@ -19,9 +19,9 @@
             <div slot="header" class="clearfix">
               <span>{{ project.project_name }}</span>
             </div>
-            <el-button @click="project_id=project.project_id,deleteDialogVisible=true" style="float: left;color:#606266" type="text">编辑
+            <el-button @click="opt='projectList',project_id=project.project_id,updateDialogVisible=true" style="float: left;color:#606266" type="text">编辑
             </el-button>
-            <el-button @click="project_id=project.project_id,deleteDialogVisible=true" style="float: right;color:#F56C6C" type="text">删除
+            <el-button @click="opt='projectList',project_id=project.project_id,deleteDialogVisible=true" style="float: right;color:#F56C6C" type="text">删除
             </el-button>
           </el-card>
         </div>
@@ -39,6 +39,18 @@
         </div>
       </el-dialog>
     </div>
+    <!-- 重命名 -->
+    <el-dialog title="重命名" :visible.sync="updateDialogVisible" style="width:40%">
+      <el-form :model="rename">
+        <el-form-item label="输入新名称" :label-width="formLabelWidth">
+          <el-input v-model="rename.name" autocomplete="off"/>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="updateDialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="renameProject()">确 定</el-button>
+      </div>
+    </el-dialog>
     <!-- 删除标注项目 -->
     <el-dialog
       title="提示"
@@ -289,6 +301,7 @@ export default {
       opt: 'projectList',
       project_id: 0,
       project_name: '',
+      rename:{name:'',type_id:0},
       newAnnotationProject:{
         name:'',
         type_id:0
@@ -301,6 +314,7 @@ export default {
       child_graph_data: [],
       childTableVisible:false,
       deleteDialogVisible:false,
+      updateDialogVisible:false,
       drawer: false,
       label_op:'DB',
       anotation:{data:'',model:''},
@@ -351,6 +365,25 @@ export default {
         this.addDialogVisible=false;
       }
       this.reload();
+    },
+    // rename
+    async renameProject(){
+      try{
+        let res = await this.$http.patch('project/'+project_id,rename);
+        this.$message({
+          showClose: true,
+          message: '成功！',
+          type: 'success',
+        })
+      }
+      catch{
+        this.$message({
+          showClose: true,
+          message: '出现异常！',
+          type: 'error',
+        })
+      }
+      this.updateDialogVisible=false;
     },
     // 查看项目详情
     projectDetail(project_id, project_name) {
