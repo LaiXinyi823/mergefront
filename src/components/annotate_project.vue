@@ -109,7 +109,7 @@
               <el-tag v-if="task.task_state.state=='PENDING'" type="warning">等待中</el-tag>
               <el-tag v-if="task.task_state.state=='PROGRESS'" type="danger">执行中</el-tag>
               <el-progress v-if="task.task_state.state=='SUCCESS'" :percentage="100" status="success" style="width:50%;margin-top:10px;"></el-progress>
-              <el-progress v-else :percentage="task.task_state.current/task.task_state.total" style="width:50%;margin-top:10px;"></el-progress>
+              <el-progress v-else :percentage="parseInt((task.task_state.current/task.task_state.total)*100)" style="width:50%;margin-top:10px;"></el-progress>
             </div>
              
               <!-- 模型抽取生成三元组列表 -->
@@ -297,8 +297,8 @@ export default {
   created() {
     this.getProjectList();
     this.project_task={};
-    //this.getRawdataList();
-    //this.getModelList();
+    this.getRawdataList();
+    this.getModelList();
   },
   data() {
     return {
@@ -347,14 +347,14 @@ export default {
     },
     // 获取DB列表
     async getRawdataList(){
-      const {data: res} = await this.$http.get('raw_data');
+      const {data: res} = await this.$http.get('data?dtype=text');
       console.log(res.data)
       this.rawdata_list = res.data;
       console.log(this.rawdata_list)
     },
     // 获取标注模型列表
     async getModelList(){
-      const {data: res} = await this.$http.get('model/annotation');
+      const {data: res} = await this.$http.get('model');
       this.modelList = res.data;
       console.log(this.modelList)
     },
@@ -448,10 +448,6 @@ export default {
         })
         this.task.task_id=res.data.task_id;
         this.getTaskState(this.task.task_id)
-        while(this.task.task_state.state!="SUCCESS"){
-          this.getTaskState(this.task.task_id)
-          setTimeout(time,1000);
-        }
       }
       catch{
         this.$message({
@@ -471,7 +467,17 @@ export default {
         this.task.task_state=res.data;
         console.log(this.task)
       }
-
+      while(this.task.task_state.state!="SUCCESS"){
+          this.getTaskState(this.task.task_id)
+          setTimeout(time,1000);
+        }
+      if(this.task.task_state.state=="SUCCESS"){
+        this.report()
+      }
+    },
+    // 生成报表
+    report(){
+      this.tripledataVisible=true;
     },
     // 文本生成知识图谱子图
     // async gen_childGraph(){
