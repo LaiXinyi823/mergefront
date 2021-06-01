@@ -32,8 +32,8 @@
           </el-table-column>
           <el-table-column label="操作" style="margin-left: 10px">
             <template slot-scope="scope">
-              <el-button size="mini" @click="handleEdit(scope.$index, scope.row)">查看编辑</el-button>
-              <el-button size="mini" type="danger" @click="handleDelete(scope.$index, scope.row)">删除</el-button>
+              <!-- <el-button size="mini" @click="handleEdit( scope.row)">查看编辑</el-button> -->
+              <el-button size="mini" type="danger" @click="handleDelete(scope.row)">删除</el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -61,32 +61,37 @@
               <el-form-item label="数据名称" :label-width="formLabelWidth" style="width:500px">
                 <el-input v-model="new_raw_data_DB.name" autocomplete="off"/>
               </el-form-item>
+              <el-form-item label="所属领域" :label-width="formLabelWidth">
+                <el-select v-model="new_raw_data_DB.domain_id" placeholder="请选择">
+                  <el-option v-for="item in domain_list" :key="item.domain_id" :label="item.domain_name" :value="item.domain_id"></el-option>
+                </el-select>
+              </el-form-item>
               <el-form-item label="是否设置私有" :label-width="formLabelWidth" style="width:500px">
                 <el-radio-group v-model="new_raw_data_DB.private">
-                  <el-radio label="true">是</el-radio>
-                  <el-radio label="false">否</el-radio>
+                  <el-radio :label="true">是</el-radio>
+                  <el-radio :label="false">否</el-radio>
                 </el-radio-group>
               </el-form-item>
               <el-form-item label="数据类型" :label-width="formLabelWidth" style="width:500px">
-                <el-radio-group v-model="new_raw_data_DB.data_type">
-                  <el-radio label="1">MySQL</el-radio>
-                  <el-radio label="2">MongoDB</el-radio>
+                <el-radio-group v-model="new_raw_data_DB.data_info.server">
+                  <el-radio label="mysql">MySQL</el-radio>
+                  <el-radio label="mongodb">MongoDB</el-radio>
                 </el-radio-group>
               </el-form-item>
               <el-form-item label="ip" :label-width="formLabelWidth" style="width:500px">
-                <el-input v-model="new_raw_data_DB.ip" autocomplete="off"/>
+                <el-input v-model="new_raw_data_DB.data_info.ip" autocomplete="off"/>
               </el-form-item>
               <el-form-item label="port" :label-width="formLabelWidth" style="width:500px">
-                <el-input v-model="new_raw_data_DB.port" autocomplete="off"/>
+                <el-input v-model="new_raw_data_DB.data_info.port" autocomplete="off"/>
               </el-form-item>
               <el-form-item label="username" :label-width="formLabelWidth" style="width:500px">
-                <el-input v-model="new_raw_data_DB.username" autocomplete="off"/>
+                <el-input v-model="new_raw_data_DB.data_info.username" autocomplete="off"/>
               </el-form-item>
               <el-form-item label="password" :label-width="formLabelWidth" style="width:500px">
-                <el-input v-model="new_raw_data_DB.password" autocomplete="off"/>
+                <el-input v-model="new_raw_data_DB.data_info.password" autocomplete="off"/>
               </el-form-item>
               <el-form-item label="db" :label-width="formLabelWidth" style="width:500px">
-                <el-input v-model="new_raw_data_DB.db" autocomplete="off"/>
+                <el-input v-model="new_raw_data_DB.data_info.db" autocomplete="off"/>
               </el-form-item>
               <el-form-item>
                 <el-button @click="add_raw_data_DB" type="primary" style="margin-left:13%;width:250px;">确 定</el-button>
@@ -99,6 +104,11 @@
                 <el-form-item label="数据名称" :label-width="formLabelWidth" style="width:500px">
                   <el-input v-model="new_raw_data_file.name" name="name" autocomplete="off"/>
                 </el-form-item>
+                <el-form-item label="所属领域" :label-width="formLabelWidth">
+                <el-select v-model="new_raw_data_file.domain_id" placeholder="请选择">
+                  <el-option v-for="item in domain_list" :key="item.domain_id" :label="item.domain_name" :value="item.domain_id"></el-option>
+                </el-select>
+              </el-form-item>
                 <el-form-item label="是否设置私有" :label-width="formLabelWidth" style="width:500px">
                   <el-radio-group v-model="new_raw_data_file.private">
                     <el-radio :label="true">是</el-radio>
@@ -115,9 +125,9 @@
                   :on-preview="handlePreview"
                   :on-remove="handleRemove"
                   :file-list="fileList"
-                  :auto-upload="false">
+                  :auto-upload="true">
                   <el-button slot="trigger" size="small" type="primary">选取文件</el-button>
-                  <el-button style="margin-left:10px;" size="small" type="success" @click="submitUpload">上传到服务器</el-button>
+                  <el-button style="margin-left:10px;" size="small" type="success" @click="submitUpload">确认导入</el-button>
                   <div slot="tip" class="el-upload__tip" style="color:red">只能上传.txt文件</div>
                 </el-upload>
               </div>
@@ -140,10 +150,12 @@ export default {
   inject:['reload'],
   created() {
     this.get_raw_data_list();
+    this.getMyDomainList();
   },
   data() {
     return {
       fileList: [],
+      domain_list:[],
       raw_data_list: [],
       addDialogVisible: false,
       formLabelWidth: '120px',
@@ -152,21 +164,27 @@ export default {
       raw_data_name: '',
       method:'DB',
       new_raw_data_DB:{
-        "name":'',
-        "data_type":'',
-        "private":true,
-        "ip":'',
-        "port":'',
-        "username":'',
-        "password":'',
-        "db":''
+        name:'',
+        data_type:'db',
+        private:true,
+        data_info:{
+          server:'',
+          ip:'',
+          port:'',
+          username:'',
+          password:'',
+          db:'',
+        },
+        domain_id:''
       },
       file:{},
       params:{},
       new_raw_data_file:{
-        "name":'',
-        "data_type":0,
-        "private":true,
+        name:'',
+        data_type:'text',
+        private:true,
+        domain_id:'',
+        data_info:''
       },
       form:{
         dataType:'DB',
@@ -182,9 +200,14 @@ export default {
   },
   methods: {
     async get_raw_data_list() {
-      const {data: res} = await this.$http.get('raw_data');
+      const {data: res} = await this.$http.get('data?dtype=text');
       this.raw_data_list = res.data;
       this.totalPage = res.data.length;
+    },
+    // 获取我的领域列表
+    async getMyDomainList() {
+      const { data: res } = await this.$http.get('domain')
+      this.domain_list = res.data
     },
     // 详情界面返回函数
     goBack() {
@@ -192,15 +215,8 @@ export default {
     },
     // 导入raw_data
     async add_raw_data_DB(){
-      console.log(this.new_raw_data_DB)
-      this.new_raw_data_DB.data_type=parseInt(this.new_raw_data_DB.data_type)
-      if(this.new_raw_data_DB.private=='true')
-        this.new_raw_data_DB.private=true;
-      else
-        this.new_raw_data_DB.private=false;
-      const {data: res} = await this.$http.post('raw_data',this.new_raw_data_DB);
-      console.log(res)
-      if (res.errno==="0"){
+      try{
+        const {data: res} = await this.$http.post('data/',this.new_raw_data_DB);
         this.$message({
             showClose: true,
             message: '导入成功！',
@@ -208,39 +224,25 @@ export default {
         });
         this.reload();
       }
-      else{
-          this.$message({
+      catch{
+        this.$message({
               showClose: true,
               message: '导入失败！',
               type: 'error'
           });
-      }    
+      }
     },
-    confirm_add_file(fileObj){
+    async confirm_add_file(fileObj){
       let formData = new FormData();
       formData.set("file", fileObj.file);
-      const res = this.$http.post('/raw_data', formData,
+      const {data:res} = await this.$http.post('upload/text', formData,
         {
           headers: {
             "Content-type": "multipart/form-data"
           }
-        })
-      // if (res.data.errno==="0"){
-      //   this.$message({
-      //       showClose: true,
-      //       message: '导入成功！',
-      //       type: 'success'
-      //   });
-      //   this.reload();
-      // }
-      // else{
-      //     this.$message({
-      //         showClose: true,
-      //         message: '导入失败！',
-      //         type: 'error'
-      //     });
-      // } 
-      console.log(res[Promise])
+        }
+        )
+      this.new_raw_data_file.data_info=res.url;
     },
     // 重置导入数据表格(有问题)
     resetForm() {
@@ -250,14 +252,47 @@ export default {
     raw_data_detail(){
       this.opt = 'DBDetail';
     },
-    submitUpload() {
-      this.$refs.upload.submit();
+    async submitUpload() {
+      try{
+        const res= await this.$http.post('data/',this.new_raw_data_file);
+        this.$message({
+            showClose: true,
+            message: '导入成功！',
+            type: 'success'
+        });
+      }
+      catch{
+        this.$message({
+            showClose: true,
+            message: '异常！',
+            type: 'error'
+        });
+      }
     },
     handleRemove(file, fileList) {
       console.log(file, fileList);
     },
     handlePreview(file) {
       console.log(file);
+    },
+    async handleDelete(row){
+      try{
+        const { data: res } = await this.$http.delete('data/'+row.data_id)
+        this.$message({
+            showClose: true,
+            message: '删除成功！',
+            type: 'success'
+        });
+        this.reload();
+      }
+      catch{
+        this.$message({
+              showClose: true,
+              message: '异常！',
+              type: 'error'
+          });
+      }
+      
     }
 
   }

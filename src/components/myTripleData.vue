@@ -17,9 +17,7 @@
             </el-table-column>
             <el-table-column label="数据类型" width="180">
               <template slot-scope="scope">
-                <el-tag v-if="scope.row.data_type=='0'" size="medium">三元组</el-tag>
-                <el-tag v-if="scope.row.data_type=='1'" size="medium">MySQL</el-tag>
-                <el-tag v-if="scope.row.data_type=='2'" size="medium" type="warning">MongoDB</el-tag>
+                <el-tag size="medium">三元组</el-tag>
               </template>
             </el-table-column>
             <el-table-column label="数据权限" width="180">
@@ -32,8 +30,8 @@
             </el-table-column>
             <el-table-column label="操作" style="margin-left: 10px">
               <template slot-scope="scope">
-                <el-button size="mini" @click="handleEdit(scope.$index, scope.row)">查看编辑</el-button>
-                <el-button size="mini" type="danger" @click="handleDelete(scope.$index, scope.row)">删除</el-button>
+                <!-- <el-button size="mini" @click="handleEdit(scope.$index, scope.row)">查看编辑</el-button> -->
+                <el-button size="mini" type="danger" @click="handleDelete(scope.row)">删除</el-button>
               </template>
             </el-table-column>
           </el-table>
@@ -52,34 +50,39 @@
         <el-tab-pane label="导入数据">
           <el-divider><i class="el-icon-receiving"></i></el-divider>
           <!-- 添加文件 -->
-          <div style="margin-left:25%">
-            <el-form id="new_raw_data_file">
-              <el-form-item label="数据名称" :label-width="formLabelWidth" style="width:500px">
-                <el-input v-model="new_raw_data_file.name" name="name" autocomplete="off"/>
+          <div v-if="method=='File'" style="margin-left:25%">
+              <el-form id="new_triple_data_file">
+                <el-form-item label="数据名称" :label-width="formLabelWidth" style="width:500px">
+                  <el-input v-model="new_triple_data_file.name" name="name" autocomplete="off"/>
+                </el-form-item>
+                <el-form-item label="所属领域" :label-width="formLabelWidth">
+                <el-select v-model="new_triple_data_file.domain_id" placeholder="请选择">
+                  <el-option v-for="item in domain_list" :key="item.domain_id" :label="item.domain_name" :value="item.domain_id"></el-option>
+                </el-select>
               </el-form-item>
-              <el-form-item label="是否设置私有" :label-width="formLabelWidth" style="width:500px">
-                <el-radio-group v-model="new_raw_data_file.private">
-                  <el-radio :label="true">是</el-radio>
-                  <el-radio :label="false">否</el-radio>
-                </el-radio-group>
-              </el-form-item>
-            </el-form>
-            <div style="margin-left:10%">
-              <el-upload
-                class="upload-demo"
-                ref="upload"
-                action
-                :http-request="confirm_add_file" 
-                :on-preview="handlePreview"
-                :on-remove="handleRemove"
-                :file-list="fileList"
-                :auto-upload="false">
-                <el-button slot="trigger" size="small" type="primary">选取文件</el-button>
-                <el-button style="margin-left:10px;" size="small" type="success" @click="submitUpload">上传到服务器</el-button>
-                <div slot="tip" class="el-upload__tip" style="color:red">只能上传.csv/.json文件</div>
-              </el-upload>
+                <el-form-item label="是否设置私有" :label-width="formLabelWidth" style="width:500px">
+                  <el-radio-group v-model="new_triple_data_file.private">
+                    <el-radio :label="true">是</el-radio>
+                    <el-radio :label="false">否</el-radio>
+                  </el-radio-group>
+                </el-form-item>
+              </el-form>
+              <div style="margin-left:10%">
+                <el-upload
+                  class="upload-demo"
+                  ref="upload"
+                  action
+                  :http-request="confirm_add_file" 
+                  :on-preview="handlePreview"
+                  :on-remove="handleRemove"
+                  :file-list="fileList"
+                  :auto-upload="true">
+                  <el-button slot="trigger" size="small" type="primary">选取文件</el-button>
+                  <el-button style="margin-left:10px;" size="small" type="success" @click="submitUpload">确认导入</el-button>
+                  <div slot="tip" class="el-upload__tip" style="color:red">只能上传.txt文件</div>
+                </el-upload>
+              </div>
             </div>
-          </div>
         </el-tab-pane>
       <!-- </el-tabs> -->
       </el-tabs>
@@ -92,33 +95,27 @@ export default {
   inject:['reload'],
   created() {
     this.get_triple_data_list();
+    this.getMyDomainList();
   },
   data() {
     return {
       triple_data_list: [],
+      domain_list:[],
       addDialogVisible: false,
       formLabelWidth: '120px',
       opt: 'raw_data_list',
       raw_data_id: 0,
       raw_data_name: '',
-      method:'DB',
-      new_raw_data_DB:{
-        "name":'',
-        "data_type":'',
-        "private":true,
-        "ip":'',
-        "port":'',
-        "username":'',
-        "password":'',
-        "db":''
-      },
+      method:'File',
       file_list:[],
       file:{},
       params:{},
-      new_raw_data_file:{
-        "name":'',
-        "data_type":0,
-        "private":true,
+      new_triple_data_file:{
+        name:'',
+        data_type:'data',
+        private:true,
+        domain_id:'',
+        data_info:''
       },
       form:{
         dataType:'DB',
@@ -134,43 +131,48 @@ export default {
   },
   methods: {
     async get_triple_data_list() {
-      const {data: res} = await this.$http.get('triple_data');
+      const {data: res} = await this.$http.get('data?dtype=data');
       console.log(res.data)
       this.triple_data_list = res.data;
       this.totalPage = res.data.length;
+    },
+    // 获取我的领域列表
+    async getMyDomainList() {
+      const { data: res } = await this.$http.get('domain')
+      this.domain_list = res.data
     },
     // 详情界面返回函数
     goBack() {
       this.opt = 'projectList';
     },
-    confirm_add_file(fileObj){
+    async confirm_add_file(fileObj){
       let formData = new FormData();
       formData.set("file", fileObj.file);
-      const res = this.$http.post('/raw_data', formData,
+      const {data:res} = await this.$http.post('upload/data', formData,
         {
           headers: {
             "Content-type": "multipart/form-data"
           }
-        })
-      // if (res.data.errno==="0"){
-      //   this.$message({
-      //       showClose: true,
-      //       message: '导入成功！',
-      //       type: 'success'
-      //   });
-      //   this.reload();
-      // }
-      // else{
-      //     this.$message({
-      //         showClose: true,
-      //         message: '导入失败！',
-      //         type: 'error'
-      //     });
-      // } 
-      console.log(res[Promise])
+        }
+        )
+      this.new_triple_data_file.data_info=res.url;
     },
-    submitUpload() {
-      this.$refs.upload.submit();
+    async submitUpload() {
+      try{
+        const res= await this.$http.post('data/',this.new_triple_data_file);
+        this.$message({
+            showClose: true,
+            message: '导入成功！',
+            type: 'success'
+        });
+      }
+      catch{
+        this.$message({
+            showClose: true,
+            message: '异常！',
+            type: 'error'
+        });
+      }
     },
     raw_data_detail(){
       this.opt = 'DBDetail';
@@ -181,7 +183,25 @@ export default {
     handleExceed(files, fileList) {
         this.$message.warning(`当前限制选择 3 个文件，本次选择了 ${files.length} 个文件，共选择了 ${files.length + fileList.length} 个文件`);
     },
-
+    async handleDelete(row){
+      try{
+        const { data: res } = await this.$http.delete('data/'+row.data_id)
+        this.$message({
+            showClose: true,
+            message: '删除成功！',
+            type: 'success'
+        });
+        this.reload();
+      }
+      catch{
+        this.$message({
+              showClose: true,
+              message: '异常！',
+              type: 'error'
+          });
+      }
+      
+    }
   }
 };
 </script>

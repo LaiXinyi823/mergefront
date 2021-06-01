@@ -1,7 +1,7 @@
 <template>
     <div>
         <!-- 选择模型类型 -->
-        <div style="margin-bottom:10px">
+        <!-- <div style="margin-bottom:10px">
             选择模型类型：
             <el-select v-model="model_type" placeholder="全部模型" @change="getModellist()">
                 <el-option
@@ -11,7 +11,7 @@
                     :value="item.value">
                 </el-option>
             </el-select>
-        </div>
+        </div> -->
         <!-- 模型列表 -->
         <el-table 
         :data="model_list"
@@ -51,14 +51,14 @@
             label="描述"
             width="300">
             <template slot-scope="scope">
-                <span style="margin-left: 10px">{{ scope.row.model_discription }}</span>
+                <span style="margin-left: 10px">{{ scope.row.model_description }}</span>
             </template>
             </el-table-column>
             <el-table-column label="操作">
             <template slot-scope="scope">
                 <el-button
                 size="mini"
-                @click="editDialogVisible=true,current_model=scope.row,update_model=scope.row">编辑</el-button>
+                @click="handleEdit(scope.row)">编辑</el-button>
                 <el-button
                 size="mini"
                 type="danger"
@@ -107,7 +107,7 @@
                     </el-radio-group>
                 </el-form-item>
                 <el-form-item label="描述" :label-width="formLabelWidth">
-                    <el-input type="textarea" v-model="new_model.discription"></el-input>
+                    <el-input type="textarea" v-model="new_model.description"></el-input>
                 </el-form-item>
             </el-form>
             <div slot="footer" class="dialog-footer">
@@ -119,18 +119,10 @@
         <el-dialog title="编辑模型信息" :visible.sync="editDialogVisible" style="width:50%;margin:0 auto">
             <el-form :model="update_model">
                 <el-form-item label="模型名称" :label-width="formLabelWidth">
-                <el-input v-model="update_model.name" autocomplete="off"></el-input>
+                <el-input v-model="update_model.model_name" autocomplete="off"></el-input>
                 </el-form-item>
                 <el-form-item label="模型类型" :label-width="formLabelWidth">
-                <el-select v-if="current_model.model_type==0" v-model="update_model.type" placeholder="标注模型">
-                    <el-option
-                        v-for="item in new_model_type"
-                        :key="item.value"
-                        :label="item.label"
-                        :value="item.value">
-                    </el-option>
-                </el-select>
-                <el-select v-else v-model="update_model.type" placeholder="融合模型">
+                <el-select v-model="update_model.modle_type" placeholder="标注模型">
                     <el-option
                         v-for="item in new_model_type"
                         :key="item.value"
@@ -140,21 +132,21 @@
                 </el-select>
                 </el-form-item>
                 <el-form-item label="模型url" :label-width="formLabelWidth">
-                <el-input v-model="update_model.url" :placeholder="current_model.model_url" autocomplete="off"></el-input>
+                <el-input v-model="update_model.model_url" autocomplete="off"></el-input>
                 </el-form-item>
-                <el-form-item label="权限" :label-width="formLabelWidth">
+                <!-- <el-form-item label="权限" :label-width="formLabelWidth">
                     <el-radio-group v-model="update_model.private">
                     <el-radio :label="true">私有</el-radio>
                     <el-radio :label="false">公开</el-radio>
                     </el-radio-group>
-                </el-form-item>
+                </el-form-item> -->
                 <el-form-item label="描述" :label-width="formLabelWidth">
-                    <el-input type="textarea" v-model="update_model.discription" :placeholder="current_model.model_discription"></el-input>
+                    <el-input type="textarea" v-model="update_model.model_description"></el-input>
                 </el-form-item>
             </el-form>
             <div slot="footer" class="dialog-footer">
                 <el-button @click="editDialogVisible = false">取 消</el-button>
-                <el-button type="primary" @click="handleEdit()">确 定</el-button>
+                <el-button type="primary" @click="confirmEdit()">确 定</el-button>
             </div>
         </el-dialog>
     </div>
@@ -175,9 +167,9 @@ export default {
             totalPage:1,
             addDialogVisible:false,
             editDialogVisible:false,
-            new_model:{type:'',name:'',url:'',private:true,discription:''},
-            update_model:{type:'',name:'',url:'',private:true,discription:''},
-            current_model:{}
+            new_model:{model_type:'',model_name:'',model_url:'',model_private:true,model_description:''},
+            update_model:{model_type:'',model_name:'',model_url:'',model_private:'',model_description:''},
+            model_id:''
         }
     },
     created(){
@@ -211,10 +203,33 @@ export default {
             }
             this.getModellist();
         },
-        // 更新选中模型
-        handleEdit(){
-            console.log(this.current_model)
+        // 处理编辑模型响应
+        async handleEdit(row){
+            this.editDialogVisible=true;
+            this.update_model=Object.assign({}, row);
+            this.model_id=row.model_id;
+            delete this.update_model.model_id;
+        },
+        // 编辑模型
+        async confirmEdit(){
             console.log(this.update_model)
+            try{
+                var res = await this.$http.patch('model/'+this.model_id,this.update_model);
+                this.$message({
+                    showClose: true,
+                    message: '更新模型成功！',
+                    type: 'success'
+                });
+            }
+            catch{
+                this.$message({
+                    showClose: true,
+                    message: '异常！',
+                    type: 'error'
+                });
+            }
+            this.editDialogVisible=false;
+            this.reload();
         },
         // 删除选中模型
         handleDelete(model_id){

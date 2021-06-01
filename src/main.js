@@ -25,8 +25,8 @@ axios.defaults.headers.post['Content-Type'] = 'application/json;';
 axios.interceptors.request.use(
   config => {
     if (config.method === "post") {
-      let curPost = config.url.split("/")[config.url.split("/").length - 1];
-      if (curPost === "raw_data") {
+      let curPost = config.url.split("/")[config.url.split("/").length - 2];
+      if (curPost === "upload") {
         return config; // 这里对上传文件/图片的 api 不做传参序列化处理
       } else {
          config.data = JSON.stringify(config.data);

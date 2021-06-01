@@ -8,10 +8,14 @@
                         <el-input v-model="new_graph.name"></el-input>
                     </el-form-item>
                     <el-form-item label="选择数据集" >
-                        <el-select v-model="new_graph.domian_id" placeholder="请选择三元组数据">
+                        <el-select v-model="new_graph.data_id" placeholder="请选择三元组数据">
                         <!-- <el-option :v-for="item in tripledataList" :label="item.data_name" :value="item.data_id"></el-option> -->
-                        <el-option label="区域一" value="shanghai"></el-option>
-                        <el-option label="区域二" value="beijing"></el-option>
+                        <el-option
+                            v-for="data in tripledataList"
+                            :key="data.data_id"
+                            :label="data.data_name"
+                            :value="data.data_id"
+                            />
                         </el-select>
                     </el-form-item>
                     <el-form-item label="权限">
@@ -33,26 +37,54 @@
 <script>
 export default{
     created(){
-        //this.getTripledataList();
+        this.getTripledataList();
     },
     data(){
         return{
             tripledataList:[],
-            new_graph:{id:'',name:'',private:true,domain_id:''}
+            domain_list:[],
+            new_graph:{name:'',private:true,domain_id:'27',data_id:''}
         }
     },
     methods:{
         // 获取三元组数据列表
         async getTripledataList(){
-            var {data: res} = await this.$http.get('triple_data');
+            var {data: res} = await this.$http.get('data?dtype=data');
             this.tripledataList = res.data;
             console.log(this.tripledataList)
         },
         // 添加新的知识图谱
         async add_new_graph(){
-            var {data:res} = this.$http.post(this.new_graph.domain_id+'graph');
-            cosole.log(res);
-        }
+            var graph={
+                    name:this.new_graph.name,
+                    private:this.new_graph.private,
+                    domain_id:'27'
+                }
+            // console.log(graph)
+            try{
+                var res = this.$http.post('graph/',graph);
+                console.log(res);
+                this.$message({
+                    showClose: true,
+                    message: '创建图谱成功！',
+                    type: 'success'
+                });
+
+            }
+            catch{
+                 this.$message({
+                showClose: true,
+                message: '异常！',
+                type: 'error'
+            });
+            }
+            
+        },
+        // 获取我的领域列表
+        async getMyDomainList() {
+            const { data: res } = await this.$http.get('domain')
+            this.domain_list = res.data
+        },
     }
 }
 </script>

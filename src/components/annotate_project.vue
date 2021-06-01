@@ -10,13 +10,13 @@
         :key="project.project_id"
         :offset="0"
       >
-        <div @click="projectDetail(project.project_id, project.project_name)">
+        <div>
           <el-card
             class="box-card"
             shadow="never"
             style="height:80%"
           >
-            <div slot="header" class="clearfix">
+            <div slot="header" class="clearfix" @click="projectDetail(project.project_id, project.project_name)">
               <span>{{ project.project_name }}</span>
             </div>
             <el-button @click="opt='projectList',project_id=project.project_id,updateDialogVisible=true" style="float: left;color:#606266" type="text">编辑
@@ -40,7 +40,7 @@
       </el-dialog>
     </div>
     <!-- 重命名 -->
-    <el-dialog title="重命名" :visible.sync="updateDialogVisible" style="width:40%">
+    <el-dialog title="重命名" :visible.sync="updateDialogVisible" style="width:40%;margin:0 auto">
       <el-form :model="rename">
         <el-form-item label="输入新名称" :label-width="formLabelWidth">
           <el-input v-model="rename.name" autocomplete="off"/>
@@ -48,7 +48,7 @@
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="updateDialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="renameProject()">确 定</el-button>
+        <el-button type="primary" @click="renameProject">确 定</el-button>
       </div>
     </el-dialog>
     <!-- 删除标注项目 -->
@@ -101,8 +101,17 @@
                   </el-option>
                 </el-select>
               </div>
-              <el-button type="primary" style="margin-left:50px;" @click="tripledataVisible=true">开始标注</el-button>
+              <el-button v-if="task.task_id" type="primary" style="margin-left:50px;" disabled>开始标注</el-button>
+              <el-button v-else type="primary" style="margin-left:50px;" @click="addTask()">开始标注</el-button>
             </div>
+            <div v-if="task.task_id" style="width:100%;margin-left:30px;margin-top:30px;margin-bottom:30px;">任务执行进度：
+              <el-tag v-if="task.task_state.state=='SUCCESS'" type="success">执行完毕</el-tag>
+              <el-tag v-if="task.task_state.state=='PENDING'" type="warning">等待中</el-tag>
+              <el-tag v-if="task.task_state.state=='PROGRESS'" type="danger">执行中</el-tag>
+              <el-progress v-if="task.task_state.state=='SUCCESS'" :percentage="100" status="success" style="width:50%;margin-top:10px;"></el-progress>
+              <el-progress v-else :percentage="task.task_state.current/task.task_state.total" style="width:50%;margin-top:10px;"></el-progress>
+            </div>
+             
               <!-- 模型抽取生成三元组列表 -->
               <div style="width:70%;" v-if="tripledataVisible==true">
                 <div style="margin-left:20px;margin-bottom:10px;"><span style="color:#409EFF"><i class="el-icon-s-data"></i>  三元组数据</span></div>
@@ -287,6 +296,7 @@ export default {
   inject:['reload'],
   created() {
     this.getProjectList();
+    this.project_task={};
     //this.getRawdataList();
     //this.getModelList();
   },
@@ -301,7 +311,7 @@ export default {
       opt: 'projectList',
       project_id: 0,
       project_name: '',
-      rename:{name:'',type_id:0},
+      rename:{name:''},
       newAnnotationProject:{
         name:'',
         type_id:0
@@ -323,7 +333,10 @@ export default {
       {e1_name:'深度强化学习',e1_type:'处理方法',e2_name:'自然语言处理',e2_type:'处理方法',relation:'应用关系'},
       {e1_name:'深度强化学习',e1_type:'处理方法',e2_name:'多任务迁移深度强化学习',e2_type:'处理方法',relation:'包含关系'},
       {e1_name:'深度强化学习',e1_type:'处理方法',e2_name:'多智能体深度强化学习',e2_type:'处理方法',relation:'包含关系'},
-      {e1_name:'深度强化学习',e1_type:'处理方法',e2_name:'分层深度强化学习',e2_type:'处理方法',relation:'包含关系'}]
+      {e1_name:'深度强化学习',e1_type:'处理方法',e2_name:'分层深度强化学习',e2_type:'处理方法',relation:'包含关系'}],
+      project_task:{},
+      task:{task_id:'',task_state:{state:'',status:'',current:'',total:''}},
+      task_state:{}
     };
   },
   methods: {
@@ -368,15 +381,17 @@ export default {
     },
     // rename
     async renameProject(){
+      console.log(this.rename)
       try{
-        let res = await this.$http.patch('project/'+project_id,rename);
+        let res = await this.$http.patch('project/'+this.project_id,this.rename);
         this.$message({
           showClose: true,
           message: '成功！',
           type: 'success',
         })
+        
       }
-      catch{
+      catch(err){
         this.$message({
           showClose: true,
           message: '出现异常！',
@@ -384,13 +399,15 @@ export default {
         })
       }
       this.updateDialogVisible=false;
+      this.reload();
     },
     // 查看项目详情
-    projectDetail(project_id, project_name) {
+    async projectDetail(project_id, project_name) {
       this.project_id = project_id;
       this.project_name = project_name;
       this.opt = 'projectDetail';
-      console.log(this.opt);
+      this.task.task_id = this.project_task[project_id];
+      this.getTaskState(this.task.task_id);
     },
     // 删除项目
     async deleteProject(project_id){
@@ -417,6 +434,44 @@ export default {
     // 详情界面返回函数
     goBack() {
       this.opt = 'projectList';
+    },
+    // 新建任务
+    async addTask(){
+      try{
+        let {data:res} = await this.$http.post('project/'+ this.project_id +'/task');
+        this.project_task[this.project_id] = res.data.task_id;
+        console.log(this.project_task);
+        this.$message({
+          showClose: true,
+          message: '开始标注！',
+          type: 'success',
+        })
+        this.task.task_id=res.data.task_id;
+        this.getTaskState(this.task.task_id)
+        while(this.task.task_state.state!="SUCCESS"){
+          this.getTaskState(this.task.task_id)
+          setTimeout(time,1000);
+        }
+      }
+      catch{
+        this.$message({
+          showClose: true,
+          message: '出现异常！',
+          type: 'error',
+        })
+      }
+      
+    },
+    // 查看任务状态
+    async getTaskState(task_id){
+      console.log(task_id)
+      if(task_id){
+        let {data:res} = await this.$http.get('project/'+ this.project_id +'/task?task_id='+task_id);
+        this.task.task_id=task_id;
+        this.task.task_state=res.data;
+        console.log(this.task)
+      }
+
     },
     // 文本生成知识图谱子图
     // async gen_childGraph(){

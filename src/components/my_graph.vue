@@ -388,7 +388,7 @@
                   <el-button
                     type="text"
                     size="small"
-                    @click="scope.row.link_editVisible = true"
+                    @click="handleEdit(scope.row),scope.row.link_editVisible=true"
                     >编辑</el-button
                   >
                   <el-button
@@ -429,15 +429,16 @@
                     :visible.sync="scope.row.link_editVisible"
                   >
                     <el-form label-width="200px" :model="newRelationData">
-                      <el-form-item label="头节点实体">
-                        <el-input
+                      <el-form-item label="头节点实体:">
+                        <!-- <el-input
                           v-model="newRelationData.e1_name"
                           :placeholder="scope.row.e1_name"
                           style="width: 250px"
-                        ></el-input>
+                        ></el-input> -->
+                        {{ scope.row.e1_name }}
                       </el-form-item>
-                      <el-form-item label="头节点实体类型">
-                        <el-select
+                      <el-form-item label="头节点实体类型:">
+                        <!-- <el-select
                           v-model="newRelationData.e1_type"
                           :placeholder="scope.row.e1_type"
                           style="width: 250px"
@@ -448,9 +449,10 @@
                             :label="collection"
                             :value="collection"
                           ></el-option>
-                        </el-select>
+                        </el-select> -->
+                        {{ scope.row.e1_type }}
                       </el-form-item>
-                      <el-form-item label="关系类型">
+                      <el-form-item label="关系类型:">
                         <el-select
                           v-model="newRelationData.relation"
                           :placeholder="scope.row.relation"
@@ -464,15 +466,16 @@
                           ></el-option>
                         </el-select>
                       </el-form-item>
-                      <el-form-item label="尾节点实体">
-                        <el-input
+                      <el-form-item label="尾节点实体:">
+                        <!-- <el-input
                           v-model="newRelationData.e2_name"
                           :placeholder="scope.row.e2_name"
                           style="width: 250px"
-                        ></el-input>
+                        ></el-input> -->
+                        {{ scope.row.e2_name }}
                       </el-form-item>
-                      <el-form-item label="尾节点实体类型">
-                        <el-select
+                      <el-form-item label="尾节点实体类型:">
+                        <!-- <el-select
                           v-model="newRelationData.e2_type"
                           :placeholder="scope.row.e2_type"
                           style="width: 250px"
@@ -483,10 +486,11 @@
                             :label="collection"
                             :value="collection"
                           ></el-option>
-                        </el-select>
+                        </el-select> -->
+                        {{ scope.row.e2_type }}
                       </el-form-item>
                       <el-form-item>
-                        <el-button type="primary" @click="editData()"
+                        <el-button type="primary" @click="editData(scope.row)"
                           >确认修改</el-button
                         >
                       </el-form-item>
@@ -1291,8 +1295,37 @@ export default {
       const property = column['property']
       return row[property] === value
     },
+    // 处理编辑模型响应
+    async handleEdit(row){
+      this.newRelationData=Object.assign({}, row);
+    },
     // 图谱数据更改
-    editData() {},
+    async editData(row) {
+      console.log(this.newRelationData)
+      try{
+        var res = await this.$http.patch(
+        this.domain_id +
+          '/graph/' +
+          this.graph_id +
+          '/edge/' +
+          this.newRelationData.relation_id
+      ,{relation:this.newRelationData.relation})
+       this.$message({
+          showClose: true,
+          message: '数据更新成功！',
+          type: 'success',
+        })
+      }
+      catch{
+        this.$message({
+          showClose: true,
+          message: '出现异常！',
+          type: 'error',
+        })
+      }
+      row.addNewEdgeVisible = false;
+      this.showEditGraph('1')
+    },
   },
 }
 </script>
