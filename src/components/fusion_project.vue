@@ -101,12 +101,13 @@
                   </el-option>
                 </el-select>
               </div>
-              <el-button type="primary" style="margin-left:50px;" @click="tripledataVisible=true">生成融合报告</el-button>
+              <el-button type="primary" style="float:left;margin-top:50px;margin-bottom:20px;" @click="tripledataVisible=true">生成融合报告</el-button>
             </div>         
             </div>
+            
             <!-- 模型抽取生成三元组列表 -->
             <div v-if="tripledataVisible==true">
-              <div style="margin-left:20px;margin-bottom:10px;">
+              <div style="margin-left:20px;margin-bottom:10px;margin-top:200px;">
                   <el-divider content-position="left"><span style="color:#409EFF"><i class="el-icon-paperclip"></i>  情况1: 至少一个实体已存在知识图谱中</span>
                   </el-divider>
               </div>

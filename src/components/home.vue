@@ -4,7 +4,7 @@
       <el-header style="background-color:white" >
         <span class="el-icon-kg">&#xe918;
         </span>
-        <span style="color:#409EFF;font-size:25px;">  专业内容知识图谱编辑工具</span>
+        <span style="color:#409EFF;font-size:25px;">  专业领域知识图谱编辑工具</span>
         <div class="demo-basic--circle">
           <div class="block" @click="logout()"> 
             <!-- 头像 -->

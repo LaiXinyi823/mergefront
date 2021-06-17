@@ -88,7 +88,7 @@
                 <el-input v-model="new_raw_data_DB.data_info.username" autocomplete="off"/>
               </el-form-item>
               <el-form-item label="password" :label-width="formLabelWidth" style="width:500px">
-                <el-input v-model="new_raw_data_DB.data_info.password" autocomplete="off"/>
+                <el-input type="password" v-model="new_raw_data_DB.data_info.password" autocomplete="off"/>
               </el-form-item>
               <el-form-item label="db" :label-width="formLabelWidth" style="width:500px">
                 <el-input v-model="new_raw_data_DB.data_info.db" autocomplete="off"/>
@@ -260,6 +260,7 @@ export default {
             message: '导入成功！',
             type: 'success'
         });
+        this.reload();
       }
       catch{
         this.$message({

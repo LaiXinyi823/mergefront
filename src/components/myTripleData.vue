@@ -79,7 +79,7 @@
                   :auto-upload="true">
                   <el-button slot="trigger" size="small" type="primary">选取文件</el-button>
                   <el-button style="margin-left:10px;" size="small" type="success" @click="submitUpload">确认导入</el-button>
-                  <div slot="tip" class="el-upload__tip" style="color:red">只能上传.txt文件</div>
+                  <div slot="tip" class="el-upload__tip" style="color:red">只能上传.json/.csv文件</div>
                 </el-upload>
               </div>
             </div>
@@ -165,6 +165,7 @@ export default {
             message: '导入成功！',
             type: 'success'
         });
+        this.reload();
       }
       catch{
         this.$message({

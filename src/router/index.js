@@ -2,11 +2,9 @@ import Vue from 'vue';
 import VueRouter from 'vue-router';
 import textinput from '@/components/textinput.vue';
 import home from '@/components/home.vue';
-import childKG from '@/components/childKG.vue';
 import originKG from '@/components/originKG.vue';
 import search from '@/components/search.vue';
 import entityResult from '@/components/entityResult.vue';
-import KG from '@/components/KG.vue';
 import login from '@/components/login.vue';
 import register from '@/components/register.vue';
 import generate_graph from '@/components/generate_graph.vue';
@@ -54,11 +52,9 @@ export default new VueRouter({
           my_graph: my_graph,
           mydomain: myDomain,
           textinput: textinput,
-          childKG: childKG,
           originKG: originKG,
           search: search,
           entityResult: entityResult,
-          KG:KG,
           labelproject:labelproject,
           myRawdata:myRawdata,
           myTripleData:myTripleData,
