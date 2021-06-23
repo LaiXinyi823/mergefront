@@ -268,7 +268,6 @@
                       :before-close="handleClose">
                       <span>我来啦!</span>
                     </el-drawer>
-
                     <h4 style="float:left;margin:0;">显示层数：</h4>
                     <el-input-number size="mini" v-model="num1" style="float:left"/>
                     <h4 style="float:left;margin:0;margin-left:30px;">显示条数：</h4>
@@ -402,12 +401,16 @@ export default {
       this.reload();
     },
     // 查看项目详情
-    async projectDetail(project_id, project_name) {
+    projectDetail(project_id, project_name) {
       this.project_id = project_id;
       this.project_name = project_name;
       this.opt = 'projectDetail';
       this.task.task_id = this.project_task[project_id];
-      this.getTaskState(this.task.task_id);
+      if(this.task.task_id){
+        this.getTaskState(this.task.task_id);
+      }
+      
+      // this.getTaskState(this.task.task_id);
     },
     // 删除项目
     async deleteProject(project_id){
@@ -447,7 +450,7 @@ export default {
           type: 'success',
         })
         this.task.task_id=res.data.task_id;
-        this.getTaskState(this.task.task_id)
+        this.getTaskState(this.task.task_id);
       }
       catch{
         this.$message({
@@ -460,20 +463,19 @@ export default {
     },
     // 查看任务状态
     async getTaskState(task_id){
-      console.log(task_id)
       if(task_id){
         let {data:res} = await this.$http.get('project/'+ this.project_id +'/task?task_id='+task_id);
         this.task.task_id=task_id;
         this.task.task_state=res.data;
-        console.log(this.task)
-      }
-      while(this.task.task_state.state!="SUCCESS"){
-          this.getTaskState(this.task.task_id)
-          setTimeout(time,1000);
+        if(this.task.task_state.state=="SUCCESS"){
+          this.report();
+          return;
         }
-      if(this.task.task_state.state=="SUCCESS"){
-        this.report()
+        else{
+          setTimeout(this.getTaskState(this.task.task_id),1000);
+        }
       }
+     
     },
     // 生成报表
     report(){
@@ -603,25 +605,20 @@ export default {
   font-size: 13px;
   color: #999;
 }
-
 .bottom {
   margin-top: 13px;
   line-height: 12px;
 }
-
 .image {
   width: 100%;
   display: block;
 }
-
 .text {
   font-size: 14px;
 }
-
 .item {
   margin-bottom: 18px;
 }
-
 .clearfix:before,
 .clearfix:after {
   display: table;
@@ -630,7 +627,6 @@ export default {
 .clearfix:after {
   clear: both;
 }
-
 .box-card {
   width: 200px;
   height: 200px;
@@ -638,7 +634,6 @@ export default {
   display: inline-block;
   margin-bottom: 10px;
 }
-
 .card {
   width: 200px;
   height: 200px;

@@ -65,9 +65,8 @@
               <el-radio v-model="op" label="triple_data">三元组</el-radio> -->
               <!-- <el-radio v-model="label_op" label="TEXT">单文本</el-radio> -->
             <!-- </div> -->
-            <el-divider><i class="el-icon-s-flag"></i></el-divider>
+            <el-divider> <i class="el-icon-s-flag"></i> </el-divider>
             <div>
-              <div style="margin-bottom:20px;">
               <div style="float:left;margin-left:30px;">
                 选择待融合数据：
                 <el-select v-model="fusion.data" placeholder="请选择">
@@ -100,11 +99,11 @@
                     :value="item.graph_id">
                   </el-option>
                 </el-select>
-              </div>
-              <el-button type="primary" style="float:left;margin-top:50px;margin-bottom:20px;" @click="tripledataVisible=true">生成融合报告</el-button>
-            </div>         
+              </div> 
             </div>
-            
+            <div>
+              <el-button type="primary" style="margin-left:30px;" @click="tripledataVisible=true">生成融合报告</el-button>
+            </div>
             <!-- 模型抽取生成三元组列表 -->
             <div v-if="tripledataVisible==true">
               <div style="margin-left:20px;margin-bottom:10px;margin-top:200px;">
@@ -314,7 +313,6 @@
               </div>
             </div> -->
           </el-tab-pane>
-
         </el-tabs>
       </div>
     </div>
@@ -337,6 +335,7 @@ export default {
       graphList:[],
       currentDate: new Date(),
       addDialogVisible: false,
+      deleteDialogVisible:false,
       formLabelWidth: '100px',
       opt: 'projectList',
       project_id: 0,
