@@ -97,7 +97,7 @@
                     v-for="item in modelList"
                     :key="item.model_id"
                     :label="item.model_name"
-                    :value="item.model_id">
+                    :value="item.model_url">
                   </el-option>
                 </el-select>
               </div>
@@ -113,24 +113,24 @@
             </div>
              
               <!-- 模型抽取生成三元组列表 -->
-              <div style="width:70%;" v-if="tripledataVisible==true">
+              <div style="width:90%;" v-if="tripledataVisible==true">
                 <div style="margin-left:20px;margin-bottom:10px;"><span style="color:#409EFF"><i class="el-icon-s-data"></i>  三元组数据</span></div>
                 <el-table
                   ref="filterTable"
                   border
-                  :data="tripledata"
+                  :data="task.task_state.result"
                   max-height="600"
                   style="width: 95%;margin-left:2%;">
                   <el-table-column fixed="left" type="index" width="50"></el-table-column>
                   <el-table-column prop="e1_type" label="头节点类型" sortable width="180"></el-table-column>
-                  <el-table-column prop="e1_name" label="头节点名" width="180"></el-table-column>
-                  <el-table-column prop="relation" label="关系" width="180">
+                  <el-table-column prop="e1" label="头节点名" width="180"></el-table-column>
+                  <el-table-column prop="relation_type" label="关系" width="180">
                     <template slot-scope="scope">
-                      <el-tag size="medium" type="success">{{ scope.row.relation}}</el-tag>
+                      <el-tag size="medium" type="success">{{ scope.row.relation_type}}</el-tag>
                     </template>
                   </el-table-column>
                   <el-table-column prop="e2_type" label="尾节点类型" width="180"></el-table-column>
-                  <el-table-column prop="e2_name" label="尾节点名" width="180"></el-table-column>
+                  <el-table-column prop="e2" label="尾节点名" width="180"></el-table-column>
                   <el-table-column fixed="right" label="操作" width="120">
                     <template slot-scope="scope">
                         <!-- 删除某一条边 -->
@@ -185,9 +185,27 @@
                     <!-- </template>
                   </el-table-column>
                 </el-table> -->
-                <div style="margin-top:20px;margin-left:30px;float:left"><el-button type="primary" icon="el-icon-check">审核通过，暂存数据</el-button></div>
+                <div style="margin-top:20px;margin-left:30px;float:left"><el-button type="primary" icon="el-icon-check" @click="newTripledataVisible=true">审核通过，暂存数据</el-button></div>
                 <div style="margin-top:20px;margin-left:20px;float:left"><el-button type="success" icon="el-icon-pie-chart">直接创建融合项目</el-button></div>
               </div>
+              <el-dialog title="暂存三元组数据" :visible.sync="newTripledataVisible">
+                <el-form :model="new_tripledata">
+                  <el-form-item label="三元组名称" :label-width="formLabelWidth">
+                    <el-input v-model="new_tripledata.name" autocomplete="off"></el-input>
+                  </el-form-item>
+                  <el-form-item label="是否设置私有" :label-width="formLabelWidth" style="width:500px">
+                    <el-radio-group v-model="new_tripledata.private">
+                      <el-radio :label="true">是</el-radio>
+                      <el-radio :label="false">否</el-radio>
+                    </el-radio-group>
+                  </el-form-item>
+                </el-form>
+                <div slot="footer" class="dialog-footer">
+                  <el-button @click="newTripledataVisible = false">取 消</el-button>
+                  <el-button type="success" @click="saveTripleData(),new_tripledata.result=task.task_state.result">确认导入</el-button>
+                </div>
+              </el-dialog>
+
             <!-- </div> -->
 
 
@@ -324,18 +342,15 @@ export default {
       childTableVisible:false,
       deleteDialogVisible:false,
       updateDialogVisible:false,
+      newTripledataVisible:false,
       drawer: false,
       label_op:'DB',
       anotation:{data:'',model:''},
       tripledataVisible:false,
-      tripledata:[{e1_name:'深度强化学习',e1_type:'处理方法',e2_name:'知识推理',e2_type:'处理方法',relation:'应用关系'},
-      {e1_name:'深度强化学习',e1_type:'处理方法',e2_name:'自然语言处理',e2_type:'处理方法',relation:'应用关系'},
-      {e1_name:'深度强化学习',e1_type:'处理方法',e2_name:'多任务迁移深度强化学习',e2_type:'处理方法',relation:'包含关系'},
-      {e1_name:'深度强化学习',e1_type:'处理方法',e2_name:'多智能体深度强化学习',e2_type:'处理方法',relation:'包含关系'},
-      {e1_name:'深度强化学习',e1_type:'处理方法',e2_name:'分层深度强化学习',e2_type:'处理方法',relation:'包含关系'}],
       project_task:{},
-      task:{task_id:'',task_state:{state:'',status:'',current:'',total:''}},
-      task_state:{}
+      task:{task_id:'',task_state:{}},
+      task_state:{},
+      new_tripledata:{name:'',private:true,result:{}}
     };
   },
   methods: {
@@ -400,6 +415,13 @@ export default {
       this.updateDialogVisible=false;
       this.reload();
     },
+    // 详情界面返回函数
+    goBack() {
+      this.opt = 'projectList';
+      this.anotation={data:'',model:''};
+      this.tripledataVisible=false;
+      this.task={task_id:'',task_state:{}}
+    },
     // 查看项目详情
     projectDetail(project_id, project_name) {
       this.project_id = project_id;
@@ -408,6 +430,12 @@ export default {
       this.task.task_id = this.project_task[project_id];
       if(this.task.task_id){
         this.getTaskState(this.task.task_id);
+        if(this.task.task_state.state=="SUCCESS"){
+          this.tripledataVisible=true;
+        }
+        else{
+          this.tripledataVisible=false;
+        }
       }
       
       // this.getTaskState(this.task.task_id);
@@ -434,14 +462,11 @@ export default {
       }
       this.reload();
     },
-    // 详情界面返回函数
-    goBack() {
-      this.opt = 'projectList';
-    },
     // 新建任务
     async addTask(){
       try{
-        let {data:res} = await this.$http.post('project/'+ this.project_id +'/task');
+        let {data:res} = await this.$http.post('project/'+ this.project_id +'/task',
+        {data_id:this.anotation.data,model_url:this.anotation.model});
         this.project_task[this.project_id] = res.data.task_id;
         console.log(this.project_task);
         this.$message({
@@ -468,10 +493,18 @@ export default {
         this.task.task_id=task_id;
         this.task.task_state=res.data;
         if(this.task.task_state.state=="SUCCESS"){
+          console.log(this.task.task_state.result)
           this.report();
           return;
         }
+        else if(this.task.task_state.state=="PENDING"){
+          setTimeout(this.getTaskState(this.task.task_id),5000);
+        }
+        else if(this.task.task_state.state=="FAILURE"){
+          console.log(this.task.task_state.state)
+        }
         else{
+          console.log(this.task.task_state.state)
           setTimeout(this.getTaskState(this.task.task_id),1000);
         }
       }
@@ -481,6 +514,13 @@ export default {
     report(){
       this.tripledataVisible=true;
     },
+    // 暂存生成的三元组数据
+    saveTripleData(){
+      console.log(this.new_tripledata)
+      let res = this.$http.post('project/'+ this.project_id +'/task_result',this.new_tripledata);
+      console.log(res)
+    },
+
     // 文本生成知识图谱子图
     // async gen_childGraph(){
     //   const res = await this.$http.get('http://39.100.48.36:3012/predict_re?sentence=' + this.textarea);
