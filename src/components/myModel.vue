@@ -85,10 +85,10 @@
         <el-dialog title="添加新模型" :visible.sync="addDialogVisible" style="width:50%;margin:0 auto">
             <el-form :model="new_model">
                 <el-form-item label="模型名称" :label-width="formLabelWidth">
-                <el-input v-model="new_model.name" autocomplete="off"></el-input>
+                <el-input v-model="new_model.model_name" autocomplete="off"></el-input>
                 </el-form-item>
                 <el-form-item label="模型类型" :label-width="formLabelWidth">
-                <el-select v-model="new_model.type" placeholder="请选择">
+                <el-select v-model="new_model.model_type" placeholder="请选择">
                     <el-option
                         v-for="item in new_model_type"
                         :key="item.value"
@@ -98,16 +98,16 @@
                 </el-select>
                 </el-form-item>
                 <el-form-item label="模型url" :label-width="formLabelWidth">
-                <el-input v-model="new_model.url" autocomplete="off"></el-input>
+                <el-input v-model="new_model.model_url" autocomplete="off"></el-input>
                 </el-form-item>
                 <el-form-item label="权限" :label-width="formLabelWidth">
-                    <el-radio-group v-model="new_model.private">
+                    <el-radio-group v-model="new_model.model_private">
                     <el-radio :label="true">私有</el-radio>
                     <el-radio :label="false">公开</el-radio>
                     </el-radio-group>
                 </el-form-item>
                 <el-form-item label="描述" :label-width="formLabelWidth">
-                    <el-input type="textarea" v-model="new_model.description"></el-input>
+                    <el-input type="textarea" v-model="new_model.model_description"></el-input>
                 </el-form-item>
             </el-form>
             <div slot="footer" class="dialog-footer">

@@ -4,14 +4,13 @@
             <el-card style="width: 100%; height: 100%;">
                 <el-divider content-position="left" style="margin-bottom:20px;">知识图谱构建</el-divider>
                 <el-form ref="form" :model="new_graph" label-width="120px" style="width:30%;margin:0 auto">
-                    <el-form-item label="图谱名称" style="width:64%">
+                    <el-form-item label="图谱名称" style="width:91%">
                         <el-input v-model="new_graph.name"></el-input>
                     </el-form-item>
                     <el-form-item label="选择数据集" >
                         <el-select v-model="new_graph.data_id" placeholder="请选择三元组数据">
-                        <!-- <el-option :v-for="item in tripledataList" :label="item.data_name" :value="item.data_id"></el-option> -->
                         <el-option
-                            v-for="data in tripledataList"
+                            v-for="data in triple_data_list"
                             :key="data.data_id"
                             :label="data.data_name"
                             :value="data.data_id"
@@ -41,17 +40,19 @@ export default{
     },
     data(){
         return{
-            tripledataList:[],
+            triple_data_list:[],
             domain_list:[],
-            new_graph:{name:'',private:true,domain_id:'27',data_id:''}
+            new_graph:{name:'',private:true,domain_id:'27',data_id:''},
+            totalPage:''
         }
     },
     methods:{
         // 获取三元组数据列表
         async getTripledataList(){
-            var {data: res} = await this.$http.get('data?dtype=data');
-            this.tripledataList = res.data;
-            console.log(this.tripledataList)
+            const {data: res} = await this.$http.get('data?dtype=data');
+            console.log(res.data);
+            this.triple_data_list = res.data;
+            this.totalPage = res.data.length;
         },
         // 添加新的知识图谱
         async add_new_graph(){

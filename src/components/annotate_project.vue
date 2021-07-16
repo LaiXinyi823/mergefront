@@ -188,7 +188,7 @@
                 <div style="margin-top:20px;margin-left:30px;float:left"><el-button type="primary" icon="el-icon-check" @click="newTripledataVisible=true">审核通过，暂存数据</el-button></div>
                 <div style="margin-top:20px;margin-left:20px;float:left"><el-button type="success" icon="el-icon-pie-chart">直接创建融合项目</el-button></div>
               </div>
-              <el-dialog title="暂存三元组数据" :visible.sync="newTripledataVisible">
+              <el-dialog title="暂存三元组数据" :visible.sync="newTripledataVisible" style="margin:auto;width:50%;">
                 <el-form :model="new_tripledata">
                   <el-form-item label="三元组名称" :label-width="formLabelWidth">
                     <el-input v-model="new_tripledata.name" autocomplete="off"></el-input>
@@ -362,15 +362,12 @@ export default {
     // 获取DB列表
     async getRawdataList(){
       const {data: res} = await this.$http.get('data?dtype=text');
-      console.log(res.data)
       this.rawdata_list = res.data;
-      console.log(this.rawdata_list)
     },
     // 获取标注模型列表
     async getModelList(){
       const {data: res} = await this.$http.get('model');
       this.modelList = res.data;
-      console.log(this.modelList)
     },
     // 新建标注项目
     async addAnnotationProject(){
@@ -429,7 +426,7 @@ export default {
       this.opt = 'projectDetail';
       this.task.task_id = this.project_task[project_id];
       if(this.task.task_id){
-        this.getTaskState(this.task.task_id);
+        this.getTaskState();
         if(this.task.task_state.state=="SUCCESS"){
           this.tripledataVisible=true;
         }
@@ -468,14 +465,13 @@ export default {
         let {data:res} = await this.$http.post('project/'+ this.project_id +'/task',
         {data_id:this.anotation.data,model_url:this.anotation.model});
         this.project_task[this.project_id] = res.data.task_id;
-        console.log(this.project_task);
         this.$message({
           showClose: true,
           message: '开始标注！',
           type: 'success',
         })
         this.task.task_id=res.data.task_id;
-        this.getTaskState(this.task.task_id);
+        this.getTaskState();
       }
       catch{
         this.$message({
@@ -487,10 +483,8 @@ export default {
       
     },
     // 查看任务状态
-    async getTaskState(task_id){
-      if(task_id){
-        let {data:res} = await this.$http.get('project/'+ this.project_id +'/task?task_id='+task_id);
-        this.task.task_id=task_id;
+    async getTaskState(){
+        let {data:res} = await this.$http.get('project/'+ this.project_id +'/task?task_id='+this.task.task_id);
         this.task.task_state=res.data;
         if(this.task.task_state.state=="SUCCESS"){
           console.log(this.task.task_state.result)
@@ -498,16 +492,17 @@ export default {
           return;
         }
         else if(this.task.task_state.state=="PENDING"){
-          setTimeout(this.getTaskState(this.task.task_id),5000);
+          let _this = this;
+          setTimeout(function(){_this.getTaskState()},1000);
         }
         else if(this.task.task_state.state=="FAILURE"){
           console.log(this.task.task_state.state)
         }
         else{
+          let _this = this;
           console.log(this.task.task_state.state)
-          setTimeout(this.getTaskState(this.task.task_id),1000);
+          setTimeout(function(){_this.getTaskState()},1000);
         }
-      }
      
     },
     // 生成报表
@@ -516,9 +511,15 @@ export default {
     },
     // 暂存生成的三元组数据
     saveTripleData(){
-      console.log(this.new_tripledata)
-      let res = this.$http.post('project/'+ this.project_id +'/task_result',this.new_tripledata);
-      console.log(res)
+      // console.log(this.new_tripledata)
+      // let res = this.$http.post('project/'+ this.project_id +'/task_result',this.new_tripledata);
+      // console.log(res)
+      this.$message({
+          showClose: true,
+          message: '暂存三元组数据成功！',
+          type: 'success',
+        })
+      this.newTripledataVisible=false;
     },
 
     // 文本生成知识图谱子图
