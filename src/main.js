@@ -41,6 +41,18 @@ axios.interceptors.request.use(
  );
 
 // Vue.use(echarts);
+// Vue.use(VueParticles);
+// Vue.config.productionTip = false;
+// Vue.prototype.$http = axios;
+// Vue.prototype.$qs = qs;
+
+// //配置请求的根路径
+// axios.defaults.withCredentials = true;
+// // Vue.prototype.$axios = axios;
+// // axios.defaults.baseURL = 'http://localhost:5000/api/v1.0';
+// axios.defaults.baseURL = 'http://39.100.48.36:3031/api/v1.0';
+// // axios.defaults.baseURL = '/api/';
+
 Vue.use(VueParticles);
 Vue.config.productionTip = false;
 Vue.prototype.$http = axios;
@@ -48,8 +60,10 @@ Vue.prototype.$qs = qs;
 
 //配置请求的根路径
 axios.defaults.withCredentials = true;
-axios.defaults.baseURL = 'http://localhost:5000/api/v1.0/';
-
+// Vue.prototype.$axios = axios;
+//axios.defaults.baseURL = 'http://localhost:5000/api/v1.0';
+//axios.defaults.baseURL = 'http://39.100.48.36:3031/api/v1.0';
+axios.defaults.baseURL = '/local_api';
 new Vue({
   router,
   render: h => h(App)

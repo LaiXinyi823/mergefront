@@ -1,6 +1,7 @@
 <template>
+  
   <el-container>
-    <div v-if="opt == 'graphs'" style="width: 100%; height: 100%">
+    <div v-if="opt == 'graphs'" style="width: 100%; height: 100%; margin-right: 20px; ">
       选择查看某领域知识图谱：
       <el-select
         v-model="select_domain_id"
@@ -61,36 +62,38 @@
                 src="https://ss0.bdstatic.com/70cFuHSh_Q1YnxGkpoWK1HF6hhy/it/u=3243406373,3135595743&fm=26&gp=0.jpg"
               />
               <h4>{{ graph.graph_name }}</h4>
+              <!-- <el-button @click="opt='projectList',project_id=project.project_id,deleteDialogVisible=true" style="float: right;color:#F56C6C" type="text">删除
+              </el-button> -->
             </el-card>
           </div>
         </el-col>
       </el-row>
-      <el-dialog title="新增知识图谱" :visible.sync="addDialogVisible">
-        <el-form :model="newGraph">
-          <el-form-item label="知识图谱名称" :label-width="formLabelWidth">
-            <el-input v-model="newGraph.name" autocomplete="off" />
-          </el-form-item>
-          <el-form-item label="所属领域名称" :label-width="formLabelWidth">
-            <el-select v-model="newGraph.domain_id" placeholder="请选择">
-              <el-option
-                v-for="domain in domain_list"
-                :key="domain.domain_id"
-                :label="domain.domain_name"
-                :value="domain.domain_id"
-              />
-            </el-select>
-          </el-form-item>
-          <el-form-item label="图谱权限" :label-width="formLabelWidth">
-            <el-radio v-model="newGraph.private" label="0"> 公开 </el-radio>
-            <el-radio v-model="newGraph.private" label="1"> 私有 </el-radio>
-          </el-form-item>
-        </el-form>
-        <div slot="footer" class="dialog-footer">
-          <el-button @click="addDialogVisible = false"> 取 消 </el-button>
-          <el-button type="primary" @click="add_graph()"> 确 定 </el-button>
-        </div>
-      </el-dialog>
     </div>
+    <el-dialog title="新增知识图谱" :visible.sync="addDialogVisible">
+      <el-form :model="newGraph">
+        <el-form-item label="知识图谱名称" :label-width="formLabelWidth">
+          <el-input v-model="newGraph.name" autocomplete="off" />
+        </el-form-item>
+        <!-- <el-form-item label="所属领域名称" :label-width="formLabelWidth">
+          <el-select v-model="newGraph.domain_id" placeholder="请选择">
+            <el-option
+              v-for="domain in domain_list"
+              :key="domain.domain_id"
+              :label="domain.domain_name"
+              :value="domain.domain_id"
+            />
+          </el-select>
+        </el-form-item> -->
+        <el-form-item label="图谱权限" :label-width="formLabelWidth">
+          <el-radio v-model="newGraph.private" label="0"> 公开 </el-radio>
+          <el-radio v-model="newGraph.private" label="1"> 私有 </el-radio>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="addDialogVisible=false"> 取 消 </el-button>
+        <el-button type="primary" @click="add_graph()"> 确 定 </el-button>
+      </div>
+    </el-dialog>
     <div v-if="opt == 'get_graph_detail'" style="width: 100%; height: 100%">
       <el-card
         style="width: 100%; height: 65px; background-color: #fff"
@@ -118,7 +121,7 @@
       <div style="margin-top: 5px; background-color: #fff">
         <el-col :span="3">
           <el-button
-            @click="addVertexVisible = true"
+            @click="addVertexTypeVisible = true"
             size="mini"
             type="warning"
             icon="el-icon-star-off"
@@ -159,6 +162,14 @@
               style="margin-left: 10px; margin-right: 10px; margin-bottom: 10px"
               circle
             />添加{{ collection }}节点
+            <el-button
+              type="danger"
+              size="mini"
+              icon="el-icon-plus"
+              style="margin-left: 10px; margin-right: 10px; margin-bottom: 10px"
+              circle
+              @click="addRelationVisible = true"
+            ></el-button>添加新关系类型
             <el-table
               :data="vertexs_list"
               border
@@ -280,6 +291,20 @@
               </el-table-column>
             </el-table>
           </div>
+          <!-- 添加新实体类型-->
+          <el-dialog title="添加新实体类型" :visible.sync="addVertexTypeVisible">
+            <el-form>
+              <el-form-item label="实体类型名称" :label-width="formLabelWidth">
+                <el-input v-model="newVertexType" autocomplete="off" />
+              </el-form-item>
+            </el-form>
+            <div slot="footer" class="dialog-footer">
+              <el-button @click="addVertexTypeVisible=false"> 取 消 </el-button>
+              <el-button type="primary" @click="addVertexType(newVertexType)">
+                确 定
+              </el-button>
+            </div>
+          </el-dialog>
           <!-- 添加新实体节点 -->
           <el-dialog title="添加新实体节点" :visible.sync="addVertexVisible">
             <el-form :model="newVertex">
@@ -573,13 +598,6 @@
                       :value="relation"
                     ></el-option>
                   </el-select>
-                  <el-button
-                    type="primary"
-                    icon="el-icon-plus"
-                    style="margin-left: 10px"
-                    circle
-                    @click="addRelationVisible = true"
-                  ></el-button>
                 </el-form-item>
                 <el-form-item label="节点类型">
                   <el-radio-group v-model="newEdge.node_type">
@@ -607,12 +625,42 @@
             style="width: 50%; margin: 0 auto"
           >
             <el-form :model="newRelation">
-              <el-form-item label="关系类型名称" label-width="100px">
+              <el-form-item label="名称（英文）" label-width="100px">
                 <el-input
-                  v-model="newRelation.relationName"
+                  v-model="newRelation.name"
                   autocomplete="off"
                 />
               </el-form-item>
+              <!-- <div>
+                起始节点类型：
+                <el-select
+                  v-model="newRelation.from"
+                  placeholder="请选择起始节点类型"
+                  style="width: 60%"
+                >
+                  <el-option
+                    v-for="collection in collections_list"
+                    :key="collection"
+                    :label="collection"
+                    :value="collection"
+                  ></el-option>
+                </el-select>
+              </div>
+              <div>
+                终止节点类型：
+                <el-select
+                  v-model="newRelation.to"
+                  placeholder="请选择终止节点类型"
+                  style="width: 60%;margin-top: 10px;"
+                >
+                  <el-option
+                    v-for="collection in collections_list"
+                    :key="collection"
+                    :label="collection"
+                    :value="collection"
+                  ></el-option>
+                </el-select>
+              </div> -->
             </el-form>
             <div slot="footer" class="dialog-footer">
               <el-button @click="addRelationVisible = false">取 消</el-button>
@@ -654,6 +702,7 @@ export default {
     this.get_my_graph_list()
     this.getMyDomainList()
   },
+  inject: ['reload'],
   data() {
     return {
       opt: 'graphs',
@@ -674,6 +723,7 @@ export default {
       graph_nodes: [], // 展示图所涉及到的节点数据
       graph_links: [], // 展示图所涉及到的关系数据
       graph_categories: [], // 节点数据类型
+      id2name: {},
       maxDepth: 1, // 图谱层数，默认为1
       select_domain_id: '',
       table: 'false',
@@ -687,10 +737,9 @@ export default {
         attr_1: 'test',
       },
       newRelation: {
-        relationName: '',
-        node_id: '',
         name: '',
-        relationRadio: '',
+        from: '',
+        to:''
       },
       newEdge: {
         node_id: '',
@@ -717,6 +766,7 @@ export default {
       editVisible: false,
       deleteNodeVisible: false,
       addVertexVisible: false,
+      addVertexTypeVisible: false,
       addRelationVisible: false,
       addDialogVisible: false,
       addNewEdgeVisible: false,
@@ -727,6 +777,7 @@ export default {
       search: false, // 当用户启用在graph_detail界面搜索某节点为true
       searchResults: [], // 用户搜索的实体节点结果
       searchLen: 0,
+      newVertexType:''
     }
   },
   methods: {
@@ -769,13 +820,20 @@ export default {
     async get_graph_detail(graph_id) {
       this.opt = 'get_graph_detail'
       this.graph_id = graph_id
+      this.relation_list = []
+      // 传入graph_id，get图中所涉及的实体类型
+      this.collections_list = []
+      this.collection = []
       // 获取所有关系类型
-      const { data: res } = await this.$http.get('graph/' + this.graph_id)
+      var param = {new_collection:''}
+      const { data: res } = await this.$http.post('/graph/' + this.graph_id, param)
+      console.log(res.data)
       this.relation_list = res.data.edges
       // 传入graph_id，get图中所涉及的实体类型
       this.collections_list = res.data.collections
       this.collection = this.collections_list[0]
       this.show_graph_vertex(this.collection, 1)
+      console.log(res.data)
     },
     // 获取我的领域列表
     async getMyDomainList() {
@@ -933,7 +991,7 @@ export default {
                 repulsion: 2500,
                 edgeLength: [20, 50],
                 draggable: true,
-                layoutAnimation: true,
+                layoutAnimation: false,
               },
               // itemStyle: {//配置节点的颜色
               //     normal: {
@@ -989,6 +1047,7 @@ export default {
           option.series[0].data[params.dataIndex].fixed = true
           this.myChart.setOption(option)
         })
+        this.myChart.clear()
         this.myChart.setOption(option)
         // window.onresize = function () {
         //   this.myChart.resize();
@@ -1060,29 +1119,56 @@ export default {
       this.addVertexVisible = false;
       this.show_graph_vertex(this.collection, this.currentPage)
     },
+    // 添加新的实体节点类型
+    async addVertexType(new_name){
+      var param = {
+          name: new_name
+      }
+      console.log(new_name)
+      try{
+        const res = this.$http.post(
+        'graph/' + this.graph_id + '/vertex',
+        param
+      )
+        this.$message({
+          showClose: true,
+          message: '成功！',
+          type: 'success',
+        })
+      }
+      catch{
+        this.$message({
+          showClose: true,
+          message: 'error!',
+          type: 'error',
+        })
+      }
+      
+      this.addVertexTypeVisible = false;
+      // this.showEditGraph('1')
+      // this.reload() 
+      // var params = {new_collection:new_name}
+      const {data:res } = await this.$http.post('/graph/' + this.graph_id,params)
+      // console.log(res)
+      // this.relation_list = res.data.edges
+      // // 传入graph_id，get图中所涉及的实体类型
+      // this.collections_list = res.data.collections
+    },
     // 添加新的关系类型------------未加后端
     async addRelation() {
-      if (this.newRelation.relationRadio == 'target')
-        var param = {
-          from: this.vertex._id,
-          to: this.newRelation.node_id,
-          attribute: {},
-        }
-      else
-        var param = {
-          from: this.newRelation.node_id,
-          to: this.vertex._id,
-          attribute: {},
-        }
+      console.log(this.newRelation)
+      this.newRelation.from = this.collections_list
+      this.newRelation.to = this.collections_list
+      console.log(this.newRelation)
       const { data: res } = await this.$http.post(
         this.domain_id +
           '/graph/' +
           this.graph_id +
-          '/edge/' +
-          this.newRelation.relationName,
-        param
+          '/edge',
+        this.newRelation
       )
-      if (res.errno == '0') {
+      console.log(res)
+      if (res.message == 'Create edge collection succeed.') {
         this.$message({
           showClose: true,
           message: '添加新关系类型成功！',
@@ -1096,8 +1182,11 @@ export default {
         })
       }
       this.addRelationVisible = false
-      this.showEditGraph()
-      this.editVisible = true
+      this.showEditGraph('1')
+      // var param = {new_collection:this.newRelation.name}
+      // const { data: re } = await this.$http.post('/graph/' + this.graph_id, param)
+      // console.log(re.data)
+      // this.relation_list = res.data.edges
     },
     // 删除与中心节点有关的某个节点（删除二者关系）
     deleteEdge(link_id) {

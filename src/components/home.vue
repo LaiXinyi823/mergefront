@@ -4,7 +4,7 @@
       <el-header style="background-color:white" >
         <span class="el-icon-kg">&#xe918;
         </span>
-        <span style="color:#409EFF;font-size:25px;">  专业领域知识图谱编辑工具</span>
+        <span style="color:#409EFF;font-size:25px;">  工业知识图谱构建与管理系统</span>
         <div class="demo-basic--circle">
           <div class="block" @click="logout()"> 
             <!-- 头像 -->
@@ -36,6 +36,33 @@
                 </template>
                 </el-menu-item>
               </el-submenu>
+              <!-- 新增智能检索跳转 -->
+              <el-submenu index='5'>
+                <template slot="title">
+                  <el-link href="http://39.100.48.36/KGQAindex.html" :underline="false">
+                    <i class="el-icon-search"></i>
+                    <span>智能检索</span>
+                  </el-link>
+                </template>
+              </el-submenu>
+              <!-- 新增创新应用跳转 -->
+              <el-submenu index='6'>
+                <template slot="title">
+                  <el-link href=" http://39.100.48.36/index_product.html" :underline="false">
+                    <i class="el-icon-star-on"></i>
+                    <span>创新应用</span>
+                  </el-link>
+                </template>
+              </el-submenu>
+              <!-- 新增智能问答 -->
+              <el-submenu index='7'>
+                <template slot="title">
+                  <el-link href=" http://39.100.48.36/qa_product.html" :underline="false">
+                    <i class="el-icon-chat-line-round"></i>
+                    <span>智能问答</span>
+                  </el-link>
+                </template>
+              </el-submenu>
             </el-menu>
           </div>
           <!-- <el-menu :collapse="false" class="el-menu-vertical-demo">  
@@ -57,7 +84,8 @@
         <!-- <div class="right-content">     -->
         <el-main style="height:100%;">
           <router-view name="generate_graph" v-if="opt=='generate_graph' && isRouterAlive" />
-          <router-view name="annotate_project" v-if="opt=='annotate_project' && isRouterAlive" />
+          <router-view name="my_project" v-if="opt=='my_project' && isRouterAlive" />
+          <!-- <router-view name="annotate_project" v-if="opt=='annotate_project' && isRouterAlive" /> -->
           <router-view name="fusion_project" v-if="opt=='fusion_project' && isRouterAlive" />
           <router-view name="my_graph" v-if="opt=='my_graph' && isRouterAlive" />
           <router-view name="mydomain" v-if="opt=='mydomain' && isRouterAlive" /> 
@@ -87,8 +115,9 @@ export default {
       menuList:[
         {'id':'1','menuName':'我的项目','icon':'el-icon-s-promotion',
         'children':[
-          {'subID':'1','subName':'标注项目','subIcon':'el-icon-edit','option':'annotate_project'},
-          {'subID':'2','subName':'融合项目','subIcon':'el-icon-copy-document','option':'fusion_project'}
+          {'subID':'1','subName':'融合项目','subIcon':'el-icon-edit','option':'my_project'}
+          // {'subID':'1','subName':'标注项目','subIcon':'el-icon-edit','option':'annotate_project'}
+          // {'subID':'2','subName':'融合项目','subIcon':'el-icon-copy-document','option':'fusion_project'}
         ]},
         {'id':'2','menuName':'我的数据','icon':'el-icon-coin',
         'children':[

@@ -8,6 +8,7 @@ import entityResult from '@/components/entityResult.vue';
 import login from '@/components/login.vue';
 import register from '@/components/register.vue';
 import generate_graph from '@/components/generate_graph.vue';
+import my_project from '@/components/my_project.vue';
 import annotate_project from '@/components/annotate_project.vue';
 import fusion_project from '@/components/fusion_project.vue';
 import my_graph from '@/components/my_graph.vue';
@@ -47,6 +48,7 @@ export default new VueRouter({
         components:{
           default: home,
           generate_graph:generate_graph,
+          my_project: my_project,
           annotate_project: annotate_project,
           fusion_project:fusion_project,
           my_graph: my_graph,
